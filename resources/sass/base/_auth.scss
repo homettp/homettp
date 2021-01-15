@@ -1,0 +1,25 @@
+.auth .card {
+    margin: 0 auto $card-spacer-y;
+    max-width: 400px;
+}
+
+.auth__header {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.auth__logo {
+    .bi {
+        font-size: 1.875rem;
+        margin-right: 12px;
+    }
+
+    @include plain-hover-focus {
+        align-items: center;
+        color: $body-color;
+        display: flex;
+        font-size: 1.625rem;
+        text-decoration: none;
+    }
+}

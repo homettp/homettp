@@ -1,0 +1,9 @@
+/node_modules
+/public/css
+/public/favicon.ico
+/public/hot
+/public/images
+/public/js
+/public/mix-manifest.json
+.env
+yarn-error.log
