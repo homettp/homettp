@@ -7,4 +7,5 @@ var (
 	ErrDuplicateUsername  = errors.New("models: duplicate username")
 	ErrInvalidCredentials = errors.New("models: invalid credentials")
 	ErrNoRecord           = errors.New("models: no matching record found")
+	ErrTimestamp          = errors.New("models: invalid timestamp type")
 )
