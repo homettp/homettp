@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/gomodule/redigo/redis"
 	"golang.org/x/crypto/bcrypt"
@@ -47,6 +48,8 @@ func (rur *RedisUserRepository) Create(user *User) error {
 	if err != nil {
 		return err
 	}
+
+	user.CreatedAt = Timestamp(time.Now())
 
 	err = conn.Send("MULTI")
 	if err != nil {

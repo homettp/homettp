@@ -6,12 +6,13 @@ import (
 )
 
 type User struct {
-	Id            int    `json:"id" redis:"id"`
-	Username      string `json:"username" redis:"username"`
-	Email         string `json:"email" redis:"email"`
-	Password      []byte `json:"-" redis:"password"`
-	RememberToken string `json:"-" redis:"remember_token"`
-	IsEnabled     bool   `json:"is_enabled" redis:"is_enabled"`
+	Id            int       `json:"id" redis:"id"`
+	Username      string    `json:"username" redis:"username"`
+	Email         string    `json:"email" redis:"email"`
+	Password      []byte    `json:"-" redis:"password"`
+	RememberToken string    `json:"-" redis:"remember_token"`
+	IsEnabled     bool      `json:"is_enabled" redis:"is_enabled"`
+	CreatedAt     Timestamp `json:"created_at" redis:"created_at"`
 }
 
 type UserRepository interface {
