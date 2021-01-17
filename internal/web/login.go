@@ -29,7 +29,7 @@ func (app *App) getLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) postLogin(w http.ResponseWriter, r *http.Request) {
-	form, err := forms.New(w, r)
+	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
 		app.formError(w, err)
 

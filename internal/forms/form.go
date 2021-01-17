@@ -1,10 +1,7 @@
 package forms
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -18,80 +15,22 @@ type Form struct {
 	Errors Bag
 }
 
-func New(w http.ResponseWriter, r *http.Request) (*Form, error) {
-	var data map[string]interface{}
-
-	if r.Header.Get("Content-Type") != "" {
-		value := r.Header.Get("Content-Type")
-
-		if !strings.Contains(value, "/json") && !strings.Contains(value, "+json") {
-			return nil, &Error{
-				Status: http.StatusUnsupportedMediaType,
-				Msg:    "Content-Type header contains an invalid value",
-			}
-		}
-	}
-
-	r.Body = http.MaxBytesReader(w, r.Body, 1048576)
-	dec := json.NewDecoder(r.Body)
-
-	err := dec.Decode(&data)
-	if err != nil {
-		var syntaxError *json.SyntaxError
-		var unmarshalTypeError *json.UnmarshalTypeError
-
-		switch {
-		case errors.As(err, &syntaxError):
-			return nil, &Error{
-				Status: http.StatusBadRequest,
-				Msg:    fmt.Sprintf("Request body contains badly-formed JSON (at position %d)", syntaxError.Offset),
-			}
-
-		case errors.Is(err, io.ErrUnexpectedEOF):
-			return nil, &Error{
-				Status: http.StatusBadRequest,
-				Msg:    fmt.Sprintf("Request body contains badly-formed JSON"),
-			}
-
-		case errors.As(err, &unmarshalTypeError):
-			return nil, &Error{
-				Status: http.StatusBadRequest,
-				Msg: fmt.Sprintf(
-					"Request body contains an invalid value for the %q field (at position %d)",
-					unmarshalTypeError.Field,
-					unmarshalTypeError.Offset,
-				),
-			}
-
-		case strings.HasPrefix(err.Error(), "json: unknown field "):
-			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
-
-			return nil, &Error{
-				Status: http.StatusBadRequest,
-				Msg:    fmt.Sprintf("Request body contains unknown field %s", fieldName),
-			}
-
-		case errors.Is(err, io.EOF):
-			return nil, &Error{
-				Status: http.StatusBadRequest,
-				Msg:    "Request body must not be empty",
-			}
-
-		case err.Error() == "http: request body too large":
-			return nil, &Error{
-				Status: http.StatusRequestEntityTooLarge,
-				Msg:    "Request body must not be larger than 1MB",
-			}
-
-		default:
-			return nil, err
-		}
-	}
-
+func New(data map[string]interface{}) *Form {
 	return &Form{
 		data,
 		map[string][]string{},
-	}, nil
+	}
+}
+
+func NewFromRequest(w http.ResponseWriter, r *http.Request) (*Form, error) {
+	var data map[string]interface{}
+
+	err := DecodeBody(w, r, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return New(data), nil
 }
 
 func (f *Form) Required(fields ...string) {
