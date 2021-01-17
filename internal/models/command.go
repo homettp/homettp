@@ -15,6 +15,7 @@ type Command struct {
 	Id        int          `json:"id" redis:"id"`
 	Name      string       `json:"name" redis:"name"`
 	Image     CommandImage `json:"image" redis:"image"`
+	Timeout   int          `json:"timeout" redis:"timeout"`
 	Value     string       `json:"value" redis:"value"`
 	CreatedAt Timestamp    `json:"created_at" redis:"created_at"`
 }
