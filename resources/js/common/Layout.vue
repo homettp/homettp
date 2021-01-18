@@ -23,9 +23,9 @@
                 </h1>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link"
-                           :class="{active: $page.props.isHistoryActive}"
-                           href="#">
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isHistoryActive}"
+                                      href="/">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"
@@ -35,10 +35,12 @@
                             <span>
                                 History
                             </span>
-                        </a>
+                        </inertia-link>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isCommandsActive}"
+                                      href="/command">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"
@@ -48,7 +50,7 @@
                             <span>
                                 Commands
                             </span>
-                        </a>
+                        </inertia-link>
                     </li>
                 </ul>
                 <h1 class="sidebar__content--title">
@@ -56,7 +58,9 @@
                 </h1>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isUsersActive}"
+                                      href="/user">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"
@@ -66,7 +70,7 @@
                             <span>
                                 Users
                             </span>
-                        </a>
+                        </inertia-link>
                     </li>
                 </ul>
             </div>

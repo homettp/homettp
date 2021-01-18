@@ -1,4 +1,5 @@
 const mix = require('laravel-mix');
+const path = require('path');
 
 /*
  |--------------------------------------------------------------------------
@@ -13,7 +14,7 @@ const mix = require('laravel-mix');
 
 mix.options({ processCssUrls: false })
     .js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css')
+    .sass('resources/sass/app.scss', 'css')
     .copy('node_modules/bootstrap-icons/bootstrap-icons.svg', 'public/images')
     .copy('resources/images/favicon.ico', 'public/favicon.ico')
     .webpackConfig({ output: { chunkFilename: 'js/[name].js?id=[chunkhash]' } })

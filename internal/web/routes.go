@@ -20,6 +20,8 @@ func (app *App) routes() http.Handler {
 	mux.Handle("/", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.historyIndex))
 	mux.Handle("/login", webMiddleware.Append(app.redirectIfAuthenticated).ThenFunc(app.login))
 	mux.Handle("/logout", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.logout))
+	mux.Handle("/command", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandIndex))
+	mux.Handle("/user", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userIndex))
 
 	fileServer := http.FileServer(http.Dir("./public/"))
 
