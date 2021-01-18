@@ -1,5 +1,5 @@
 <template>
-    <div class="history__index">
+    <div class="command__index">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <inertia-link href="/">
@@ -7,7 +7,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                History
+                Commands
             </li>
         </ol>
     </div>
@@ -21,7 +21,7 @@ export default {
 
     metaInfo() {
         return {
-            title: 'History'
+            title: 'Commands'
         };
     }
 };
