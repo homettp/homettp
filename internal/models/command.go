@@ -14,6 +14,7 @@ const (
 type Command struct {
 	Id        int          `json:"id" redis:"id"`
 	Name      string       `json:"name" redis:"name"`
+	Token     string       `json:"token" redis:"token"`
 	Image     CommandImage `json:"image" redis:"image"`
 	Timeout   int          `json:"timeout" redis:"timeout"`
 	Value     string       `json:"value" redis:"value"`
