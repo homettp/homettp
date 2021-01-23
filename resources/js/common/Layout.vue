@@ -19,7 +19,7 @@
             </div>
             <div class="sidebar__content">
                 <h1 class="sidebar__content--title">
-                    Main
+                    Commands
                 </h1>
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -36,7 +36,25 @@
                                 Commands
                             </span>
                         </inertia-link>
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isCreateCommandActive}"
+                                      href="/command/create">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon('plus-circle')" />
+                            </svg>
+                            <span>
+                                Create Command
+                            </span>
+                        </inertia-link>
                     </li>
+                </ul>
+                <h1 class="sidebar__content--title">
+                    Users
+                </h1>
+                <ul class="nav flex-column">
                     <li class="nav-item">
                         <inertia-link class="nav-link"
                                       :class="{active: $page.props.isUsersActive}"
@@ -49,6 +67,21 @@
                             </svg>
                             <span>
                                 Users
+                            </span>
+                        </inertia-link>
+                    </li>
+                    <li class="nav-item">
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isCreateUserActive}"
+                                      href="/user/create">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon('person-plus')" />
+                            </svg>
+                            <span>
+                                Create User
                             </span>
                         </inertia-link>
                     </li>
