@@ -1,8 +1,17 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Timestamp time.Time
+
+func (t Timestamp) MarshalJSON() ([]byte, error) {
+	value := fmt.Sprintf("\"%s\"", time.Time(t).Format(time.RFC3339))
+
+	return []byte(value), nil
+}
 
 func (t Timestamp) RedisArg() interface{} {
 	return time.Time(t).Format(time.RFC3339)

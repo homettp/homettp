@@ -104,6 +104,35 @@ func (rur *RedisUserRepository) Find(id int) (*User, error) {
 	return &user, nil
 }
 
+func (rur *RedisUserRepository) FindAll() ([]*User, error) {
+	conn := rur.RedisPool.Get()
+	defer conn.Close()
+
+	usernames, err := redis.StringMap(conn.Do("ZRANGE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, 0, -1, "WITHSCORES"))
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*User
+	var id int
+
+	for _, value := range usernames {
+		id, err = strconv.Atoi(value)
+		if err != nil {
+			return nil, err
+		}
+
+		user, err := rur.Find(id)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func (rur *RedisUserRepository) UpdateRememberToken(user *User, token string) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()

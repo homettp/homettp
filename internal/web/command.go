@@ -3,6 +3,12 @@ package web
 import "net/http"
 
 func (app *App) commandIndex(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		app.notFound(w)
+
+		return
+	}
+
 	if r.Method != "GET" {
 		app.methodNotAllowed(w, []string{"GET"})
 

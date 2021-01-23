@@ -24,23 +24,8 @@
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <inertia-link class="nav-link"
-                                      :class="{active: $page.props.isHistoryActive}"
-                                      href="/">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('clock-history')" />
-                            </svg>
-                            <span>
-                                History
-                            </span>
-                        </inertia-link>
-                    </li>
-                    <li class="nav-item">
-                        <inertia-link class="nav-link"
                                       :class="{active: $page.props.isCommandsActive}"
-                                      href="/command">
+                                      href="/">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"
@@ -49,6 +34,19 @@
                             </svg>
                             <span>
                                 Commands
+                            </span>
+                        </inertia-link>
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isCreateCommandActive}"
+                                      href="/command/create">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon('plus-circle')" />
+                            </svg>
+                            <span>
+                                Create Command
                             </span>
                         </inertia-link>
                     </li>
@@ -69,6 +67,21 @@
                             </svg>
                             <span>
                                 Users
+                            </span>
+                        </inertia-link>
+                    </li>
+                    <li class="nav-item">
+                        <inertia-link class="nav-link"
+                                      :class="{active: $page.props.isCreateUserActive}"
+                                      href="/user/create">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon('person-plus')" />
+                            </svg>
+                            <span>
+                                Create User
                             </span>
                         </inertia-link>
                     </li>
@@ -104,6 +117,10 @@
                              :src="$page.props.auth.gravatar">
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
+                        <inertia-link class="dropdown-item"
+                                      :href="`/user/edit?id=${$page.props.auth.user.id}`">
+                            Edit Profile
+                        </inertia-link>
                         <inertia-link class="dropdown-item" href="/logout">
                             Logout
                         </inertia-link>
