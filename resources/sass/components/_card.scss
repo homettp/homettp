@@ -1,14 +1,23 @@
+.card-header,
+.card-body {
+    > .bi {
+        margin-right: 12px;
+    }
+}
+
 .card-header {
     align-items: center;
     display: flex;
     font-size: 1.125rem;
     padding-bottom: 0;
 
-    > .bi {
-        margin-right: 12px;
-    }
     a {
         transition: $base-transition;
+    }
+    .gravatar {
+        margin-right: 12px;
+        height: 48px;
+        width: 48px;
     }
 }
 

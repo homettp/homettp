@@ -18,6 +18,7 @@ type User struct {
 type UserRepository interface {
 	Create(*User) error
 	Find(int) (*User, error)
+	FindAll() ([]*User, error)
 	UpdateRememberToken(*User, string) error
 	Authenticate(string, string) (*User, error)
 	AuthenticateByRememberToken(int, string) (*User, error)

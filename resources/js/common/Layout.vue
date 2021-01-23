@@ -19,28 +19,13 @@
             </div>
             <div class="sidebar__content">
                 <h1 class="sidebar__content--title">
-                    Commands
+                    Main
                 </h1>
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <inertia-link class="nav-link"
-                                      :class="{active: $page.props.isHistoryActive}"
-                                      href="/">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('clock-history')" />
-                            </svg>
-                            <span>
-                                History
-                            </span>
-                        </inertia-link>
-                    </li>
-                    <li class="nav-item">
-                        <inertia-link class="nav-link"
                                       :class="{active: $page.props.isCommandsActive}"
-                                      href="/command">
+                                      href="/">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"
@@ -52,11 +37,6 @@
                             </span>
                         </inertia-link>
                     </li>
-                </ul>
-                <h1 class="sidebar__content--title">
-                    Users
-                </h1>
-                <ul class="nav flex-column">
                     <li class="nav-item">
                         <inertia-link class="nav-link"
                                       :class="{active: $page.props.isUsersActive}"
@@ -104,6 +84,10 @@
                              :src="$page.props.auth.gravatar">
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
+                        <inertia-link class="dropdown-item"
+                                      :href="`/user/edit?id=${$page.props.auth.user.id}`">
+                            Edit Profile
+                        </inertia-link>
                         <inertia-link class="dropdown-item" href="/logout">
                             Logout
                         </inertia-link>

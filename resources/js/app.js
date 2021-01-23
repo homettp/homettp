@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import { App, plugin } from '@inertiajs/inertia-vue';
@@ -10,6 +11,16 @@ InertiaProgress.init();
 Vue.config.productionTip = false;
 Vue.use(plugin);
 Vue.use(VueMeta);
+
+Vue.filter('date', value => {
+    const date = DateTime.fromISO(value);
+
+    if (!date.isValid) {
+        return value;
+    }
+
+    return date.toLocaleString(DateTime.DATETIME_MED);
+});
 
 Vue.mixin({
     methods: {

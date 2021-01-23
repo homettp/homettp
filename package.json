@@ -26,6 +26,7 @@
     "jquery": "^3.5",
     "laravel-mix": "^6.0",
     "lodash": "^4.17",
+    "luxon": "^1.25",
     "popper.js": "^1.16",
     "postcss": "^8.1",
     "resolve-url-loader": "^3.1",
