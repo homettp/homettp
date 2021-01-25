@@ -18,6 +18,9 @@ func (app *App) routes() http.Handler {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandIndex))
+	mux.Handle("/user/create", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userCreate))
+	mux.Handle("/user/edit", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userEdit))
+	mux.Handle("/user/delete", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userDelete))
 	mux.Handle("/login", webMiddleware.Append(app.redirectIfAuthenticated).ThenFunc(app.login))
 	mux.Handle("/logout", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.logout))
 	mux.Handle("/user", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userIndex))

@@ -7,7 +7,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                Commands
+                {{ $metaInfo.title }}
             </li>
         </ol>
     </div>

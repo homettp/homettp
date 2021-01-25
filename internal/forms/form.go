@@ -68,6 +68,35 @@ func (f *Form) Min(field string, min float64) {
 		if value < min {
 			f.Errors.Add(field, fmt.Sprintf("The field must be at least %v.", min))
 		}
+	case string:
+		if value == "" {
+			return
+		}
+
+		if float64(len(value)) < min {
+			f.Errors.Add(field, fmt.Sprintf("The field must be at least %v characters.", min))
+		}
+	}
+}
+
+func (f *Form) Max(field string, max float64) {
+	if f.Data[field] == nil {
+		return
+	}
+
+	switch value := f.Data[field].(type) {
+	case float64:
+		if value > max {
+			f.Errors.Add(field, fmt.Sprintf("The field may not be greater than %v.", max))
+		}
+	case string:
+		if value == "" {
+			return
+		}
+
+		if float64(len(value)) > max {
+			f.Errors.Add(field, fmt.Sprintf("The field may not be greater than %v characters.", max))
+		}
 	}
 }
 
