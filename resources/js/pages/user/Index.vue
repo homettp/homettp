@@ -7,13 +7,13 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                Users
+                {{ $metaInfo.title }}
             </li>
         </ol>
-        <div class="row">
+        <div class="user__row row">
             <div v-for="user in users"
                  :key="user.id"
-                 class="col-xl-3">
+                 class="user__col col-xl-3">
                 <div class="card">
                     <div class="card-header">
                         <img class="gravatar img-fluid rounded-circle"
