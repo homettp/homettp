@@ -20,3 +20,12 @@ type Command struct {
 	Value     string       `json:"value" redis:"value"`
 	CreatedAt Timestamp    `json:"created_at" redis:"created_at"`
 }
+
+type CommandRepository interface {
+	Create(*Command) error
+	//Find(int) (*Command, error)
+	//FindAll() ([]*Command, error)
+	//Update(*Command, *Command) error
+	//UpdateToken(*Command, string) error
+	//Delete(*Command) error
+}
