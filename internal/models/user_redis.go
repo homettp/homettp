@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -26,14 +27,18 @@ func (rur *RedisUserRepository) Create(user *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, user.Username))
+	_, err := redis.Int(
+		conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(user.Username)),
+	)
 	if err == nil {
 		return ErrDuplicateUsername
 	} else if !errors.Is(err, redis.ErrNil) {
 		return err
 	}
 
-	_, err = redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, user.Email))
+	_, err = redis.Int(
+		conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(user.Email)),
+	)
 	if err == nil {
 		return ErrDuplicateEmail
 	} else if !errors.Is(err, redis.ErrNil) {
@@ -64,12 +69,16 @@ func (rur *RedisUserRepository) Create(user *User) error {
 		return err
 	}
 
-	err = conn.Send("ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.Id, user.Username)
+	err = conn.Send(
+		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.Id, strings.ToLower(user.Username),
+	)
 	if err != nil {
 		return err
 	}
 
-	err = conn.Send("ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.Id, user.Email)
+	err = conn.Send(
+		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.Id, strings.ToLower(user.Email),
+	)
 	if err != nil {
 		return err
 	}
@@ -141,7 +150,9 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	var err error
 
 	if user.Username != newUser.Username {
-		_, err = redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, newUser.Username))
+		_, err = redis.Int(
+			conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(newUser.Username)),
+		)
 		if err == nil {
 			return ErrDuplicateUsername
 		} else if !errors.Is(err, redis.ErrNil) {
@@ -150,7 +161,9 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	}
 
 	if user.Email != newUser.Email {
-		_, err = redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, newUser.Email))
+		_, err = redis.Int(
+			conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(newUser.Email)),
+		)
 		if err == nil {
 			return ErrDuplicateEmail
 		} else if !errors.Is(err, redis.ErrNil) {
@@ -173,28 +186,36 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	}
 
 	if user.Username != newUser.Username {
-		err = conn.Send("ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, user.Username)
+		err = conn.Send(
+			"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(user.Username),
+		)
 		if err != nil {
 			return err
 		}
 
 		user.Username = newUser.Username
 
-		err = conn.Send("ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.Id, user.Username)
+		err = conn.Send(
+			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.Id, strings.ToLower(user.Username),
+		)
 		if err != nil {
 			return err
 		}
 	}
 
 	if user.Email != newUser.Email {
-		err = conn.Send("ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, user.Email)
+		err = conn.Send(
+			"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(user.Email),
+		)
 		if err != nil {
 			return err
 		}
 
 		user.Email = newUser.Email
 
-		err = conn.Send("ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.Id, user.Email)
+		err = conn.Send(
+			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.Id, strings.ToLower(user.Email),
+		)
 		if err != nil {
 			return err
 		}
@@ -232,6 +253,8 @@ func (rur *RedisUserRepository) UpdateRememberToken(user *User, token string) er
 func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
+
+	usernameOrEmail = strings.ToLower(usernameOrEmail)
 
 	id, err := redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, usernameOrEmail))
 	if err != nil {
@@ -318,12 +341,16 @@ func (rur *RedisUserRepository) Delete(user *User) error {
 		return err
 	}
 
-	err = conn.Send("ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, user.Username)
+	err = conn.Send(
+		"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(user.Username),
+	)
 	if err != nil {
 		return err
 	}
 
-	err = conn.Send("ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, user.Email)
+	err = conn.Send(
+		"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(user.Email),
+	)
 	if err != nil {
 		return err
 	}
