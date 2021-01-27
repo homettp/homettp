@@ -27,7 +27,7 @@
                     {{ $metaInfo.title }}
                 </span>
             </div>
-            <form novalidate @submit.prevent="form.post(url)">
+            <form @submit.prevent="form.post(url)">
                 <div class="card-body">
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label required" for="name">
