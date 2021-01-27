@@ -1,5 +1,5 @@
 <template>
-    <div class="command__index">
+    <div class="command__index layout__index">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <inertia-link href="/">
@@ -10,17 +10,17 @@
                 {{ $metaInfo.title }}
             </li>
         </ol>
-        <div class="command__row row">
+        <div class="layout__row row">
             <div v-for="command in commands"
                  :key="command.id"
-                 class="command__col col-xl-3">
+                 class="layout__col col-xl-3">
                 <div class="card">
                     <div class="card-header">
-                        <svg class="bi"
+                        <svg class="command__icon bi"
                              width="1em"
                              height="1em"
                              fill="currentColor">
-                            <use :xlink:href="icon('command')" />
+                            <use :xlink:href="icon(iconName(command))" />
                         </svg>
                         <span class="mr-auto">
                             {{ command.name }}
@@ -68,6 +68,32 @@ export default {
         return {
             title: 'Commands'
         };
+    },
+
+    methods: {
+        iconName(command) {
+            if (command.image === 'door') {
+                return 'door-open';
+            }
+
+            if (command.image === 'light') {
+                return 'lightbulb';
+            }
+
+            if (command.image === 'outlet') {
+                return 'outlet';
+            }
+
+            if (command.image === 'plug') {
+                return 'plug';
+            }
+
+            if (command.image === 'sensor') {
+                return 'cpu';
+            }
+
+            return 'command';
+        }
     }
 };
 </script>

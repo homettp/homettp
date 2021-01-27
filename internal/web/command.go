@@ -245,12 +245,8 @@ func (app *App) getCommandImages() []map[string]interface{} {
 			"value": models.Plug,
 		},
 		{
-			"name":  "RGB",
-			"value": models.Rgb,
-		},
-		{
-			"name":  "Window",
-			"value": models.Window,
+			"name":  "Sensor",
+			"value": models.Sensor,
 		},
 	}
 }

@@ -1,5 +1,5 @@
 <template>
-    <div class="user__index">
+    <div class="user__index layout__index">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <inertia-link href="/">
@@ -10,10 +10,10 @@
                 {{ $metaInfo.title }}
             </li>
         </ol>
-        <div class="user__row row">
+        <div class="layout__row row">
             <div v-for="user in users"
                  :key="user.id"
-                 class="user__col col-xl-3">
+                 class="layout__col col-xl-3">
                 <div class="card">
                     <div class="card-header">
                         <img class="gravatar img-fluid rounded-circle"
