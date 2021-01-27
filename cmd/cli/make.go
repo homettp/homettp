@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/homettp/homettp/internal/forms"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/petaki/support-go/cli"
+	"github.com/petaki/support-go/forms"
 )
 
 func makeUser(group *cli.Group, command *cli.Command, arguments []string) int {

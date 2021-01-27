@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 
-	"github.com/homettp/homettp/internal/forms"
+	"github.com/petaki/support-go/forms"
 )
 
 type User struct {

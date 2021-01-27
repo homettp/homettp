@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/chmike/securecookie"
-	"github.com/homettp/homettp/internal/forms"
 	"github.com/homettp/homettp/internal/models"
+	"github.com/petaki/support-go/forms"
 )
 
 func (app *App) authUser(r *http.Request) *models.User {
