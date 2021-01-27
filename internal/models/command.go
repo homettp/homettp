@@ -9,8 +9,7 @@ const (
 	Light  CommandImage = "light"
 	Outlet CommandImage = "outlet"
 	Plug   CommandImage = "plug"
-	Rgb    CommandImage = "rgb"
-	Window CommandImage = "window"
+	Sensor CommandImage = "sensor"
 )
 
 type Command struct {

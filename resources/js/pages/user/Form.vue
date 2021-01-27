@@ -1,5 +1,5 @@
 <template>
-    <div class="user__form">
+    <div class="user__form layout__form">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <inertia-link href="/">

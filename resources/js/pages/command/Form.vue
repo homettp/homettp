@@ -1,5 +1,5 @@
 <template>
-    <div class="command__form">
+    <div class="command__form layout__form">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <inertia-link href="/">
