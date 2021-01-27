@@ -1,6 +1,6 @@
 package models
 
-import "github.com/homettp/homettp/internal/forms"
+import "github.com/petaki/support-go/forms"
 
 type CommandImage string
 
