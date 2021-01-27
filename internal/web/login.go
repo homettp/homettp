@@ -60,7 +60,7 @@ func (app *App) postLogin(w http.ResponseWriter, r *http.Request) {
 
 			if form.Data["remember"].(bool) {
 				if user.RememberToken == "" {
-					token, err := app.generateRememberToken()
+					token, err := app.generateToken()
 					if err != nil {
 						app.serverError(w, err)
 
@@ -124,7 +124,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 	user := app.authUser(r)
 
 	if user != nil && user.RememberToken != "" {
-		token, err := app.generateRememberToken()
+		token, err := app.generateToken()
 		if err != nil {
 			app.serverError(w, err)
 
