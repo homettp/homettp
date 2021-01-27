@@ -118,7 +118,9 @@ func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	usernames, err := redis.StringMap(conn.Do("ZRANGE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, 0, -1, "WITHSCORES"))
+	usernames, err := redis.StringMap(
+		conn.Do("ZRANGE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, 0, -1, "WITHSCORES"),
+	)
 	if err != nil {
 		return nil, err
 	}
