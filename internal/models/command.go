@@ -23,9 +23,9 @@ type Command struct {
 
 type CommandRepository interface {
 	Create(*Command) error
-	//Find(int) (*Command, error)
-	//FindAll() ([]*Command, error)
-	//Update(*Command, *Command) error
-	//UpdateToken(*Command, string) error
-	//Delete(*Command) error
+	Find(int) (*Command, error)
+	FindAll() ([]*Command, error)
+	Update(*Command, *Command) error
+	UpdateToken(*Command, string) error
+	Delete(*Command) error
 }
