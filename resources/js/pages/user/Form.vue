@@ -85,7 +85,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-0">
                         <div class="col-sm-10 offset-sm-2">
                             <div class="form-check">
                                 <input id="remember"

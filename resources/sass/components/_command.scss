@@ -1,3 +1,19 @@
-.command__index {
+.command__index,
+.command__form {
     padding: 20px;
+}
+
+.command__index {
+    padding-bottom: 0;
+}
+
+.command__row {
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+.command__col {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 20px;
 }
