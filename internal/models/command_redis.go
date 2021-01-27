@@ -94,7 +94,9 @@ func (rcr *RedisCommandRepository) FindAll() ([]*Command, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	names, err := redis.StringMap(conn.Do("ZRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, 0, -1, "WITHSCORES"))
+	names, err := redis.StringMap(
+		conn.Do("ZRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, 0, -1, "WITHSCORES"),
+	)
 	if err != nil {
 		return nil, err
 	}
