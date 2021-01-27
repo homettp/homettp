@@ -20,7 +20,7 @@ type RedisCommandRepository struct {
 	RedisKeyPrefix string
 }
 
-func (rcr *RedisCommandRepository) Create(command *Command) error {
+func (rcr *RedisCommandRepository) Create(command *Command, token string) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 

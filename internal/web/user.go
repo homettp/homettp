@@ -62,7 +62,7 @@ func (app *App) getUserCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) postUserCreate(w http.ResponseWriter, r *http.Request) {
-	user := &models.User{}
+	user := models.NewUser()
 
 	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
