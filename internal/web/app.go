@@ -19,14 +19,15 @@ const (
 )
 
 type App struct {
-	debug          bool
-	errorLog       *log.Logger
-	infoLog        *log.Logger
-	redisPool      *redis.Pool
-	redisKeyPrefix string
-	sessionManager *scs.SessionManager
-	rememberCookie *securecookie.Obj
-	mixManager     *mix.Mix
-	inertiaManager *inertia.Inertia
-	userRepository models.UserRepository
+	debug             bool
+	errorLog          *log.Logger
+	infoLog           *log.Logger
+	redisPool         *redis.Pool
+	redisKeyPrefix    string
+	sessionManager    *scs.SessionManager
+	rememberCookie    *securecookie.Obj
+	mixManager        *mix.Mix
+	inertiaManager    *inertia.Inertia
+	commandRepository models.CommandRepository
+	userRepository    models.UserRepository
 }

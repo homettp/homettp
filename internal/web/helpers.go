@@ -22,7 +22,7 @@ func (app *App) authUser(r *http.Request) *models.User {
 	return user
 }
 
-func (app *App) generateRememberToken() (string, error) {
+func (app *App) generateToken() (string, error) {
 	bytes, err := securecookie.GenerateRandomKey()
 	if err != nil {
 		return "", err

@@ -49,6 +49,10 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 		rememberCookie: rememberCookie,
 		mixManager:     mixManager,
 		inertiaManager: inertiaManager,
+		commandRepository: &models.RedisCommandRepository{
+			RedisPool:      redisPool,
+			RedisKeyPrefix: redisKeyPrefix,
+		},
 		userRepository: &models.RedisUserRepository{
 			RedisPool:      redisPool,
 			RedisKeyPrefix: redisKeyPrefix,
