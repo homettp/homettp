@@ -20,6 +20,7 @@ const (
 
 type App struct {
 	debug             bool
+	url               string
 	errorLog          *log.Logger
 	infoLog           *log.Logger
 	redisPool         *redis.Pool

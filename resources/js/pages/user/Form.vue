@@ -110,7 +110,7 @@
                 </div>
             </form>
         </div>
-        <div v-if="!isNew" class="form__delete card">
+        <div v-if="!isNew" class="form__secondary card">
             <div class="card-header">
                 <svg class="bi"
                      width="1em"

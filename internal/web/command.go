@@ -130,6 +130,7 @@ func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"command":       command,
 		"commandImages": app.getCommandImages(),
+		"commandPath":   command.Path(app.url),
 		"errors":        forms.Bag{},
 	})
 	if err != nil {
@@ -176,10 +177,40 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"command":       command,
 		"commandImages": app.getCommandImages(),
+		"commandPath":   command.Path(app.url),
 		"errors":        form.Errors,
 	})
 	if err != nil {
 		app.serverError(w, err)
+	}
+}
+
+func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
+		app.methodNotAllowed(w, []string{"PUT"})
+
+		return
+	}
+
+	command, err := app.getCommandFromRequest(r, "id")
+	if err != nil {
+		app.notFound(w)
+
+		return
+	}
+
+	token, err := app.generateToken()
+	if err != nil {
+		app.notFound(w)
+
+		return
+	}
+
+	err = app.commandRepository.UpdateToken(command, token)
+	if err != nil {
+		app.serverError(w, err)
+
+		return
 	}
 }
 

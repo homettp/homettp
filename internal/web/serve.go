@@ -41,6 +41,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 
 	app := &App{
 		debug:          debug,
+		url:            url,
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		redisPool:      redisPool,

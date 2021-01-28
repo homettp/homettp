@@ -124,7 +124,40 @@
                 </div>
             </form>
         </div>
-        <div v-if="!isNew" class="form__delete card">
+        <div v-if="!isNew" class="form__secondary card">
+            <div class="card-header">
+                <svg class="bi"
+                     width="1em"
+                     height="1em"
+                     fill="currentColor">
+                    <use :xlink:href="icon('terminal')" />
+                </svg>
+                <span>
+                    Call Command
+                </span>
+            </div>
+            <form @submit.prevent="submitRefreshToken">
+                <div class="card-body">
+                    <p>
+                        Making a
+                        <code class="text-primary">GET</code>
+                        or
+                        <code class="text-primary">POST</code>
+                        request to this URL will call your command:
+                    </p>
+                    <input class="form-control"
+                           type="text"
+                           :value="commandPath"
+                           readonly>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">
+                        Refresh Token
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div v-if="!isNew" class="form__secondary card">
             <div class="card-header">
                 <svg class="bi"
                      width="1em"
@@ -151,6 +184,7 @@
 </template>
 
 <script>
+import { Inertia } from '@inertiajs/inertia';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -163,6 +197,11 @@ export default {
         commandImages: {
             type: Array,
             required: true
+        },
+
+        commandPath: {
+            type: String,
+            default: ''
         }
     },
 
@@ -206,6 +245,10 @@ export default {
     },
 
     methods: {
+        submitRefreshToken() {
+            axios.put(`/command/refresh-token?id=${this.command.id}`).then(() => Inertia.reload({ only: ['commandPath'] }));
+        },
+
         submitDelete() {
             this.$inertia.delete(`/command/delete?id=${this.command.id}`);
         }

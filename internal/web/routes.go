@@ -20,6 +20,7 @@ func (app *App) routes() http.Handler {
 	mux.Handle("/", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandIndex))
 	mux.Handle("/command/create", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandCreate))
 	mux.Handle("/command/edit", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandEdit))
+	mux.Handle("/command/refresh-token", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandRefreshToken))
 	mux.Handle("/command/delete", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandDelete))
 	mux.Handle("/user/create", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userCreate))
 	mux.Handle("/user/edit", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userEdit))

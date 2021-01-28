@@ -1,6 +1,10 @@
 package models
 
-import "github.com/petaki/support-go/forms"
+import (
+	"fmt"
+
+	"github.com/petaki/support-go/forms"
+)
 
 type CommandImage string
 
@@ -48,11 +52,15 @@ func CommandUpdateRules(form *forms.Form) {
 	form.Min("timeout", 1)
 }
 
-func (u *Command) Fill(form *forms.Form) *Command {
-	u.Name = form.Data["name"].(string)
-	u.Image = CommandImage(form.Data["image"].(string))
-	u.Timeout = int(form.Data["timeout"].(float64))
-	u.Value = form.Data["value"].(string)
+func (c *Command) Fill(form *forms.Form) *Command {
+	c.Name = form.Data["name"].(string)
+	c.Image = CommandImage(form.Data["image"].(string))
+	c.Timeout = int(form.Data["timeout"].(float64))
+	c.Value = form.Data["value"].(string)
 
-	return u
+	return c
+}
+
+func (c *Command) Path(url string) string {
+	return fmt.Sprintf("%s/command/call?token=%s", url, c.Token)
 }
