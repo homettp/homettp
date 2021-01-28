@@ -38,6 +38,7 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 		return err
 	}
 
+	command.Token = token
 	command.CreatedAt = Timestamp(time.Now())
 
 	err = conn.Send("MULTI")
