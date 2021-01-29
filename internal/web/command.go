@@ -239,6 +239,29 @@ func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (app *App) commandCall(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" && r.Method != "POST" {
+		app.methodNotAllowed(w, []string{"GET", "POST"})
+
+		return
+	}
+
+	command, err := app.getCommandFromRequest(r, "id")
+	if err != nil {
+		app.notFound(w)
+
+		return
+	}
+
+	if command.Token != r.URL.Query().Get("token") {
+		app.notFound(w)
+
+		return
+	}
+
+	// TODO: Create Call Model
+}
+
 func (app *App) getCommandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, errors.New(parameter + " parameter not found")
