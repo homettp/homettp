@@ -20,7 +20,7 @@ import (
 	"github.com/petaki/support-go/mix"
 )
 
-func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
+func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandTimeout int) {
 	infoLog := log.New(os.Stdout, cli.Cyan("INFO\t"), log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, cli.Red("ERROR\t"), log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -47,6 +47,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 	app := &App{
 		debug:          debug,
 		url:            url,
+		commandTimeout: commandTimeout,
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		redisPool:      redisPool,
@@ -93,10 +94,10 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 	<-done
 	infoLog.Print("Server stopped")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(app.commandTimeout)*time.Second)
 	defer func() {
-		redisPool.Close()
 		close(queue)
+		redisPool.Close()
 		cancel()
 	}()
 

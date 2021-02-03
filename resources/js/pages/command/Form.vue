@@ -69,25 +69,6 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label required" for="timeout">
-                            Timeout
-                        </label>
-                        <div class="col-sm-10">
-                            <input id="timeout"
-                                   v-model.number="form.timeout"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.timeout}"
-                                   type="number"
-                                   name="timeout"
-                                   placeholder="Timeout"
-                                   min="1"
-                                   required>
-                            <span v-if="form.errors.timeout" class="invalid-feedback">
-                                {{ form.errors.timeout[0] }}
-                            </span>
-                        </div>
-                    </div>
                     <div class="form-group row mb-0">
                         <label class="col-sm-2 col-form-label required" for="value">
                             Value
@@ -220,7 +201,6 @@ export default {
             form: this.$inertia.form({
                 name: this.command.name,
                 image: this.command.image,
-                timeout: this.command.timeout,
                 value: this.command.value
             })
         };
