@@ -21,7 +21,6 @@ type Command struct {
 	Name      string       `json:"name" redis:"name"`
 	Token     string       `json:"-" redis:"token"`
 	Image     CommandImage `json:"image" redis:"image"`
-	Timeout   int          `json:"timeout" redis:"timeout"`
 	Value     string       `json:"value" redis:"value"`
 	CreatedAt Timestamp    `json:"created_at" redis:"created_at"`
 }
@@ -37,25 +36,21 @@ type CommandRepository interface {
 
 func NewCommand() *Command {
 	return &Command{
-		Image:   Light,
-		Timeout: 60,
+		Image: Light,
 	}
 }
 
 func CommandCreateRules(form *forms.Form) {
-	form.Required("name", "image", "timeout", "value")
-	form.Min("timeout", 1)
+	form.Required("name", "image", "value")
 }
 
 func CommandUpdateRules(form *forms.Form) {
-	form.Required("name", "image", "timeout", "value")
-	form.Min("timeout", 1)
+	form.Required("name", "image", "value")
 }
 
 func (c *Command) Fill(form *forms.Form) *Command {
 	c.Name = form.Data["name"].(string)
 	c.Image = CommandImage(form.Data["image"].(string))
-	c.Timeout = int(form.Data["timeout"].(float64))
 	c.Value = form.Data["value"].(string)
 
 	return c

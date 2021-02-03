@@ -140,7 +140,6 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 	}
 
 	command.Image = newCommand.Image
-	command.Timeout = newCommand.Timeout
 	command.Value = newCommand.Value
 
 	err = conn.Send("MULTI")
