@@ -42,6 +42,8 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 		errorLog.Fatal(err)
 	}
 
+	queue := make(chan models.Call, 100)
+
 	app := &App{
 		debug:          debug,
 		url:            url,
@@ -53,6 +55,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 		rememberCookie: rememberCookie,
 		mixManager:     mixManager,
 		inertiaManager: inertiaManager,
+		queue:          queue,
 		commandRepository: &models.RedisCommandRepository{
 			RedisPool:      redisPool,
 			RedisKeyPrefix: redisKeyPrefix,
@@ -62,6 +65,8 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 			RedisKeyPrefix: redisKeyPrefix,
 		},
 	}
+
+	go app.handleCall()
 
 	srv := &http.Server{
 		Addr:         addr,
@@ -90,7 +95,8 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() {
-		app.redisPool.Close()
+		redisPool.Close()
+		close(queue)
 		cancel()
 	}()
 

@@ -29,6 +29,7 @@ type App struct {
 	rememberCookie    *securecookie.Obj
 	mixManager        *mix.Mix
 	inertiaManager    *inertia.Inertia
+	queue             <-chan models.Call
 	commandRepository models.CommandRepository
 	userRepository    models.UserRepository
 }
