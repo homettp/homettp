@@ -42,7 +42,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 		errorLog.Fatal(err)
 	}
 
-	queue := make(chan models.Call, 100)
+	queue := make(chan int, 100)
 
 	app := &App{
 		debug:          debug,
@@ -61,13 +61,17 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 			RedisPool:      redisPool,
 			RedisKeyPrefix: redisKeyPrefix,
 		},
+		callRepository: &models.RedisCallRepository{
+			RedisPool:      redisPool,
+			RedisKeyPrefix: redisKeyPrefix,
+		},
 		userRepository: &models.RedisUserRepository{
 			RedisPool:      redisPool,
 			RedisKeyPrefix: redisKeyPrefix,
 		},
 	}
 
-	go app.handleCall()
+	go app.worker()
 
 	srv := &http.Server{
 		Addr:         addr,
