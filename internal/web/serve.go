@@ -42,7 +42,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 		errorLog.Fatal(err)
 	}
 
-	queue := make(chan int, 100)
+	queue := make(chan int64, 100)
 
 	app := &App{
 		debug:          debug,

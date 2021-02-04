@@ -16,11 +16,11 @@ type RedisCallRepository struct {
 	RedisKeyPrefix string
 }
 
-func (rcr *RedisCallRepository) Find(id int) (*Call, error) {
+func (rcr *RedisCallRepository) Find(id int64) (*Call, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	values, err := redis.Values(conn.Do("HGETALL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.Itoa(id)))
+	values, err := redis.Values(conn.Do("HGETALL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10)))
 	if err != nil {
 		return nil, err
 	}

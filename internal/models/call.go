@@ -10,7 +10,7 @@ const (
 )
 
 type Call struct {
-	Id        int        `json:"id" redis:"id"`
+	Id        int64      `json:"id" redis:"id"`
 	CommandId int        `json:"command_id" redis:"command_id"`
 	Status    CallStatus `json:"status" redis:"status"`
 	Output    string     `json:"output" redis:"output"`
@@ -19,7 +19,7 @@ type Call struct {
 
 type CallRepository interface {
 	//Create(*Call) error
-	Find(int) (*Call, error)
+	Find(int64) (*Call, error)
 	//FindLastByCommand(*Command) (*Call, error)
 	//FindAllByCommand(*Command) ([]*Call, error)
 	//Update(*Call, *Call) error

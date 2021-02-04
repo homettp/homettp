@@ -16,7 +16,7 @@ func (app *App) worker() {
 	}
 }
 
-func (app *App) handleCall(id int) error {
+func (app *App) handleCall(id int64) error {
 	call, err := app.callRepository.Find(id)
 	if err != nil {
 		return err
