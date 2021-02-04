@@ -2,6 +2,7 @@ package web
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -206,7 +207,7 @@ func (app *App) userDelete(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) getUserFromRequest(r *http.Request, parameter string) (*models.User, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, errors.New(parameter + " parameter not found")
+		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
 	}
 
 	id, err := strconv.Atoi(r.URL.Query().Get(parameter))
