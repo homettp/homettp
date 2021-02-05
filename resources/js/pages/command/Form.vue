@@ -88,7 +88,7 @@
                             <small class="form-text text-muted">
                                 Payload Variable:
                                 <code class="text-primary">
-                                    {payload}
+                                    {{ commandPayload }}
                                 </code>
                             </small>
                         </div>
@@ -113,9 +113,18 @@
                      fill="currentColor">
                     <use :xlink:href="icon('terminal')" />
                 </svg>
-                <span>
+                <span class="mr-auto">
                     Call Command
                 </span>
+                <inertia-link class="command__call ml-3" :href="`/call/history?id=${command.id}`">
+                    Call History
+                    <svg class="bi"
+                         width="1em"
+                         height="1em"
+                         fill="currentColor">
+                        <use :xlink:href="icon('chevron-right')" />
+                    </svg>
+                </inertia-link>
             </div>
             <form @submit.prevent="submitRefreshToken">
                 <div class="card-body">
@@ -126,10 +135,24 @@
                         <code class="text-primary">POST</code>
                         request to this URL will call your command:
                     </p>
-                    <input class="form-control"
-                           type="text"
-                           :value="commandPath"
-                           readonly>
+                    <div class="input-group">
+                        <input class="form-control"
+                               type="text"
+                               :value="commandPath"
+                               readonly>
+                        <div class="input-group-append">
+                            <a class="btn btn-outline-primary"
+                               :href="commandPath"
+                               target="_blank">
+                                <svg class="bi"
+                                     width="1em"
+                                     height="1em"
+                                     fill="currentColor">
+                                    <use :xlink:href="icon('box-arrow-up-right')" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-primary" type="submit">
@@ -180,10 +203,15 @@ export default {
             required: true
         },
 
+        commandPayload: {
+            type: String,
+            required: true
+        },
+
         commandPath: {
             type: String,
             default: ''
-        }
+        },
     },
 
     layout: Layout,

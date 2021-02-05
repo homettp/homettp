@@ -85,6 +85,8 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 			switch err {
 			case models.ErrDuplicateName:
 				form.Errors.Add("name", "The name has already been taken.")
+			case models.ErrInvalidValue:
+				form.Errors.Add("value", "The value must contain command name.")
 			default:
 				app.serverError(w, err)
 
@@ -129,10 +131,11 @@ func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
-		"command":       command,
-		"commandImages": app.getCommandImages(),
-		"commandPath":   command.Path(app.url),
-		"errors":        forms.Bag{},
+		"command":        command,
+		"commandImages":  app.getCommandImages(),
+		"commandPayload": models.PayloadVariable,
+		"commandPath":    command.Path(app.url),
+		"errors":         forms.Bag{},
 	})
 	if err != nil {
 		app.serverError(w, err)
@@ -162,6 +165,8 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 			switch err {
 			case models.ErrDuplicateName:
 				form.Errors.Add("name", "The name has already been taken.")
+			case models.ErrInvalidValue:
+				form.Errors.Add("value", "The value must contain command name.")
 			default:
 				app.serverError(w, err)
 
@@ -176,10 +181,11 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
-		"command":       command,
-		"commandImages": app.getCommandImages(),
-		"commandPath":   command.Path(app.url),
-		"errors":        form.Errors,
+		"command":        command,
+		"commandImages":  app.getCommandImages(),
+		"commandPayload": models.PayloadVariable,
+		"commandPath":    command.Path(app.url),
+		"errors":         form.Errors,
 	})
 	if err != nil {
 		app.serverError(w, err)
@@ -210,8 +216,6 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	err = app.commandRepository.UpdateToken(command, token)
 	if err != nil {
 		app.serverError(w, err)
-
-		return
 	}
 }
 
@@ -238,29 +242,6 @@ func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func (app *App) commandCall(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" && r.Method != "POST" {
-		app.methodNotAllowed(w, []string{"GET", "POST"})
-
-		return
-	}
-
-	command, err := app.getCommandFromRequest(r, "id")
-	if err != nil {
-		app.notFound(w)
-
-		return
-	}
-
-	if command.Token != r.URL.Query().Get("token") {
-		app.notFound(w)
-
-		return
-	}
-
-	// TODO: Create Call Model
 }
 
 func (app *App) getCommandFromRequest(r *http.Request, parameter string) (*models.Command, error) {

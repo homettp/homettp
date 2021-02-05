@@ -33,6 +33,10 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 		return err
 	}
 
+	if command.Value == PayloadVariable {
+		return ErrInvalidValue
+	}
+
 	command.Id, err = redis.Int(conn.Do("INCR", rcr.RedisKeyPrefix+commandKeyPrefix+commandIdKey))
 	if err != nil {
 		return err
@@ -139,6 +143,10 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 		}
 	}
 
+	if newCommand.Value == PayloadVariable {
+		return ErrInvalidValue
+	}
+
 	command.Image = newCommand.Image
 	command.Value = newCommand.Value
 
@@ -198,7 +206,26 @@ func (rcr *RedisCommandRepository) Delete(command *Command) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	err := conn.Send("MULTI")
+	calls, err := redis.Int64s(
+		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.Id), 0, -1),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("MULTI")
+	if err != nil {
+		return err
+	}
+
+	for _, id := range calls {
+		err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.Id))
 	if err != nil {
 		return err
 	}

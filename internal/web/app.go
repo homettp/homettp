@@ -30,7 +30,7 @@ type App struct {
 	rememberCookie    *securecookie.Obj
 	mixManager        *mix.Mix
 	inertiaManager    *inertia.Inertia
-	queue             <-chan int64
+	queue             chan int64
 	commandRepository models.CommandRepository
 	callRepository    models.CallRepository
 	userRepository    models.UserRepository

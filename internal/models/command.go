@@ -9,11 +9,12 @@ import (
 type CommandImage string
 
 const (
-	Door   CommandImage = "door"
-	Light  CommandImage = "light"
-	Outlet CommandImage = "outlet"
-	Plug   CommandImage = "plug"
-	Sensor CommandImage = "sensor"
+	Door            CommandImage = "door"
+	Light           CommandImage = "light"
+	Outlet          CommandImage = "outlet"
+	Plug            CommandImage = "plug"
+	Sensor          CommandImage = "sensor"
+	PayloadVariable string       = "{payload}"
 )
 
 type Command struct {
@@ -57,5 +58,5 @@ func (c *Command) Fill(form *forms.Form) *Command {
 }
 
 func (c *Command) Path(url string) string {
-	return fmt.Sprintf("%s/command/call?id=%v&token=%s", url, c.Id, c.Token)
+	return fmt.Sprintf("%s/call?id=%v&token=%s", url, c.Id, c.Token)
 }
