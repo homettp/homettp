@@ -52,23 +52,29 @@ func (app *App) handleCall(id int64) error {
 	out, err := cmd.Output()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		return errors.New(fmt.Sprintf("worker: command timed out %v", command.Id))
-	}
-
-	status := models.Completed
-	output := string(out)
-
-	if err != nil {
-		status = models.Failed
-		output = err.Error()
-	}
-
-	err = app.callRepository.Update(call, &models.Call{
-		Status: status,
-		Output: output,
-	})
-	if err != nil {
-		return err
+		err = app.callRepository.Update(call, &models.Call{
+			Status: models.Failed,
+			Output: "command timed out",
+		})
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
+		err = app.callRepository.Update(call, &models.Call{
+			Status: models.Failed,
+			Output: err.Error(),
+		})
+		if err != nil {
+			return err
+		}
+	} else {
+		err = app.callRepository.Update(call, &models.Call{
+			Status: models.Completed,
+			Output: string(out),
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
