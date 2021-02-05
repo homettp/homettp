@@ -88,7 +88,7 @@
                             <small class="form-text text-muted">
                                 Payload Variable:
                                 <code class="text-primary">
-                                    {payload}
+                                    {{ commandPayload }}
                                 </code>
                             </small>
                         </div>
@@ -180,10 +180,15 @@ export default {
             required: true
         },
 
+        commandPayload: {
+            type: String,
+            required: true
+        },
+
         commandPath: {
             type: String,
             default: ''
-        }
+        },
     },
 
     layout: Layout,

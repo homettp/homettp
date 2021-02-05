@@ -9,11 +9,12 @@ import (
 type CommandImage string
 
 const (
-	Door   CommandImage = "door"
-	Light  CommandImage = "light"
-	Outlet CommandImage = "outlet"
-	Plug   CommandImage = "plug"
-	Sensor CommandImage = "sensor"
+	Door            CommandImage = "door"
+	Light           CommandImage = "light"
+	Outlet          CommandImage = "outlet"
+	Plug            CommandImage = "plug"
+	Sensor          CommandImage = "sensor"
+	PayloadVariable string       = "{payload}"
 )
 
 type Command struct {

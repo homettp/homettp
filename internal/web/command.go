@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -85,6 +86,8 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 			switch err {
 			case models.ErrDuplicateName:
 				form.Errors.Add("name", "The name has already been taken.")
+			case models.ErrInvalidValue:
+				form.Errors.Add("value", "The value must contain command name.")
 			default:
 				app.serverError(w, err)
 
@@ -129,10 +132,11 @@ func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
-		"command":       command,
-		"commandImages": app.getCommandImages(),
-		"commandPath":   command.Path(app.url),
-		"errors":        forms.Bag{},
+		"command":        command,
+		"commandImages":  app.getCommandImages(),
+		"commandPayload": models.PayloadVariable,
+		"commandPath":    command.Path(app.url),
+		"errors":         forms.Bag{},
 	})
 	if err != nil {
 		app.serverError(w, err)
@@ -162,6 +166,8 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 			switch err {
 			case models.ErrDuplicateName:
 				form.Errors.Add("name", "The name has already been taken.")
+			case models.ErrInvalidValue:
+				form.Errors.Add("value", "The value must contain command name.")
 			default:
 				app.serverError(w, err)
 
@@ -176,10 +182,11 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
-		"command":       command,
-		"commandImages": app.getCommandImages(),
-		"commandPath":   command.Path(app.url),
-		"errors":        form.Errors,
+		"command":        command,
+		"commandImages":  app.getCommandImages(),
+		"commandPayload": models.PayloadVariable,
+		"commandPath":    command.Path(app.url),
+		"errors":         form.Errors,
 	})
 	if err != nil {
 		app.serverError(w, err)
@@ -210,8 +217,6 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	err = app.commandRepository.UpdateToken(command, token)
 	if err != nil {
 		app.serverError(w, err)
-
-		return
 	}
 }
 
@@ -260,7 +265,23 @@ func (app *App) commandCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Create Call Model
+	call := models.NewCall(command)
+	call.Payload = r.URL.Query().Get("payload")
+
+	err = app.callRepository.Create(call)
+	if err != nil {
+		app.serverError(w, err)
+
+		return
+	}
+
+	app.queue <- call.Id
+	w.Header().Set("Content-Type", "application/json")
+
+	err = json.NewEncoder(w).Encode(call)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
 func (app *App) getCommandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
