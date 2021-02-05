@@ -25,6 +25,14 @@
                         <span class="mr-auto">
                             {{ command.name }}
                         </span>
+                        <inertia-link class="ml-3" :href="`/call/history?id=${command.id}`">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon('terminal')" />
+                            </svg>
+                        </inertia-link>
                         <inertia-link class="ml-3" :href="`/command/edit?id=${command.id}`">
                             <svg class="bi"
                                  width="1em"

@@ -82,24 +82,6 @@ func (rcr *RedisCallRepository) Find(id int64) (*Call, error) {
 	return &call, nil
 }
 
-func (rcr *RedisCallRepository) FindLatestByCommand(command *Command) (*Call, error) {
-	conn := rcr.RedisPool.Get()
-	defer conn.Close()
-
-	values, err := redis.Int64s(
-		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.Id), 0, 0),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(values) == 0 {
-		return nil, ErrNoRecord
-	}
-
-	return rcr.Find(values[0])
-}
-
 func (rcr *RedisCallRepository) FindAllByCommand(command *Command) ([]*Call, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()

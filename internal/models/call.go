@@ -21,7 +21,6 @@ type Call struct {
 type CallRepository interface {
 	Create(*Call) error
 	Find(int64) (*Call, error)
-	FindLatestByCommand(*Command) (*Call, error)
 	FindAllByCommand(*Command) ([]*Call, error)
 	Update(*Call, *Call) error
 	Delete(*Call) error

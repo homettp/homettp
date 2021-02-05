@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -243,45 +242,6 @@ func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func (app *App) commandCall(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" && r.Method != "POST" {
-		app.methodNotAllowed(w, []string{"GET", "POST"})
-
-		return
-	}
-
-	command, err := app.getCommandFromRequest(r, "id")
-	if err != nil {
-		app.notFound(w)
-
-		return
-	}
-
-	if command.Token != r.URL.Query().Get("token") {
-		app.notFound(w)
-
-		return
-	}
-
-	call := models.NewCall(command)
-	call.Payload = r.URL.Query().Get("payload")
-
-	err = app.callRepository.Create(call)
-	if err != nil {
-		app.serverError(w, err)
-
-		return
-	}
-
-	app.queue <- call.Id
-	w.Header().Set("Content-Type", "application/json")
-
-	err = json.NewEncoder(w).Encode(call)
-	if err != nil {
-		app.serverError(w, err)
-	}
 }
 
 func (app *App) getCommandFromRequest(r *http.Request, parameter string) (*models.Command, error) {

@@ -56,13 +56,16 @@ func (app *App) handleCall(id int64) error {
 	}
 
 	status := models.Completed
+	output := string(out)
+
 	if err != nil {
 		status = models.Failed
+		output = err.Error()
 	}
 
 	err = app.callRepository.Update(call, &models.Call{
 		Status: status,
-		Output: string(out),
+		Output: output,
 	})
 	if err != nil {
 		return err
