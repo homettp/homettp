@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"strconv"
 
 	"github.com/homettp/homettp/internal/web"
 	"github.com/petaki/support-go/cli"
@@ -15,13 +14,7 @@ func webServe(group *cli.Group, command *cli.Command, arguments []string) int {
 	key := command.FlagSet().String("key", os.Getenv("APP_KEY"), "Application Key")
 
 	redisUrl, redisKeyPrefix := createRedisFlags(command)
-
-	envCommandTimeout, err := strconv.Atoi(os.Getenv("COMMAND_TIMEOUT"))
-	if err != nil {
-		return printError(err)
-	}
-
-	commandTimeout := command.FlagSet().Int("command-timeout", envCommandTimeout, "Command Timeout")
+	commandTimeout, commandWorkerCount, commandHistoryLimit := createCommandFlags(command)
 
 	web.Serve(
 		*debug,
@@ -31,6 +24,8 @@ func webServe(group *cli.Group, command *cli.Command, arguments []string) int {
 		*redisUrl,
 		*redisKeyPrefix,
 		*commandTimeout,
+		*commandWorkerCount,
+		*commandHistoryLimit,
 	)
 
 	return 0

@@ -4,4 +4,9 @@
 
 .call__history--card {
     margin-bottom: 20px;
+
+    pre {
+        margin-bottom: 0;
+        margin-top: $card-spacer-y;
+    }
 }

@@ -52,8 +52,8 @@
                     {{ call.created_at | date }}
                 </span>
             </div>
-            <div class="card-body">
-                <pre class="mb-0"><code>{{ call.output }}</code></pre>
+            <div class="card-body pt-0">
+                <pre v-if="call.output"><code>{{ call.output }}</code></pre>
             </div>
         </div>
     </div>

@@ -20,7 +20,7 @@ import (
 	"github.com/petaki/support-go/mix"
 )
 
-func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandTimeout int) {
+func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandTimeout, commandWorkerCount, commandHistoryLimit int) {
 	infoLog := log.New(os.Stdout, cli.Cyan("INFO\t"), log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, cli.Red("ERROR\t"), log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -45,25 +45,28 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 	queue := make(chan int64, 100)
 
 	app := &App{
-		debug:          debug,
-		url:            url,
-		commandTimeout: commandTimeout,
-		errorLog:       errorLog,
-		infoLog:        infoLog,
-		redisPool:      redisPool,
-		redisKeyPrefix: redisKeyPrefix,
-		sessionManager: sessionManager,
-		rememberCookie: rememberCookie,
-		mixManager:     mixManager,
-		inertiaManager: inertiaManager,
-		queue:          queue,
+		debug:               debug,
+		url:                 url,
+		errorLog:            errorLog,
+		infoLog:             infoLog,
+		redisPool:           redisPool,
+		redisKeyPrefix:      redisKeyPrefix,
+		commandTimeout:      commandTimeout,
+		commandWorkerCount:  commandWorkerCount,
+		commandHistoryLimit: commandHistoryLimit,
+		sessionManager:      sessionManager,
+		rememberCookie:      rememberCookie,
+		mixManager:          mixManager,
+		inertiaManager:      inertiaManager,
+		queue:               queue,
 		commandRepository: &models.RedisCommandRepository{
 			RedisPool:      redisPool,
 			RedisKeyPrefix: redisKeyPrefix,
 		},
 		callRepository: &models.RedisCallRepository{
-			RedisPool:      redisPool,
-			RedisKeyPrefix: redisKeyPrefix,
+			RedisPool:           redisPool,
+			RedisKeyPrefix:      redisKeyPrefix,
+			CommandHistoryLimit: commandHistoryLimit,
 		},
 		userRepository: &models.RedisUserRepository{
 			RedisPool:      redisPool,
@@ -71,7 +74,9 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 		},
 	}
 
-	go app.worker()
+	for i := 0; i < commandWorkerCount; i++ {
+		go app.worker()
+	}
 
 	srv := &http.Server{
 		Addr:         addr,
