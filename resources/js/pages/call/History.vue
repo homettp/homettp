@@ -20,6 +20,9 @@
                 {{ $metaInfo.title }}
             </li>
         </ol>
+        <div v-if="!calls" class="call__history--card card card-body">
+            No calls.
+        </div>
         <div v-for="call in calls"
              :key="call.id"
              class="call__history--card card">
@@ -82,7 +85,7 @@ export default {
 
         calls: {
             type: Array,
-            required: true
+            default: () => []
         }
     },
 

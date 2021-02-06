@@ -11,6 +11,11 @@
             </li>
         </ol>
         <div class="layout__row row">
+            <div v-if="!commands" class="layout__col col">
+                <div class="card card-body">
+                    No commands.
+                </div>
+            </div>
             <div v-for="command in commands"
                  :key="command.id"
                  class="layout__col col-xl-3">
@@ -66,7 +71,7 @@ export default {
     props: {
         commands: {
             type: Array,
-            required: true
+            default: () => []
         }
     },
 
