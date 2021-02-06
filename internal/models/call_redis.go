@@ -13,8 +13,9 @@ const (
 )
 
 type RedisCallRepository struct {
-	RedisPool      *redis.Pool
-	RedisKeyPrefix string
+	RedisPool           *redis.Pool
+	RedisKeyPrefix      string
+	CommandHistoryLimit int
 }
 
 func (rcr *RedisCallRepository) Create(call *Call) error {
@@ -44,6 +45,37 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 
 	err = conn.Send(
 		"LPUSH", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), call.Id,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Do("EXEC")
+	if err != nil {
+		return err
+	}
+
+	ids, err := redis.Int64s(
+		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), rcr.CommandHistoryLimit, -1),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("MULTI")
+	if err != nil {
+		return err
+	}
+
+	for _, id := range ids {
+		err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = conn.Send(
+		"LTRIM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), 0, rcr.CommandHistoryLimit-1,
 	)
 	if err != nil {
 		return err
@@ -140,7 +172,7 @@ func (rcr *RedisCallRepository) Delete(call *Call) error {
 		return err
 	}
 
-	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.FormatInt(call.Id, 10))
+	err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.Id, 10))
 	if err != nil {
 		return err
 	}

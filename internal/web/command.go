@@ -55,6 +55,7 @@ func (app *App) getCommandCreate(w http.ResponseWriter, r *http.Request) {
 		"isCreateCommandActive": true,
 		"command":               models.NewCommand(),
 		"commandImages":         app.getCommandImages(),
+		"commandPayload":        models.PayloadVariable,
 		"errors":                forms.Bag{},
 	})
 	if err != nil {
@@ -94,7 +95,7 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
 
 			return
 		}
@@ -104,6 +105,7 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 		"isCreateCommandActive": true,
 		"command":               command,
 		"commandImages":         app.getCommandImages(),
+		"commandPayload":        models.PayloadVariable,
 		"errors":                form.Errors,
 	})
 	if err != nil {
@@ -174,7 +176,7 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
 
 			return
 		}
@@ -217,6 +219,8 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 	}
+
+	http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
 }
 
 func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
