@@ -126,40 +126,41 @@
                     </svg>
                 </inertia-link>
             </div>
-            <form @submit.prevent="submitRefreshToken">
-                <div class="card-body">
-                    <p>
-                        Making a
-                        <code class="text-primary">GET</code>
-                        or
-                        <code class="text-primary">POST</code>
-                        request to this URL will call your command:
-                    </p>
-                    <div class="input-group">
-                        <input class="form-control"
-                               type="text"
-                               :value="commandPath"
-                               readonly>
-                        <div class="input-group-append">
-                            <a class="btn btn-outline-primary"
-                               :href="commandPath"
-                               target="_blank">
-                                <svg class="bi"
-                                     width="1em"
-                                     height="1em"
-                                     fill="currentColor">
-                                    <use :xlink:href="icon('box-arrow-up-right')" />
-                                </svg>
-                            </a>
-                        </div>
+            <div class="card-body">
+                <p>
+                    Making a
+                    <code class="text-primary">GET</code>
+                    or
+                    <code class="text-primary">POST</code>
+                    request to this URL will call your command:
+                </p>
+                <div class="input-group">
+                    <input class="form-control"
+                           type="text"
+                           :value="commandPath"
+                           readonly>
+                    <div class="input-group-append">
+                        <a class="btn btn-outline-primary"
+                           :href="commandPath"
+                           target="_blank">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon('box-arrow-up-right')" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button class="btn btn-primary" type="submit">
-                        Refresh Token
-                    </button>
-                </div>
-            </form>
+            </div>
+            <div class="card-footer">
+                <inertia-link class="btn btn-primary"
+                              :href="`/command/refresh-token?id=${command.id}`"
+                              method="put"
+                              as="button">
+                    Refresh Token
+                </inertia-link>
+            </div>
         </div>
         <div v-if="!isNew" class="form__secondary card">
             <div class="card-header">
@@ -173,22 +174,22 @@
                     Delete Command
                 </span>
             </div>
-            <form @submit.prevent="submitDelete">
-                <div class="card-body">
-                    Are you sure you want to delete the command?
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-danger" type="submit">
-                        Delete Command
-                    </button>
-                </div>
-            </form>
+            <div class="card-body">
+                Are you sure you want to delete the command?
+            </div>
+            <div class="card-footer">
+                <inertia-link class="btn btn-danger"
+                              :href="`/command/delete?id=${command.id}`"
+                              method="delete"
+                              as="button">
+                    Delete Command
+                </inertia-link>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { Inertia } from '@inertiajs/inertia';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -249,16 +250,6 @@ export default {
             return this.isNew
                 ? '/command/create'
                 : `/command/edit?id=${this.command.id}`;
-        }
-    },
-
-    methods: {
-        submitRefreshToken() {
-            axios.put(`/command/refresh-token?id=${this.command.id}`).then(() => Inertia.reload({ only: ['commandPath'] }));
-        },
-
-        submitDelete() {
-            this.$inertia.delete(`/command/delete?id=${this.command.id}`);
         }
     }
 };

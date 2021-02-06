@@ -219,6 +219,8 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 	}
+
+	http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
 }
 
 func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {

@@ -122,16 +122,17 @@
                     Delete User
                 </span>
             </div>
-            <form @submit.prevent="submitDelete">
-                <div class="card-body">
-                    Are you sure you want to delete the user?
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-danger" type="submit">
-                        Delete User
-                    </button>
-                </div>
-            </form>
+            <div class="card-body">
+                Are you sure you want to delete the user?
+            </div>
+            <div class="card-footer">
+                <inertia-link class="btn btn-danger"
+                              :href="`/user/delete?id=${user.id}`"
+                              method="delete"
+                              as="button">
+                    Delete User
+                </inertia-link>
+            </div>
         </div>
     </div>
 </template>
@@ -183,12 +184,6 @@ export default {
             return this.isNew
                 ? '/user/create'
                 : `/user/edit?id=${this.user.id}`;
-        }
-    },
-
-    methods: {
-        submitDelete() {
-            this.$inertia.delete(`/user/delete?id=${this.user.id}`);
         }
     }
 };
