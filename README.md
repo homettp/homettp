@@ -1,8 +1,4 @@
-# Homettp
-
-An HTTP-based command runner for home automation.
-
-**This is a work in progress.**
+![Homettp](https://user-images.githubusercontent.com/1419087/107131177-89409a80-68d4-11eb-83d5-3e7c45317739.png)
 
 ## Reporting Issues
 
