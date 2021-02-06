@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"errors"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -118,18 +119,26 @@ func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	usernames, err := redis.StringMap(
+	values, err := redis.StringMap(
 		conn.Do("ZRANGE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, 0, -1, "WITHSCORES"),
 	)
 	if err != nil {
 		return nil, err
 	}
 
+	usernames := make([]string, 0, len(values))
+
+	for key := range values {
+		usernames = append(usernames, key)
+	}
+
+	sort.Strings(usernames)
+
 	var users []*User
 	var id int
 
-	for _, value := range usernames {
-		id, err = strconv.Atoi(value)
+	for _, username := range usernames {
+		id, err = strconv.Atoi(values[username])
 		if err != nil {
 			return nil, err
 		}

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -99,18 +100,26 @@ func (rcr *RedisCommandRepository) FindAll() ([]*Command, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	names, err := redis.StringMap(
+	values, err := redis.StringMap(
 		conn.Do("ZRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, 0, -1, "WITHSCORES"),
 	)
 	if err != nil {
 		return nil, err
 	}
 
+	names := make([]string, 0, len(values))
+
+	for key := range values {
+		names = append(names, key)
+	}
+
+	sort.Strings(names)
+
 	var commands []*Command
 	var id int
 
-	for _, value := range names {
-		id, err = strconv.Atoi(value)
+	for _, name := range names {
+		id, err = strconv.Atoi(values[name])
 		if err != nil {
 			return nil, err
 		}
