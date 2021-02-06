@@ -151,7 +151,10 @@ export default {
     },
 
     mounted() {
-        Inertia.on('navigate', () => { this.isSidebarOpen = false; });
+        this.$once(
+            'hook:destroyed',
+            Inertia.on('navigate', () => { this.isSidebarOpen = false; })
+        );
     }
 };
 </script>

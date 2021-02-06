@@ -2,7 +2,10 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/homettp/homettp/internal/models"
 )
@@ -78,4 +81,47 @@ func (app *App) callHistory(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 	}
+}
+
+func (app *App) callDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "DELETE" {
+		app.methodNotAllowed(w, []string{"DELETE"})
+
+		return
+	}
+
+	call, err := app.getCallFromRequest(r, "id")
+	if err != nil {
+		app.notFound(w)
+
+		return
+	}
+
+	err = app.callRepository.Delete(call)
+	if err != nil {
+		app.serverError(w, err)
+
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
+	http.Redirect(w, r, fmt.Sprintf("/call/history?id=%v", call.CommandId), http.StatusSeeOther)
+}
+
+func (app *App) getCallFromRequest(r *http.Request, parameter string) (*models.Call, error) {
+	if r.URL.Query().Get(parameter) == "" {
+		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
+	}
+
+	id, err := strconv.ParseInt(r.URL.Query().Get(parameter), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	call, err := app.callRepository.Find(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return call, nil
 }

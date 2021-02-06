@@ -89,7 +89,7 @@ func (app *App) postUserCreate(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
-			http.Redirect(w, r, "/user", http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.Id), http.StatusSeeOther)
 
 			return
 		}
@@ -165,7 +165,7 @@ func (app *App) postUserEdit(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
-			http.Redirect(w, r, "/user", http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.Id), http.StatusSeeOther)
 
 			return
 		}

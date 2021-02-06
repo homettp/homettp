@@ -51,6 +51,17 @@
                 <span>
                     {{ call.created_at | date }}
                 </span>
+                <inertia-link class="btn btn-link ml-3"
+                              :href="`/call/delete?id=${call.id}`"
+                              method="delete"
+                              as="button">
+                    <svg class="bi"
+                         width="1em"
+                         height="1em"
+                         fill="currentColor">
+                        <use :xlink:href="icon('trash')" />
+                    </svg>
+                </inertia-link>
             </div>
             <div class="card-body pt-0">
                 <pre v-if="call.output"><code>{{ call.output }}</code></pre>

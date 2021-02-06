@@ -15,19 +15,13 @@
 </template>
 
 <script>
+import { Inertia } from '@inertiajs/inertia';
+
 export default {
     data() {
         return {
             message: ''
         };
-    },
-
-    watch: {
-        '$page.props.flash'(val) {
-            if (val) {
-                this.show(val);
-            }
-        }
     },
 
     created() {
@@ -36,10 +30,19 @@ export default {
         });
     },
 
+    mounted() {
+        this.$once(
+            'hook:destroyed',
+            Inertia.on('success', () => { this.show(this.$page.props.flash); })
+        );
+    },
+
     methods: {
         show(message) {
-            this.message = message;
-            $(this.$el).toast('show');
+            if (message) {
+                this.message = message;
+                $(this.$el).toast('show');
+            }
         }
     }
 };
