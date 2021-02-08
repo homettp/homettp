@@ -10,6 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install Node.js dependencies
+        run: yarn install
+
+      - name: Lint
+        run: yarn lint
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
