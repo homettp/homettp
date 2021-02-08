@@ -31,7 +31,6 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install UI dependencies
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install
 
       - name: Lint UI code
