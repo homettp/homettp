@@ -212,7 +212,7 @@ export default {
         commandPath: {
             type: String,
             default: ''
-        },
+        }
     },
 
     layout: Layout,
