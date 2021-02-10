@@ -14,17 +14,17 @@ ui:
 
 darwin:
 	GOOS=darwin GOARCH=amd64 go build -o dist/homettp ./cmd/cli
-	cd dist && zip homettp_$(VERSION)_darwin_amd64.zip public resources .env homettp
+	cd dist && zip -r homettp_$(VERSION)_darwin_amd64.zip public resources .env homettp
 	rm -f dist/homettp
 
 linux:
 	GOOS=linux GOARCH=amd64 go build -o dist/homettp ./cmd/cli
-	cd dist && zip homettp_$(VERSION)_linux_amd64.zip public resources .env homettp
+	cd dist && zip -r homettp_$(VERSION)_linux_amd64.zip public resources .env homettp
 	rm -f dist/homettp
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -o dist/homettp.exe ./cmd/cli
-	cd dist && zip homettp_$(VERSION)_windows_amd64.zip public resources .env homettp.exe
+	cd dist && zip -r homettp_$(VERSION)_windows_amd64.zip public resources .env homettp.exe
 	rm -f dist/homettp.exe
 
 post_clean:
