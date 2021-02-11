@@ -74,6 +74,7 @@
 </template>
 
 <script>
+import { Inertia } from '@inertiajs/inertia';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -95,6 +96,10 @@ export default {
         return {
             title: 'Call History'
         };
+    },
+
+    mounted() {
+        setInterval(() => Inertia.reload({ only: ['calls'] }), 2500);
     }
 };
 </script>
