@@ -220,6 +220,7 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 	}
 
+	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
 	http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
 }
 
