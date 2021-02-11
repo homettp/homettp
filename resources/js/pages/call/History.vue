@@ -106,7 +106,7 @@ export default {
     },
 
     mounted() {
-        this.reloadInterval = setInterval(() => Inertia.reload({ only: ['calls'] }), this.reloadTimer);
+        this.reloadInterval = setInterval(() => Inertia.reload(), this.reloadTimer);
     },
 
     beforeDestroy() {
