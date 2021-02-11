@@ -21,12 +21,14 @@
                  class="layout__col col-xl-3">
                 <div class="card">
                     <div class="card-header">
-                        <svg class="command__icon bi"
-                             width="1em"
-                             height="1em"
-                             fill="currentColor">
-                            <use :xlink:href="icon(iconName(command))" />
-                        </svg>
+                        <span class="command__icon">
+                            <svg class="bi"
+                                 width="1em"
+                                 height="1em"
+                                 fill="currentColor">
+                                <use :xlink:href="icon(iconName(command))" />
+                            </svg>
+                        </span>
                         <span class="mr-auto">
                             {{ command.name }}
                         </span>
