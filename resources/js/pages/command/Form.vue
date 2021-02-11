@@ -135,19 +135,20 @@
                     request to this URL will call your command:
                 </p>
                 <div class="input-group">
-                    <input class="form-control"
+                    <input ref="commandPath"
+                           class="form-control"
                            type="text"
                            :value="commandPath"
                            readonly>
                     <div class="input-group-append">
                         <a class="btn btn-outline-primary"
-                           :href="commandPath"
-                           target="_blank">
+                           href="#"
+                           @click.prevent="copy()">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"
                                  fill="currentColor">
-                                <use :xlink:href="icon('box-arrow-up-right')" />
+                                <use :xlink:href="icon('files')" />
                             </svg>
                         </a>
                     </div>
@@ -250,6 +251,17 @@ export default {
             return this.isNew
                 ? '/command/create'
                 : `/command/edit?id=${this.command.id}`;
+        }
+    },
+
+    methods: {
+        copy() {
+            this.$refs.commandPath.select();
+            this.$refs.commandPath.setSelectionRange(0, 99999);
+
+            document.execCommand('copy');
+
+            this.$parent.$emit('flash', 'Copied successfully.');
         }
     }
 };
