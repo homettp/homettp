@@ -92,6 +92,13 @@ export default {
 
     layout: Layout,
 
+    data() {
+        return {
+            reloadInterval: undefined,
+            reloadTimer: 2500
+        };
+    },
+
     metaInfo() {
         return {
             title: 'Call History'
@@ -99,7 +106,11 @@ export default {
     },
 
     mounted() {
-        setInterval(() => Inertia.reload({ only: ['calls'] }), 2500);
+        this.reloadInterval = setInterval(() => Inertia.reload({ only: ['calls'] }), this.reloadTimer);
+    },
+
+    beforeDestroy() {
+        clearInterval(this.reloadInterval);
     }
 };
 </script>
