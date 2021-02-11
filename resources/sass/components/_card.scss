@@ -1,6 +1,7 @@
 .card-header,
 .card-body {
-    > .bi {
+    > .bi,
+    > span .bi {
         margin-right: 12px;
     }
 }
