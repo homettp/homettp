@@ -54,7 +54,7 @@ func (app *App) getCommandCreate(w http.ResponseWriter, r *http.Request) {
 	err := app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"isCreateCommandActive": true,
 		"command":               models.NewCommand(),
-		"commandImages":         app.getCommandImages(),
+		"commandImages":         app.commandImages(),
 		"commandPayload":        models.PayloadVariable,
 		"errors":                forms.Bag{},
 	})
@@ -104,7 +104,7 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"isCreateCommandActive": true,
 		"command":               command,
-		"commandImages":         app.getCommandImages(),
+		"commandImages":         app.commandImages(),
 		"commandPayload":        models.PayloadVariable,
 		"errors":                form.Errors,
 	})
@@ -125,7 +125,7 @@ func (app *App) commandEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
-	command, err := app.getCommandFromRequest(r, "id")
+	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -134,7 +134,7 @@ func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"command":        command,
-		"commandImages":  app.getCommandImages(),
+		"commandImages":  app.commandImages(),
 		"commandPayload": models.PayloadVariable,
 		"commandPath":    command.Path(app.url),
 		"errors":         forms.Bag{},
@@ -145,7 +145,7 @@ func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
-	command, err := app.getCommandFromRequest(r, "id")
+	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -184,7 +184,7 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 
 	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"command":        command,
-		"commandImages":  app.getCommandImages(),
+		"commandImages":  app.commandImages(),
 		"commandPayload": models.PayloadVariable,
 		"commandPath":    command.Path(app.url),
 		"errors":         form.Errors,
@@ -201,7 +201,7 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	command, err := app.getCommandFromRequest(r, "id")
+	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -231,7 +231,7 @@ func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	command, err := app.getCommandFromRequest(r, "id")
+	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -249,7 +249,7 @@ func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (app *App) getCommandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
+func (app *App) commandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
 	}
@@ -267,7 +267,7 @@ func (app *App) getCommandFromRequest(r *http.Request, parameter string) (*model
 	return command, nil
 }
 
-func (app *App) getCommandImages() []map[string]interface{} {
+func (app *App) commandImages() []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"name":  "Door",

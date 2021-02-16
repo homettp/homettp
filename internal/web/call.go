@@ -17,7 +17,7 @@ func (app *App) callIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	command, err := app.getCommandFromRequest(r, "id")
+	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -60,7 +60,7 @@ func (app *App) callHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	command, err := app.getCommandFromRequest(r, "id")
+	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -90,7 +90,7 @@ func (app *App) callDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	call, err := app.getCallFromRequest(r, "id")
+	call, err := app.callFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -108,7 +108,7 @@ func (app *App) callDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/call/history?id=%v", call.CommandId), http.StatusSeeOther)
 }
 
-func (app *App) getCallFromRequest(r *http.Request, parameter string) (*models.Call, error) {
+func (app *App) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
 	}
