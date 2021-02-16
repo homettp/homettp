@@ -3,6 +3,7 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import { App, plugin } from '@inertiajs/inertia-vue';
 import { InertiaProgress } from '@inertiajs/progress';
+import Tooltip from './common/Tooltip';
 
 require('./bootstrap');
 
@@ -29,6 +30,8 @@ Vue.mixin({
         }
     }
 });
+
+Vue.directive('tooltip', Tooltip);
 
 const el = document.getElementById('app');
 const initialPage = JSON.parse(el.dataset.page);

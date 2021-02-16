@@ -21,7 +21,10 @@
                         <span class="mr-auto">
                             {{ user.username }}
                         </span>
-                        <inertia-link class="ml-3" :href="`/user/edit?id=${user.id}`">
+                        <inertia-link v-tooltip
+                                      class="ml-3"
+                                      data-title="Edit User"
+                                      :href="`/user/edit?id=${user.id}`">
                             <svg class="bi"
                                  width="1em"
                                  height="1em"

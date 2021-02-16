@@ -117,7 +117,7 @@ func (app *App) userEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) getUserEdit(w http.ResponseWriter, r *http.Request) {
-	user, err := app.getUserFromRequest(r, "id")
+	user, err := app.userFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -134,7 +134,7 @@ func (app *App) getUserEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) postUserEdit(w http.ResponseWriter, r *http.Request) {
-	user, err := app.getUserFromRequest(r, "id")
+	user, err := app.userFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -187,7 +187,7 @@ func (app *App) userDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.getUserFromRequest(r, "id")
+	user, err := app.userFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
 
@@ -205,7 +205,7 @@ func (app *App) userDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/user", http.StatusSeeOther)
 }
 
-func (app *App) getUserFromRequest(r *http.Request, parameter string) (*models.User, error) {
+func (app *App) userFromRequest(r *http.Request, parameter string) (*models.User, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
 	}
