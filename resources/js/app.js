@@ -5,7 +5,14 @@ import { App, plugin } from '@inertiajs/inertia-vue';
 import { InertiaProgress } from '@inertiajs/progress';
 import Tooltip from './common/Tooltip';
 
-require('./bootstrap');
+window._ = require('lodash');
+
+try {
+    window.Popper = require('popper.js').default;
+    window.$ = window.jQuery = require('jquery');
+
+    require('bootstrap');
+} catch (e) {}
 
 InertiaProgress.init();
 

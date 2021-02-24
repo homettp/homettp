@@ -16,8 +16,7 @@ module.exports = {
         node: true
     },
     globals: {
-        _: 'readonly',
-        axios: 'readonly'
+        _: 'readonly'
     },
     settings: {
         'import/core-modules': ['webpack']
