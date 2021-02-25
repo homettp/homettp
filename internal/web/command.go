@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,7 +9,7 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func (app *App) commandIndex(w http.ResponseWriter, r *http.Request) {
+func (app *app) commandIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
 
@@ -39,7 +38,7 @@ func (app *App) commandIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) commandCreate(w http.ResponseWriter, r *http.Request) {
+func (app *app) commandCreate(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		app.getCommandCreate(w, r)
@@ -50,7 +49,7 @@ func (app *App) commandCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) getCommandCreate(w http.ResponseWriter, r *http.Request) {
+func (app *app) getCommandCreate(w http.ResponseWriter, r *http.Request) {
 	err := app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"isCreateCommandActive": true,
 		"command":               models.NewCommand(),
@@ -63,7 +62,7 @@ func (app *App) getCommandCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
+func (app *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 	command := models.NewCommand()
 
 	form, err := forms.NewFromRequest(w, r)
@@ -95,7 +94,7 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
-			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.ID), http.StatusSeeOther)
 
 			return
 		}
@@ -113,7 +112,7 @@ func (app *App) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) commandEdit(w http.ResponseWriter, r *http.Request) {
+func (app *app) commandEdit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		app.getCommandEdit(w, r)
@@ -124,7 +123,7 @@ func (app *App) commandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
+func (app *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
@@ -144,7 +143,7 @@ func (app *App) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
+func (app *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	command, err := app.commandFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
@@ -176,7 +175,7 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
-			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.ID), http.StatusSeeOther)
 
 			return
 		}
@@ -194,7 +193,7 @@ func (app *App) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
+func (app *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
 		app.methodNotAllowed(w, []string{"PUT"})
 
@@ -221,10 +220,10 @@ func (app *App) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
-	http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.Id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.ID), http.StatusSeeOther)
 }
 
-func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
+func (app *app) commandDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		app.methodNotAllowed(w, []string{"DELETE"})
 
@@ -249,9 +248,9 @@ func (app *App) commandDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (app *App) commandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
+func (app *app) commandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
+		return nil, fmt.Errorf("%s parameter not found", parameter)
 	}
 
 	id, err := strconv.Atoi(r.URL.Query().Get(parameter))
@@ -267,7 +266,7 @@ func (app *App) commandFromRequest(r *http.Request, parameter string) (*models.C
 	return command, nil
 }
 
-func (app *App) commandImages() []map[string]interface{} {
+func (app *app) commandImages() []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"name":  "Door",

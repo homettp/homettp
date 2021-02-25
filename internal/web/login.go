@@ -8,7 +8,7 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func (app *App) login(w http.ResponseWriter, r *http.Request) {
+func (app *app) login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		app.getLogin(w, r)
@@ -19,7 +19,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) getLogin(w http.ResponseWriter, r *http.Request) {
+func (app *app) getLogin(w http.ResponseWriter, r *http.Request) {
 	err := app.inertiaManager.Render(w, r, "auth/Login", map[string]interface{}{
 		"errors": forms.Bag{},
 	})
@@ -28,7 +28,7 @@ func (app *App) getLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) postLogin(w http.ResponseWriter, r *http.Request) {
+func (app *app) postLogin(w http.ResponseWriter, r *http.Request) {
 	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
 		app.formError(w, err)
@@ -49,7 +49,7 @@ func (app *App) postLogin(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		} else {
-			app.sessionManager.Put(r.Context(), sessionKeyAuthUserId, user.Id)
+			app.sessionManager.Put(r.Context(), sessionKeyAuthUserID, user.ID)
 
 			err = app.sessionManager.RenewToken(r.Context())
 			if err != nil {
@@ -83,9 +83,9 @@ func (app *App) postLogin(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			intendedUrl := app.sessionManager.PopString(r.Context(), sessionKeyIntendedUrl)
-			if intendedUrl != "" {
-				http.Redirect(w, r, intendedUrl, http.StatusSeeOther)
+			intendedURL := app.sessionManager.PopString(r.Context(), sessionKeyIntendedURL)
+			if intendedURL != "" {
+				http.Redirect(w, r, intendedURL, http.StatusSeeOther)
 
 				return
 			}
@@ -104,8 +104,8 @@ func (app *App) postLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) logout(w http.ResponseWriter, r *http.Request) {
-	app.sessionManager.Remove(r.Context(), sessionKeyAuthUserId)
+func (app *app) logout(w http.ResponseWriter, r *http.Request) {
+	app.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
 
 	err := app.sessionManager.RenewToken(r.Context())
 	if err != nil {

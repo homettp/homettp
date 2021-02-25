@@ -1,23 +1,33 @@
 package models
 
+// CallStatus type.
 type CallStatus string
 
 const (
-	Pending    CallStatus = "pending"
+	// Pending call.
+	Pending CallStatus = "pending"
+
+	// InProgress call.
 	InProgress CallStatus = "in_progress"
-	Completed  CallStatus = "completed"
-	Failed     CallStatus = "failed"
+
+	// Completed call.
+	Completed CallStatus = "completed"
+
+	// Failed call.
+	Failed CallStatus = "failed"
 )
 
+// Call type.
 type Call struct {
-	Id        int64      `json:"id" redis:"id"`
-	CommandId int        `json:"command_id" redis:"command_id"`
+	ID        int64      `json:"id" redis:"id"`
+	CommandID int        `json:"command_id" redis:"command_id"`
 	Status    CallStatus `json:"status" redis:"status"`
 	Payload   string     `json:"payload" redis:"payload"`
 	Output    string     `json:"output" redis:"output"`
 	CreatedAt Timestamp  `json:"created_at" redis:"created_at"`
 }
 
+// CallRepository type.
 type CallRepository interface {
 	Create(*Call) error
 	Find(int64) (*Call, error)
@@ -26,9 +36,10 @@ type CallRepository interface {
 	Delete(*Call) error
 }
 
+// NewCall function.
 func NewCall(command *Command) *Call {
 	return &Call{
-		CommandId: command.Id,
+		CommandID: command.ID,
 		Status:    Pending,
 	}
 }

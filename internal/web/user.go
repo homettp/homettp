@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,7 +9,7 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func (app *App) userIndex(w http.ResponseWriter, r *http.Request) {
+func (app *app) userIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		app.methodNotAllowed(w, []string{"GET"})
 
@@ -40,7 +39,7 @@ func (app *App) userIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) userCreate(w http.ResponseWriter, r *http.Request) {
+func (app *app) userCreate(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		app.getUserCreate(w, r)
@@ -51,7 +50,7 @@ func (app *App) userCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) getUserCreate(w http.ResponseWriter, r *http.Request) {
+func (app *app) getUserCreate(w http.ResponseWriter, r *http.Request) {
 	err := app.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
 		"isCreateUserActive": true,
 		"user":               models.NewUser(),
@@ -62,7 +61,7 @@ func (app *App) getUserCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) postUserCreate(w http.ResponseWriter, r *http.Request) {
+func (app *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 	user := models.NewUser()
 
 	form, err := forms.NewFromRequest(w, r)
@@ -89,7 +88,7 @@ func (app *App) postUserCreate(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
-			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.Id), http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.ID), http.StatusSeeOther)
 
 			return
 		}
@@ -105,7 +104,7 @@ func (app *App) postUserCreate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) userEdit(w http.ResponseWriter, r *http.Request) {
+func (app *app) userEdit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		app.getUserEdit(w, r)
@@ -116,7 +115,7 @@ func (app *App) userEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) getUserEdit(w http.ResponseWriter, r *http.Request) {
+func (app *app) getUserEdit(w http.ResponseWriter, r *http.Request) {
 	user, err := app.userFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
@@ -133,7 +132,7 @@ func (app *App) getUserEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) postUserEdit(w http.ResponseWriter, r *http.Request) {
+func (app *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
 	user, err := app.userFromRequest(r, "id")
 	if err != nil {
 		app.notFound(w)
@@ -165,7 +164,7 @@ func (app *App) postUserEdit(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
-			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.Id), http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.ID), http.StatusSeeOther)
 
 			return
 		}
@@ -180,7 +179,7 @@ func (app *App) postUserEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) userDelete(w http.ResponseWriter, r *http.Request) {
+func (app *app) userDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		app.methodNotAllowed(w, []string{"DELETE"})
 
@@ -205,9 +204,9 @@ func (app *App) userDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/user", http.StatusSeeOther)
 }
 
-func (app *App) userFromRequest(r *http.Request, parameter string) (*models.User, error) {
+func (app *app) userFromRequest(r *http.Request, parameter string) (*models.User, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
+		return nil, fmt.Errorf("%s parameter not found", parameter)
 	}
 
 	id, err := strconv.Atoi(r.URL.Query().Get(parameter))

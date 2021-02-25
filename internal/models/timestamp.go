@@ -5,18 +5,22 @@ import (
 	"time"
 )
 
+// Timestamp type.
 type Timestamp time.Time
 
+// MarshalJSON function.
 func (t Timestamp) MarshalJSON() ([]byte, error) {
 	value := fmt.Sprintf("\"%s\"", time.Time(t).Format(time.RFC3339))
 
 	return []byte(value), nil
 }
 
+// RedisArg function.
 func (t Timestamp) RedisArg() interface{} {
 	return time.Time(t).Format(time.RFC3339)
 }
 
+// RedisScan function.
 func (t *Timestamp) RedisScan(src interface{}) error {
 	bs, ok := src.([]byte)
 	if !ok {
