@@ -36,19 +36,19 @@ func NewUser() *User {
 
 func UserCreateRules(form *forms.Form) {
 	form.Required("username", "email", "password", "is_enabled")
-	form.MatchesPattern("username", forms.UsernameRegex)
+	form.MatchesPattern("username", forms.UsernameRegexp)
 	form.Min("username", 3)
 	form.Max("username", 20)
-	form.MatchesPattern("email", forms.EmailRegex)
+	form.MatchesPattern("email", forms.EmailRegexp)
 	form.Min("password", 8)
 }
 
 func UserUpdateRules(form *forms.Form) {
 	form.Required("username", "email", "is_enabled")
-	form.MatchesPattern("username", forms.UsernameRegex)
+	form.MatchesPattern("username", forms.UsernameRegexp)
 	form.Min("username", 3)
 	form.Max("username", 20)
-	form.MatchesPattern("email", forms.EmailRegex)
+	form.MatchesPattern("email", forms.EmailRegexp)
 	form.Min("password", 8)
 }
 
