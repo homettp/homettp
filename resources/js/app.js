@@ -20,6 +20,8 @@ Vue.config.productionTip = false;
 Vue.use(plugin);
 Vue.use(VueMeta);
 
+Vue.directive('tooltip', Tooltip);
+
 Vue.filter('date', value => {
     const date = DateTime.fromISO(value);
 
@@ -37,8 +39,6 @@ Vue.mixin({
         }
     }
 });
-
-Vue.directive('tooltip', Tooltip);
 
 const el = document.getElementById('app');
 const initialPage = JSON.parse(el.dataset.page);
