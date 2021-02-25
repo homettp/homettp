@@ -4,16 +4,16 @@ package models
 type CallStatus string
 
 const (
-	// Pending call.
+	// Pending status.
 	Pending CallStatus = "pending"
 
-	// InProgress call.
+	// InProgress status.
 	InProgress CallStatus = "in_progress"
 
-	// Completed call.
+	// Completed status.
 	Completed CallStatus = "completed"
 
-	// Failed call.
+	// Failed status.
 	Failed CallStatus = "failed"
 )
 
