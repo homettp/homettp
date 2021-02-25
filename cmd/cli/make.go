@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -14,7 +13,7 @@ import (
 
 func makeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	enabled := command.FlagSet().Bool("enabled", true, "User Enabled")
-	redisUrl, redisKeyPrefix := createRedisFlags(command)
+	redisURL, redisKeyPrefix := createRedisFlags(command)
 
 	parsed, err := command.Parse(arguments)
 	if err != nil {
@@ -31,11 +30,11 @@ func makeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	models.UserCreateRules(form)
 
 	if !form.IsValid() {
-		return printError(errors.New(fmt.Sprintf("make user: invalid arguments: %v", form.Errors)))
+		return printError(fmt.Errorf("make user: invalid arguments: %v", form.Errors))
 	}
 
 	userRepository := &models.RedisUserRepository{
-		RedisPool:      newRedisPool(*redisUrl),
+		RedisPool:      newRedisPool(*redisURL),
 		RedisKeyPrefix: *redisKeyPrefix,
 	}
 
@@ -47,10 +46,10 @@ func makeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	}
 
 	return (&cli.Table{
-		Headers: []string{"Id", "Username", "Email", "IsEnabled"},
+		Headers: []string{"ID", "Username", "Email", "IsEnabled"},
 		Rows: [][]string{
 			{
-				strconv.Itoa(user.Id),
+				strconv.Itoa(user.ID),
 				user.Username,
 				user.Email,
 				strconv.FormatBool(user.IsEnabled),

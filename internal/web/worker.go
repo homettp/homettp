@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -11,7 +10,7 @@ import (
 	"github.com/homettp/homettp/internal/models"
 )
 
-func (app *App) worker() {
+func (app *app) worker() {
 	for id := range app.queue {
 		err := app.handleCall(id)
 		if err != nil {
@@ -20,14 +19,14 @@ func (app *App) worker() {
 	}
 }
 
-func (app *App) handleCall(id int64) error {
+func (app *app) handleCall(id int64) error {
 	call, err := app.callRepository.Find(id)
 	if err != nil {
 		return err
 	}
 
 	if call.Status != models.Pending {
-		return errors.New(fmt.Sprintf("worker: invalid call model %v", id))
+		return fmt.Errorf("worker: invalid call model %v", id)
 	}
 
 	err = app.callRepository.Update(call, &models.Call{
@@ -37,7 +36,7 @@ func (app *App) handleCall(id int64) error {
 		return err
 	}
 
-	command, err := app.commandRepository.Find(call.CommandId)
+	command, err := app.commandRepository.Find(call.CommandID)
 	if err != nil {
 		return err
 	}

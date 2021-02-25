@@ -14,16 +14,18 @@ import (
 
 const (
 	userKeyPrefix   = "user:"
-	userIdKey       = "id"
+	userIDKey       = "id"
 	userUsernameKey = "username"
 	userEmailKey    = "email"
 )
 
+// RedisUserRepository type.
 type RedisUserRepository struct {
 	RedisPool      *redis.Pool
 	RedisKeyPrefix string
 }
 
+// Create function.
 func (rur *RedisUserRepository) Create(user *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -51,7 +53,7 @@ func (rur *RedisUserRepository) Create(user *User) error {
 		return err
 	}
 
-	user.Id, err = redis.Int(conn.Do("INCR", rur.RedisKeyPrefix+userKeyPrefix+userIdKey))
+	user.ID, err = redis.Int(conn.Do("INCR", rur.RedisKeyPrefix+userKeyPrefix+userIDKey))
 	if err != nil {
 		return err
 	}
@@ -64,21 +66,21 @@ func (rur *RedisUserRepository) Create(user *User) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.Id)).AddFlat(user)...,
+		"HMSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
 	)
 	if err != nil {
 		return err
 	}
 
 	err = conn.Send(
-		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.Id, strings.ToLower(user.Username),
+		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.ID, strings.ToLower(user.Username),
 	)
 	if err != nil {
 		return err
 	}
 
 	err = conn.Send(
-		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.Id, strings.ToLower(user.Email),
+		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.ID, strings.ToLower(user.Email),
 	)
 	if err != nil {
 		return err
@@ -92,6 +94,7 @@ func (rur *RedisUserRepository) Create(user *User) error {
 	return nil
 }
 
+// Find function.
 func (rur *RedisUserRepository) Find(id int) (*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -115,6 +118,7 @@ func (rur *RedisUserRepository) Find(id int) (*User, error) {
 	return &user, nil
 }
 
+// FindAll function.
 func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -154,6 +158,7 @@ func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 	return users, nil
 }
 
+// Update function.
 func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -207,7 +212,7 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 		user.Username = newUser.Username
 
 		err = conn.Send(
-			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.Id, strings.ToLower(user.Username),
+			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.ID, strings.ToLower(user.Username),
 		)
 		if err != nil {
 			return err
@@ -225,7 +230,7 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 		user.Email = newUser.Email
 
 		err = conn.Send(
-			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.Id, strings.ToLower(user.Email),
+			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.ID, strings.ToLower(user.Email),
 		)
 		if err != nil {
 			return err
@@ -233,7 +238,7 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.Id)).AddFlat(user)...,
+		"HMSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
 	)
 	if err != nil {
 		return err
@@ -247,11 +252,12 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	return nil
 }
 
+// UpdateRememberToken function.
 func (rur *RedisUserRepository) UpdateRememberToken(user *User, token string) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("HSET", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.Id), "remember_token", token)
+	_, err := conn.Do("HSET", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID), "remember_token", token)
 	if err != nil {
 		return err
 	}
@@ -261,6 +267,7 @@ func (rur *RedisUserRepository) UpdateRememberToken(user *User, token string) er
 	return nil
 }
 
+// Authenticate function.
 func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -304,14 +311,15 @@ func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return nil, ErrInvalidCredentials
-		} else {
-			return nil, err
 		}
+
+		return nil, err
 	}
 
 	return &user, nil
 }
 
+// AuthenticateByRememberToken function.
 func (rur *RedisUserRepository) AuthenticateByRememberToken(id int, token string) (*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -343,6 +351,7 @@ func (rur *RedisUserRepository) AuthenticateByRememberToken(id int, token string
 	return &user, nil
 }
 
+// Delete function.
 func (rur *RedisUserRepository) Delete(user *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
@@ -366,7 +375,7 @@ func (rur *RedisUserRepository) Delete(user *User) error {
 		return err
 	}
 
-	err = conn.Send("DEL", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.Id))
+	err = conn.Send("DEL", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID))
 	if err != nil {
 		return err
 	}

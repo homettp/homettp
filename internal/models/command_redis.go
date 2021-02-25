@@ -12,15 +12,17 @@ import (
 
 const (
 	commandKeyPrefix = "command:"
-	commandIdKey     = "id"
+	commandIDKey     = "id"
 	commandNameKey   = "name"
 )
 
+// RedisCommandRepository type.
 type RedisCommandRepository struct {
 	RedisPool      *redis.Pool
 	RedisKeyPrefix string
 }
 
+// Create function.
 func (rcr *RedisCommandRepository) Create(command *Command, token string) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -38,7 +40,7 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 		return ErrInvalidValue
 	}
 
-	command.Id, err = redis.Int(conn.Do("INCR", rcr.RedisKeyPrefix+commandKeyPrefix+commandIdKey))
+	command.ID, err = redis.Int(conn.Do("INCR", rcr.RedisKeyPrefix+commandKeyPrefix+commandIDKey))
 	if err != nil {
 		return err
 	}
@@ -52,14 +54,14 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.Id)).AddFlat(command)...,
+		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
 	)
 	if err != nil {
 		return err
 	}
 
 	err = conn.Send(
-		"ZADD", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, "NX", command.Id, strings.ToLower(command.Name),
+		"ZADD", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, "NX", command.ID, strings.ToLower(command.Name),
 	)
 	if err != nil {
 		return err
@@ -73,6 +75,7 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 	return nil
 }
 
+// Find function.
 func (rcr *RedisCommandRepository) Find(id int) (*Command, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -96,6 +99,7 @@ func (rcr *RedisCommandRepository) Find(id int) (*Command, error) {
 	return &command, nil
 }
 
+// FindAll function.
 func (rcr *RedisCommandRepository) FindAll() ([]*Command, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -135,6 +139,7 @@ func (rcr *RedisCommandRepository) FindAll() ([]*Command, error) {
 	return commands, nil
 }
 
+// Update function.
 func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -175,7 +180,7 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 		command.Name = newCommand.Name
 
 		err = conn.Send(
-			"ZADD", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, "NX", command.Id, strings.ToLower(command.Name),
+			"ZADD", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, "NX", command.ID, strings.ToLower(command.Name),
 		)
 		if err != nil {
 			return err
@@ -183,7 +188,7 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.Id)).AddFlat(command)...,
+		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
 	)
 	if err != nil {
 		return err
@@ -197,11 +202,12 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 	return nil
 }
 
+// UpdateToken function.
 func (rcr *RedisCommandRepository) UpdateToken(command *Command, token string) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("HSET", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.Id), "token", token)
+	_, err := conn.Do("HSET", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID), "token", token)
 	if err != nil {
 		return err
 	}
@@ -211,12 +217,13 @@ func (rcr *RedisCommandRepository) UpdateToken(command *Command, token string) e
 	return nil
 }
 
+// Delete function.
 func (rcr *RedisCommandRepository) Delete(command *Command) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
 	calls, err := redis.Int64s(
-		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.Id), 0, -1),
+		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.ID), 0, -1),
 	)
 	if err != nil {
 		return err
@@ -234,7 +241,7 @@ func (rcr *RedisCommandRepository) Delete(command *Command) error {
 		}
 	}
 
-	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.Id))
+	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.ID))
 	if err != nil {
 		return err
 	}
@@ -246,7 +253,7 @@ func (rcr *RedisCommandRepository) Delete(command *Command) error {
 		return err
 	}
 
-	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.Id))
+	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID))
 	if err != nil {
 		return err
 	}

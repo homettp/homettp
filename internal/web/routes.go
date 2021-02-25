@@ -6,7 +6,7 @@ import (
 	"github.com/justinas/alice"
 )
 
-func (app *App) routes() http.Handler {
+func (app *app) routes() http.Handler {
 	baseMiddleware := alice.New(app.recoverPanic)
 	webMiddleware := alice.New(
 		app.sessionManager.LoadAndSave,

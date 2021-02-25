@@ -20,11 +20,12 @@ import (
 	"github.com/petaki/support-go/mix"
 )
 
-func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandTimeout, commandWorkerCount, commandHistoryLimit int) {
+// Serve function.
+func Serve(debug bool, addr, url, key, redisURL, redisKeyPrefix string, commandTimeout, commandWorkerCount, commandHistoryLimit int) {
 	infoLog := log.New(os.Stdout, cli.Cyan("INFO\t"), log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, cli.Red("ERROR\t"), log.Ldate|log.Ltime|log.Lshortfile)
 
-	redisPool := newRedisPool(redisUrl)
+	redisPool := newRedisPool(redisURL)
 	sessionManager := scs.New()
 	sessionManager.Store = redisstore.NewWithPrefix(redisPool, fmt.Sprintf("%sscs:session:", redisKeyPrefix))
 
@@ -44,7 +45,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 
 	queue := make(chan int64, 100)
 
-	app := &App{
+	webApp := &app{
 		debug:               debug,
 		url:                 url,
 		errorLog:            errorLog,
@@ -75,13 +76,13 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 	}
 
 	for i := 0; i < commandWorkerCount; i++ {
-		go app.worker()
+		go webApp.worker()
 	}
 
 	srv := &http.Server{
 		Addr:         addr,
 		ErrorLog:     errorLog,
-		Handler:      app.routes(),
+		Handler:      webApp.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -103,7 +104,7 @@ func Serve(debug bool, addr, url, key, redisUrl, redisKeyPrefix string, commandT
 	<-done
 	infoLog.Print("Server stopped")
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(app.commandTimeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(webApp.commandTimeout)*time.Second)
 	defer func() {
 		close(queue)
 		redisPool.Close()

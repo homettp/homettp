@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,7 +9,7 @@ import (
 	"github.com/homettp/homettp/internal/models"
 )
 
-func (app *App) callIndex(w http.ResponseWriter, r *http.Request) {
+func (app *app) callIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" && r.Method != "POST" {
 		app.methodNotAllowed(w, []string{"GET", "POST"})
 
@@ -41,7 +40,7 @@ func (app *App) callIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	select {
-	case app.queue <- call.Id:
+	case app.queue <- call.ID:
 		w.Header().Set("Content-Type", "application/json")
 
 		err = json.NewEncoder(w).Encode(call)
@@ -53,7 +52,7 @@ func (app *App) callIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) callHistory(w http.ResponseWriter, r *http.Request) {
+func (app *app) callHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		app.methodNotAllowed(w, []string{"GET"})
 
@@ -83,7 +82,7 @@ func (app *App) callHistory(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *App) callDelete(w http.ResponseWriter, r *http.Request) {
+func (app *app) callDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		app.methodNotAllowed(w, []string{"DELETE"})
 
@@ -105,12 +104,12 @@ func (app *App) callDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
-	http.Redirect(w, r, fmt.Sprintf("/call/history?id=%v", call.CommandId), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/call/history?id=%v", call.CommandID), http.StatusSeeOther)
 }
 
-func (app *App) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
+func (app *app) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, errors.New(fmt.Sprintf("%s parameter not found", parameter))
+		return nil, fmt.Errorf("%s parameter not found", parameter)
 	}
 
 	id, err := strconv.ParseInt(r.URL.Query().Get(parameter), 10, 64)

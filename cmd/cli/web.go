@@ -13,7 +13,7 @@ func webServe(group *cli.Group, command *cli.Command, arguments []string) int {
 	url := command.FlagSet().String("url", os.Getenv("APP_URL"), "Application URL")
 	key := command.FlagSet().String("key", os.Getenv("APP_KEY"), "Application Key")
 
-	redisUrl, redisKeyPrefix := createRedisFlags(command)
+	redisURL, redisKeyPrefix := createRedisFlags(command)
 	commandTimeout, commandWorkerCount, commandHistoryLimit := createCommandFlags(command)
 
 	web.Serve(
@@ -21,7 +21,7 @@ func webServe(group *cli.Group, command *cli.Command, arguments []string) int {
 		*addr,
 		*url,
 		*key,
-		*redisUrl,
+		*redisURL,
 		*redisKeyPrefix,
 		*commandTimeout,
 		*commandWorkerCount,

@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	sessionKeyAuthUserId   = "authUserId"
+	sessionKeyAuthUserID   = "authUserID"
 	sessionKeyFlashMessage = "flashMessage"
-	sessionKeyIntendedUrl  = "intendedUrl"
+	sessionKeyIntendedURL  = "intendedURL"
 	rememberCookieName     = "remember"
 )
 
-type App struct {
+type app struct {
 	debug               bool
 	url                 string
 	errorLog            *log.Logger

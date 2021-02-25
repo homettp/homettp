@@ -9,22 +9,24 @@ import (
 
 const (
 	callKeyPrefix = "call:"
-	callIdKey     = "id"
+	callIDKey     = "id"
 )
 
+// RedisCallRepository type.
 type RedisCallRepository struct {
 	RedisPool           *redis.Pool
 	RedisKeyPrefix      string
 	CommandHistoryLimit int
 }
 
+// Create function.
 func (rcr *RedisCallRepository) Create(call *Call) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
 	var err error
 
-	call.Id, err = redis.Int64(conn.Do("INCR", rcr.RedisKeyPrefix+callKeyPrefix+callIdKey))
+	call.ID, err = redis.Int64(conn.Do("INCR", rcr.RedisKeyPrefix+callKeyPrefix+callIDKey))
 	if err != nil {
 		return err
 	}
@@ -37,14 +39,14 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.Id, 10)).AddFlat(call)...,
+		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
 	)
 	if err != nil {
 		return err
 	}
 
 	err = conn.Send(
-		"LPUSH", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), call.Id,
+		"LPUSH", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), call.ID,
 	)
 	if err != nil {
 		return err
@@ -56,7 +58,7 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	}
 
 	ids, err := redis.Int64s(
-		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), rcr.CommandHistoryLimit, -1),
+		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), rcr.CommandHistoryLimit, -1),
 	)
 	if err != nil {
 		return err
@@ -75,7 +77,7 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	}
 
 	err = conn.Send(
-		"LTRIM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), 0, rcr.CommandHistoryLimit-1,
+		"LTRIM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), 0, rcr.CommandHistoryLimit-1,
 	)
 	if err != nil {
 		return err
@@ -89,6 +91,7 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	return nil
 }
 
+// Find function.
 func (rcr *RedisCallRepository) Find(id int64) (*Call, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -114,12 +117,13 @@ func (rcr *RedisCallRepository) Find(id int64) (*Call, error) {
 	return &call, nil
 }
 
+// FindAllByCommand function.
 func (rcr *RedisCallRepository) FindAllByCommand(command *Command) ([]*Call, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
 	ids, err := redis.Int64s(
-		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.Id), 0, -1),
+		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.ID), 0, -1),
 	)
 	if err != nil {
 		return nil, err
@@ -139,6 +143,7 @@ func (rcr *RedisCallRepository) FindAllByCommand(command *Command) ([]*Call, err
 	return calls, nil
 }
 
+// Update function.
 func (rcr *RedisCallRepository) Update(call, newCall *Call) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -147,7 +152,7 @@ func (rcr *RedisCallRepository) Update(call, newCall *Call) error {
 	call.Output = newCall.Output
 
 	_, err := conn.Do(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.Id, 10)).AddFlat(call)...,
+		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
 	)
 	if err != nil {
 		return err
@@ -156,6 +161,7 @@ func (rcr *RedisCallRepository) Update(call, newCall *Call) error {
 	return nil
 }
 
+// Delete function.
 func (rcr *RedisCallRepository) Delete(call *Call) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
@@ -166,13 +172,13 @@ func (rcr *RedisCallRepository) Delete(call *Call) error {
 	}
 
 	err = conn.Send(
-		"LREM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandId), 0, call.Id,
+		"LREM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), 0, call.ID,
 	)
 	if err != nil {
 		return err
 	}
 
-	err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.Id, 10))
+	err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10))
 	if err != nil {
 		return err
 	}

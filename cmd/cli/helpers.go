@@ -9,10 +9,10 @@ import (
 )
 
 func createRedisFlags(command *cli.Command) (*string, *string) {
-	redisUrl := command.FlagSet().String("redis-url", os.Getenv("REDIS_URL"), "Redis URL")
+	redisURL := command.FlagSet().String("redis-url", os.Getenv("REDIS_URL"), "Redis URL")
 	redisKeyPrefix := command.FlagSet().String("redis-key-prefix", os.Getenv("REDIS_KEY_PREFIX"), "Redis Key Prefix")
 
-	return redisUrl, redisKeyPrefix
+	return redisURL, redisKeyPrefix
 }
 
 func createCommandFlags(command *cli.Command) (*int, *int, *int) {

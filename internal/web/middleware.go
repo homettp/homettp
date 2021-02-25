@@ -11,7 +11,7 @@ import (
 	"github.com/homettp/homettp/internal/models"
 )
 
-func (app *App) recoverPanic(next http.Handler) http.Handler {
+func (app *app) recoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -24,10 +24,10 @@ func (app *App) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-func (app *App) redirectIfNotAuthenticated(next http.Handler) http.Handler {
+func (app *app) redirectIfNotAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.authUser(r) == nil {
-			app.sessionManager.Put(r.Context(), sessionKeyIntendedUrl, r.URL.Path)
+			app.sessionManager.Put(r.Context(), sessionKeyIntendedURL, r.URL.Path)
 			http.Redirect(w, r, "/login", http.StatusFound)
 
 			return
@@ -37,7 +37,7 @@ func (app *App) redirectIfNotAuthenticated(next http.Handler) http.Handler {
 	})
 }
 
-func (app *App) redirectIfAuthenticated(next http.Handler) http.Handler {
+func (app *app) redirectIfAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.authUser(r) != nil {
 			http.Redirect(w, r, "/", http.StatusFound)
@@ -49,9 +49,9 @@ func (app *App) redirectIfAuthenticated(next http.Handler) http.Handler {
 	})
 }
 
-func (app *App) remember(next http.Handler) http.Handler {
+func (app *app) remember(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		exists := app.sessionManager.Exists(r.Context(), sessionKeyAuthUserId)
+		exists := app.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
 		if exists {
 			next.ServeHTTP(w, r)
 
@@ -107,7 +107,7 @@ func (app *App) remember(next http.Handler) http.Handler {
 			return
 		}
 
-		app.sessionManager.Put(r.Context(), sessionKeyAuthUserId, id)
+		app.sessionManager.Put(r.Context(), sessionKeyAuthUserID, id)
 
 		err = app.sessionManager.RenewToken(r.Context())
 		if err != nil {
@@ -120,18 +120,18 @@ func (app *App) remember(next http.Handler) http.Handler {
 	})
 }
 
-func (app *App) authenticate(next http.Handler) http.Handler {
+func (app *app) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		exists := app.sessionManager.Exists(r.Context(), sessionKeyAuthUserId)
+		exists := app.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
 		if !exists {
 			next.ServeHTTP(w, r)
 
 			return
 		}
 
-		user, err := app.userRepository.Find(app.sessionManager.GetInt(r.Context(), sessionKeyAuthUserId))
+		user, err := app.userRepository.Find(app.sessionManager.GetInt(r.Context(), sessionKeyAuthUserID))
 		if errors.Is(err, models.ErrNoRecord) || !user.IsEnabled {
-			app.sessionManager.Remove(r.Context(), sessionKeyAuthUserId)
+			app.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
 			next.ServeHTTP(w, r)
 
 			return
@@ -151,7 +151,7 @@ func (app *App) authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func (app *App) flashMessage(next http.Handler) http.Handler {
+func (app *app) flashMessage(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		flashMessage := app.sessionManager.PopString(r.Context(), sessionKeyFlashMessage)
 		if flashMessage == "" {
