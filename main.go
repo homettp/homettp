@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/homettp/homettp/internal/cmd"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/petaki/support-go/cli"
 )
@@ -22,7 +23,7 @@ func main() {
 							"email",
 							"password",
 						},
-						HandleFunc: makeUser,
+						HandleFunc: cmd.MakeUser,
 					},
 				},
 			},
@@ -33,7 +34,7 @@ func main() {
 					&cli.Command{
 						Name:       "serve",
 						Usage:      "Serve the app",
-						HandleFunc: webServe,
+						HandleFunc: cmd.WebServe,
 					},
 				},
 			},

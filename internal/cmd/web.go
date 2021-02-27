@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"os"
@@ -7,7 +7,8 @@ import (
 	"github.com/petaki/support-go/cli"
 )
 
-func webServe(group *cli.Group, command *cli.Command, arguments []string) int {
+// WebServe command.
+func WebServe(group *cli.Group, command *cli.Command, arguments []string) int {
 	debug := command.FlagSet().Bool("debug", false, "Application Debug Mode")
 	addr := command.FlagSet().String("addr", os.Getenv("APP_ADDR"), "Application Address")
 	url := command.FlagSet().String("url", os.Getenv("APP_URL"), "Application URL")
