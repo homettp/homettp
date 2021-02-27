@@ -7,25 +7,24 @@ pre_clean:
 
 ui:
 	yarn prod
-	mkdir dist dist/resources
+	mkdir dist
 	cp .env.example dist/.env
 	cp -r public dist
-	cp -r resources/views dist/resources
 
 darwin:
-	GOOS=darwin GOARCH=amd64 go build -o dist/homettp ./cmd/cli
-	cd dist && zip -r homettp_$(VERSION)_darwin_amd64.zip public resources .env homettp
+	GOOS=darwin GOARCH=amd64 go build -o dist/homettp
+	cd dist && zip -r homettp_$(VERSION)_darwin_amd64.zip public .env homettp
 	rm -f dist/homettp
 
 linux:
-	GOOS=linux GOARCH=amd64 go build -o dist/homettp ./cmd/cli
-	cd dist && zip -r homettp_$(VERSION)_linux_amd64.zip public resources .env homettp
+	GOOS=linux GOARCH=amd64 go build -o dist/homettp
+	cd dist && zip -r homettp_$(VERSION)_linux_amd64.zip public .env homettp
 	rm -f dist/homettp
 
 windows:
-	GOOS=windows GOARCH=amd64 go build -o dist/homettp.exe ./cmd/cli
-	cd dist && zip -r homettp_$(VERSION)_windows_amd64.zip public resources .env homettp.exe
+	GOOS=windows GOARCH=amd64 go build -o dist/homettp.exe
+	cd dist && zip -r homettp_$(VERSION)_windows_amd64.zip public .env homettp.exe
 	rm -f dist/homettp.exe
 
 post_clean:
-	rm -rf dist/public dist/resources dist/.env
+	rm -rf dist/public dist/.env

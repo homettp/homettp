@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -11,7 +11,8 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func makeUser(group *cli.Group, command *cli.Command, arguments []string) int {
+// MakeUser command.
+func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	enabled := command.FlagSet().Bool("enabled", true, "User Enabled")
 	redisURL, redisKeyPrefix := createRedisFlags(command)
 
