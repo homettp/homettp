@@ -4,6 +4,8 @@ github.com/alexedwards/scs/v2 v2.4.0 h1:XfnMamKnvp1muJVNr1WzikQTclopsBXWZtzz0NBj
 github.com/alexedwards/scs/v2 v2.4.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
 github.com/chmike/securecookie v1.3.0 h1:PGvTRUbhtxO5DhwqAKfAel5YqOA8VP3NIAOlhdXgc68=
 github.com/chmike/securecookie v1.3.0/go.mod h1:lu0n56FCCNkJ7ow6k1gc0W0FiyJSEJAnZXFh49fTrhQ=
+github.com/chmike/securecookie v1.3.1 h1:rtsvnDKlI14+2ilTYSAjXlQWnZL17XavL2GvyJW+Eos=
+github.com/chmike/securecookie v1.3.1/go.mod h1:lu0n56FCCNkJ7ow6k1gc0W0FiyJSEJAnZXFh49fTrhQ=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gomodule/redigo v1.8.0/go.mod h1:P9dn9mFrCBvWhGE1wpxx6fgq7BAeLBk+UUUzlpkBYO0=
