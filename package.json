@@ -21,6 +21,7 @@
     "eslint-config-airbnb-base": "^14.2",
     "eslint-plugin-import": "^2.22",
     "eslint-plugin-vue": "^6.2",
+    "is-svg": "^4.2.2",
     "jquery": "^3.5",
     "laravel-mix": "^6.0",
     "lodash": "^4.17",
