@@ -29,5 +29,5 @@ func WebServe(group *cli.Group, command *cli.Command, arguments []string) int {
 		*commandHistoryLimit,
 	)
 
-	return 0
+	return cli.Success
 }

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -36,10 +35,4 @@ func createCommandFlags(command *cli.Command) (*int, *int, *int) {
 	commandHistoryLimit := command.FlagSet().Int("command-history-limit", envCommandHistoryLimit, "Command History Limit")
 
 	return commandTimeout, commandWorkerCount, commandHistoryLimit
-}
-
-func printError(err error) int {
-	fmt.Println(err)
-
-	return 1
 }

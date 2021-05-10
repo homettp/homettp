@@ -31,7 +31,7 @@ func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	models.UserCreateRules(form)
 
 	if !form.IsValid() {
-		return printError(fmt.Errorf("make user: invalid arguments: %v", form.Errors))
+		return command.PrintError(fmt.Errorf("make user: invalid arguments: %v", form.Errors))
 	}
 
 	userRepository := &models.RedisUserRepository{
@@ -43,7 +43,7 @@ func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	err = userRepository.Create(user)
 
 	if err != nil {
-		return printError(err)
+		return command.PrintError(err)
 	}
 
 	return (&cli.Table{
