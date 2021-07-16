@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
@@ -44,10 +45,15 @@ func (app *app) handleCall(id int64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(app.commandTimeout)*time.Second)
 	defer cancel()
 
-	segments := strings.Fields(strings.ReplaceAll(command.Value, models.PayloadVariable, call.Payload))
-	name, arg := segments[0], segments[1:]
+	name := "/bin/sh"
+	arg := "-c"
 
-	cmd := exec.CommandContext(ctx, name, arg...)
+	if runtime.GOOS == "windows" {
+		name = "cmd"
+		arg = "/C"
+	}
+
+	cmd := exec.CommandContext(ctx, name, arg, strings.ReplaceAll(command.Value, models.PayloadVariable, call.Payload))
 	out, err := cmd.Output()
 
 	if ctx.Err() == context.DeadlineExceeded {
