@@ -54,6 +54,8 @@
 import Layout from '../../common/Layout.vue';
 
 export default {
+    layout: Layout,
+
     props: {
         users: {
             type: Array,
@@ -65,8 +67,6 @@ export default {
             required: true
         }
     },
-
-    layout: Layout,
 
     metaInfo() {
         return {

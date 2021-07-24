@@ -78,6 +78,8 @@ import { Inertia } from '@inertiajs/inertia';
 import Layout from '../../common/Layout.vue';
 
 export default {
+    layout: Layout,
+
     props: {
         command: {
             type: Object,
@@ -89,8 +91,6 @@ export default {
             default: () => []
         }
     },
-
-    layout: Layout,
 
     data() {
         return {
