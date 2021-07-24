@@ -194,6 +194,8 @@
 import Layout from '../../common/Layout.vue';
 
 export default {
+    layout: Layout,
+
     props: {
         command: {
             type: Object,
@@ -215,8 +217,6 @@ export default {
             default: ''
         }
     },
-
-    layout: Layout,
 
     metaInfo() {
         return {

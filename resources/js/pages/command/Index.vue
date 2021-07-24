@@ -76,14 +76,14 @@
 import Layout from '../../common/Layout.vue';
 
 export default {
+    layout: Layout,
+
     props: {
         commands: {
             type: Array,
             default: () => []
         }
     },
-
-    layout: Layout,
 
     metaInfo() {
         return {

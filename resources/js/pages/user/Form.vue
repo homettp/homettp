@@ -141,14 +141,14 @@
 import Layout from '../../common/Layout.vue';
 
 export default {
+    layout: Layout,
+
     props: {
         user: {
             type: Object,
             required: true
         }
     },
-
-    layout: Layout,
 
     metaInfo() {
         return {
