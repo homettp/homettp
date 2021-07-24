@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
-import { App, plugin } from '@inertiajs/inertia-vue';
+import { createInertiaApp, InertiaLink } from '@inertiajs/inertia-vue';
 import { InertiaProgress } from '@inertiajs/progress';
 import Tooltip from './common/Tooltip';
 
@@ -14,13 +14,12 @@ try {
     require('bootstrap');
 } catch (e) {}
 
-InertiaProgress.init();
-
 Vue.config.productionTip = false;
-Vue.use(plugin);
 Vue.use(VueMeta);
 
-Vue.directive('tooltip', Tooltip);
+InertiaProgress.init();
+Vue.component('InertiaLink', InertiaLink);
+Vue.directive('Tooltip', Tooltip);
 
 Vue.filter('date', value => {
     const date = DateTime.fromISO(value);
@@ -40,18 +39,16 @@ Vue.mixin({
     }
 });
 
-const el = document.getElementById('app');
-const initialPage = JSON.parse(el.dataset.page);
+createInertiaApp({
+    // eslint-disable-next-line import/no-dynamic-require
+    resolve: name => require(`./pages/${name}.vue`),
+    setup({ el, app, props }) {
+        new Vue({
+            metaInfo: {
+                titleTemplate: title => (title ? `${title} - ${props.title}` : props.title)
+            },
 
-new Vue({
-    metaInfo: {
-        titleTemplate: title => (title ? `${title} - ${initialPage.props.title}` : initialPage.props.title)
-    },
-
-    render: h => h(App, {
-        props: {
-            initialPage,
-            resolveComponent: name => import(`./pages/${name}.vue`).then(module => module.default)
-        }
-    })
-}).$mount(el);
+            render: h => h(app, props)
+        }).$mount(el);
+    }
+});
