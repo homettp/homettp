@@ -13,7 +13,7 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func (app *app) authUser(r *http.Request) *models.User {
+func (a *app) authUser(r *http.Request) *models.User {
 	user, ok := r.Context().Value(contextKeyAuthUser).(*models.User)
 	if !ok {
 		return nil
@@ -22,7 +22,7 @@ func (app *app) authUser(r *http.Request) *models.User {
 	return user
 }
 
-func (app *app) generateToken() (string, error) {
+func (a *app) generateToken() (string, error) {
 	bytes, err := securecookie.GenerateRandomKey()
 	if err != nil {
 		return "", err
@@ -31,21 +31,21 @@ func (app *app) generateToken() (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func (app *app) formError(w http.ResponseWriter, err error) {
+func (a *app) formError(w http.ResponseWriter, err error) {
 	var fe *forms.Error
 
 	if errors.As(err, &fe) {
 		http.Error(w, fe.Msg, fe.Status)
 	} else {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) serverError(w http.ResponseWriter, err error) {
+func (a *app) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
+	a.errorLog.Output(2, trace)
 
-	if app.debug {
+	if a.debug {
 		http.Error(w, trace, http.StatusInternalServerError)
 		return
 	}
@@ -53,15 +53,15 @@ func (app *app) serverError(w http.ResponseWriter, err error) {
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-func (app *app) clientError(w http.ResponseWriter, status int) {
+func (a *app) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *app) notFound(w http.ResponseWriter) {
-	app.clientError(w, http.StatusNotFound)
+func (a *app) notFound(w http.ResponseWriter) {
+	a.clientError(w, http.StatusNotFound)
 }
 
-func (app *app) methodNotAllowed(w http.ResponseWriter, allow []string) {
+func (a *app) methodNotAllowed(w http.ResponseWriter, allow []string) {
 	w.Header().Set("Allow", strings.Join(allow, ", "))
-	app.clientError(w, http.StatusMethodNotAllowed)
+	a.clientError(w, http.StatusMethodNotAllowed)
 }

@@ -1,5 +1,7 @@
 github.com/alexedwards/scs/redisstore v0.0.0-20210606090158-85ec2fab6bdf h1:GggSYzloc5UpN8YuEdD/QUoue+NWgd4dMbkunHCBbeU=
 github.com/alexedwards/scs/redisstore v0.0.0-20210606090158-85ec2fab6bdf/go.mod h1:ceKFatoD+hfHWWeHOAYue1J+XgOJjE7dw8l3JtIRTGY=
+github.com/alexedwards/scs/redisstore v0.0.0-20210724084017-7da169695f20 h1:eWX8zxMoBu4TxOyibH0GIPdFaR129UZRH3p9bjRS9yg=
+github.com/alexedwards/scs/redisstore v0.0.0-20210724084017-7da169695f20/go.mod h1:ceKFatoD+hfHWWeHOAYue1J+XgOJjE7dw8l3JtIRTGY=
 github.com/alexedwards/scs/v2 v2.4.0 h1:XfnMamKnvp1muJVNr1WzikQTclopsBXWZtzz0NBjOK0=
 github.com/alexedwards/scs/v2 v2.4.0/go.mod h1:ToaROZxyKukJKT/xLcVQAChi5k6+Pn1Gvmdl7h3RRj8=
 github.com/chmike/securecookie v1.3.2 h1:YZQJiNKxfj95lihcCFJkD3hPh6YyGIFSYMFAT9sNOpc=
@@ -19,6 +21,8 @@ github.com/petaki/inertia-go v1.1.0 h1:wo8HXq9iHv6Lld3x5mx8M/i08QxjsjXfkJhDcc2vz
 github.com/petaki/inertia-go v1.1.0/go.mod h1:vOh9Ny1TFGeIXnOFEq6jeBGbo7STtTvMD+6wz9XI57c=
 github.com/petaki/support-go v1.2.1 h1:P985FnAHdwPich8SRcEN5QZbXeJ5nZKz4Z7VUuxlLmo=
 github.com/petaki/support-go v1.2.1/go.mod h1:PHk2IV3V7Wf6ALnhG0eN5oUJ7kZ9FcwiQsawH8DbFSs=
+github.com/petaki/support-go v1.2.2 h1:WQXqIoQGEMYMB/9nmXB/yjH3WmioZVhvX+spUymaqwU=
+github.com/petaki/support-go v1.2.2/go.mod h1:PHk2IV3V7Wf6ALnhG0eN5oUJ7kZ9FcwiQsawH8DbFSs=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

@@ -6,31 +6,31 @@ import (
 	"github.com/justinas/alice"
 )
 
-func (app *app) routes() http.Handler {
-	baseMiddleware := alice.New(app.recoverPanic)
+func (a *app) routes() http.Handler {
+	baseMiddleware := alice.New(a.recoverPanic)
 	webMiddleware := alice.New(
-		app.sessionManager.LoadAndSave,
-		app.remember,
-		app.authenticate,
-		app.flashMessage,
-		app.inertiaManager.Middleware,
+		a.sessionManager.LoadAndSave,
+		a.remember,
+		a.authenticate,
+		a.flashMessage,
+		a.inertiaManager.Middleware,
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandIndex))
-	mux.Handle("/command/create", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandCreate))
-	mux.Handle("/command/edit", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandEdit))
-	mux.Handle("/command/refresh-token", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandRefreshToken))
-	mux.Handle("/command/delete", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.commandDelete))
-	mux.Handle("/call", baseMiddleware.ThenFunc(app.callIndex))
-	mux.Handle("/call/history", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.callHistory))
-	mux.Handle("/call/delete", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.callDelete))
-	mux.Handle("/user/create", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userCreate))
-	mux.Handle("/user/edit", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userEdit))
-	mux.Handle("/user/delete", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userDelete))
-	mux.Handle("/login", webMiddleware.Append(app.redirectIfAuthenticated).ThenFunc(app.login))
-	mux.Handle("/logout", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.logout))
-	mux.Handle("/user", webMiddleware.Append(app.redirectIfNotAuthenticated).ThenFunc(app.userIndex))
+	mux.Handle("/", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.commandIndex))
+	mux.Handle("/command/create", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.commandCreate))
+	mux.Handle("/command/edit", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.commandEdit))
+	mux.Handle("/command/refresh-token", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.commandRefreshToken))
+	mux.Handle("/command/delete", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.commandDelete))
+	mux.Handle("/call", baseMiddleware.ThenFunc(a.callIndex))
+	mux.Handle("/call/history", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.callHistory))
+	mux.Handle("/call/delete", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.callDelete))
+	mux.Handle("/user/create", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.userCreate))
+	mux.Handle("/user/edit", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.userEdit))
+	mux.Handle("/user/delete", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.userDelete))
+	mux.Handle("/login", webMiddleware.Append(a.redirectIfAuthenticated).ThenFunc(a.login))
+	mux.Handle("/logout", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.logout))
+	mux.Handle("/user", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.userIndex))
 
 	fileServer := http.FileServer(http.Dir("./public/"))
 

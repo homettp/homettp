@@ -11,12 +11,12 @@ import (
 	"github.com/homettp/homettp/internal/models"
 )
 
-func (app *app) recoverPanic(next http.Handler) http.Handler {
+func (a *app) recoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
-				app.serverError(w, fmt.Errorf("%s", err))
+				a.serverError(w, fmt.Errorf("%s", err))
 			}
 		}()
 
@@ -24,10 +24,10 @@ func (app *app) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-func (app *app) redirectIfNotAuthenticated(next http.Handler) http.Handler {
+func (a *app) redirectIfNotAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.authUser(r) == nil {
-			app.sessionManager.Put(r.Context(), sessionKeyIntendedURL, r.URL.Path)
+		if a.authUser(r) == nil {
+			a.sessionManager.Put(r.Context(), sessionKeyIntendedURL, r.URL.Path)
 			http.Redirect(w, r, "/login", http.StatusFound)
 
 			return
@@ -37,9 +37,9 @@ func (app *app) redirectIfNotAuthenticated(next http.Handler) http.Handler {
 	})
 }
 
-func (app *app) redirectIfAuthenticated(next http.Handler) http.Handler {
+func (a *app) redirectIfAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.authUser(r) != nil {
+		if a.authUser(r) != nil {
 			http.Redirect(w, r, "/", http.StatusFound)
 
 			return
@@ -49,16 +49,16 @@ func (app *app) redirectIfAuthenticated(next http.Handler) http.Handler {
 	})
 }
 
-func (app *app) remember(next http.Handler) http.Handler {
+func (a *app) remember(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		exists := app.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
+		exists := a.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
 		if exists {
 			next.ServeHTTP(w, r)
 
 			return
 		}
 
-		bytes, err := app.rememberCookie.GetValue(nil, r)
+		bytes, err := a.rememberCookie.GetValue(nil, r)
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
 				next.ServeHTTP(w, r)
@@ -66,7 +66,7 @@ func (app *app) remember(next http.Handler) http.Handler {
 				return
 			}
 
-			app.serverError(w, err)
+			a.serverError(w, err)
 
 			return
 		}
@@ -89,12 +89,12 @@ func (app *app) remember(next http.Handler) http.Handler {
 
 		id, err := strconv.Atoi(segments[0])
 		if err != nil {
-			app.serverError(w, err)
+			a.serverError(w, err)
 
 			return
 		}
 
-		_, err = app.userRepository.AuthenticateByRememberToken(id, segments[1])
+		_, err = a.userRepository.AuthenticateByRememberToken(id, segments[1])
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidCredentials) {
 				next.ServeHTTP(w, r)
@@ -102,16 +102,16 @@ func (app *app) remember(next http.Handler) http.Handler {
 				return
 			}
 
-			app.serverError(w, err)
+			a.serverError(w, err)
 
 			return
 		}
 
-		app.sessionManager.Put(r.Context(), sessionKeyAuthUserID, id)
+		a.sessionManager.Put(r.Context(), sessionKeyAuthUserID, id)
 
-		err = app.sessionManager.RenewToken(r.Context())
+		err = a.sessionManager.RenewToken(r.Context())
 		if err != nil {
-			app.serverError(w, err)
+			a.serverError(w, err)
 
 			return
 		}
@@ -120,29 +120,29 @@ func (app *app) remember(next http.Handler) http.Handler {
 	})
 }
 
-func (app *app) authenticate(next http.Handler) http.Handler {
+func (a *app) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		exists := app.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
+		exists := a.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
 		if !exists {
 			next.ServeHTTP(w, r)
 
 			return
 		}
 
-		user, err := app.userRepository.Find(app.sessionManager.GetInt(r.Context(), sessionKeyAuthUserID))
+		user, err := a.userRepository.Find(a.sessionManager.GetInt(r.Context(), sessionKeyAuthUserID))
 		if errors.Is(err, models.ErrNoRecord) || !user.IsEnabled {
-			app.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
+			a.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
 			next.ServeHTTP(w, r)
 
 			return
 		} else if err != nil {
-			app.serverError(w, err)
+			a.serverError(w, err)
 
 			return
 		}
 
 		ctx := context.WithValue(r.Context(), contextKeyAuthUser, user)
-		ctx = app.inertiaManager.WithProp(ctx, "auth", map[string]interface{}{
+		ctx = a.inertiaManager.WithProp(ctx, "auth", map[string]interface{}{
 			"user":     user,
 			"gravatar": user.Gravatar(88),
 		})
@@ -151,16 +151,16 @@ func (app *app) authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func (app *app) flashMessage(next http.Handler) http.Handler {
+func (a *app) flashMessage(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		flashMessage := app.sessionManager.PopString(r.Context(), sessionKeyFlashMessage)
+		flashMessage := a.sessionManager.PopString(r.Context(), sessionKeyFlashMessage)
 		if flashMessage == "" {
 			next.ServeHTTP(w, r)
 
 			return
 		}
 
-		ctx := app.inertiaManager.WithProp(r.Context(), "flash", flashMessage)
+		ctx := a.inertiaManager.WithProp(r.Context(), "flash", flashMessage)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

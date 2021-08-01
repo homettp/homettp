@@ -9,65 +9,65 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func (app *app) commandIndex(w http.ResponseWriter, r *http.Request) {
+func (a *app) commandIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
 	if r.Method != "GET" {
-		app.methodNotAllowed(w, []string{"GET"})
+		a.methodNotAllowed(w, []string{"GET"})
 
 		return
 	}
 
-	commands, err := app.commandRepository.FindAll()
+	commands, err := a.commandRepository.FindAll()
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
 
-	err = app.inertiaManager.Render(w, r, "command/Index", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Index", map[string]interface{}{
 		"isCommandsActive": true,
 		"commands":         commands,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) commandCreate(w http.ResponseWriter, r *http.Request) {
+func (a *app) commandCreate(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		app.getCommandCreate(w, r)
+		a.getCommandCreate(w, r)
 	case "POST":
-		app.postCommandCreate(w, r)
+		a.postCommandCreate(w, r)
 	default:
-		app.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "POST"})
 	}
 }
 
-func (app *app) getCommandCreate(w http.ResponseWriter, r *http.Request) {
-	err := app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+func (a *app) getCommandCreate(w http.ResponseWriter, r *http.Request) {
+	err := a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"isCreateCommandActive": true,
 		"command":               models.NewCommand(),
-		"commandImages":         app.commandImages(),
+		"commandImages":         a.commandImages(),
 		"commandPayload":        models.PayloadVariable,
 		"errors":                forms.Bag{},
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
+func (a *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 	command := models.NewCommand()
 
 	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
-		app.formError(w, err)
+		a.formError(w, err)
 
 		return
 	}
@@ -75,12 +75,12 @@ func (app *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 	models.CommandCreateRules(form)
 
 	if form.IsValid() {
-		token, err := app.generateToken()
+		token, err := a.generateToken()
 		if err != nil {
-			app.serverError(w, err)
+			a.serverError(w, err)
 		}
 
-		err = app.commandRepository.Create(command.Fill(form), token)
+		err = a.commandRepository.Create(command.Fill(form), token)
 		if err != nil {
 			switch err {
 			case models.ErrDuplicateName:
@@ -88,72 +88,72 @@ func (app *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 			case models.ErrInvalidValue:
 				form.Errors.Add("value", "The value must contain command name.")
 			default:
-				app.serverError(w, err)
+				a.serverError(w, err)
 
 				return
 			}
 		} else {
-			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
+			a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
 			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.ID), http.StatusSeeOther)
 
 			return
 		}
 	}
 
-	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"isCreateCommandActive": true,
 		"command":               command,
-		"commandImages":         app.commandImages(),
+		"commandImages":         a.commandImages(),
 		"commandPayload":        models.PayloadVariable,
 		"errors":                form.Errors,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) commandEdit(w http.ResponseWriter, r *http.Request) {
+func (a *app) commandEdit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		app.getCommandEdit(w, r)
+		a.getCommandEdit(w, r)
 	case "POST":
-		app.postCommandEdit(w, r)
+		a.postCommandEdit(w, r)
 	default:
-		app.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "POST"})
 	}
 }
 
-func (app *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
-	command, err := app.commandFromRequest(r, "id")
+func (a *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
+	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"command":        command,
-		"commandImages":  app.commandImages(),
+		"commandImages":  a.commandImages(),
 		"commandPayload": models.PayloadVariable,
-		"commandPath":    command.Path(app.url),
+		"commandPath":    command.Path(a.url),
 		"errors":         forms.Bag{},
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
-	command, err := app.commandFromRequest(r, "id")
+func (a *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
+	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
 	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
-		app.formError(w, err)
+		a.formError(w, err)
 
 		return
 	}
@@ -161,7 +161,7 @@ func (app *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	models.CommandUpdateRules(form)
 
 	if form.IsValid() {
-		err = app.commandRepository.Update(command, (models.NewCommand()).Fill(form))
+		err = a.commandRepository.Update(command, (models.NewCommand()).Fill(form))
 		if err != nil {
 			switch err {
 			case models.ErrDuplicateName:
@@ -169,86 +169,86 @@ func (app *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 			case models.ErrInvalidValue:
 				form.Errors.Add("value", "The value must contain command name.")
 			default:
-				app.serverError(w, err)
+				a.serverError(w, err)
 
 				return
 			}
 		} else {
-			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
+			a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
 			http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.ID), http.StatusSeeOther)
 
 			return
 		}
 	}
 
-	err = app.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
 		"command":        command,
-		"commandImages":  app.commandImages(),
+		"commandImages":  a.commandImages(),
 		"commandPayload": models.PayloadVariable,
-		"commandPath":    command.Path(app.url),
+		"commandPath":    command.Path(a.url),
 		"errors":         form.Errors,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
+func (a *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
-		app.methodNotAllowed(w, []string{"PUT"})
+		a.methodNotAllowed(w, []string{"PUT"})
 
 		return
 	}
 
-	command, err := app.commandFromRequest(r, "id")
+	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	token, err := app.generateToken()
+	token, err := a.generateToken()
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	err = app.commandRepository.UpdateToken(command, token)
+	err = a.commandRepository.UpdateToken(command, token)
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 
-	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
+	a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
 	http.Redirect(w, r, fmt.Sprintf("/command/edit?id=%v", command.ID), http.StatusSeeOther)
 }
 
-func (app *app) commandDelete(w http.ResponseWriter, r *http.Request) {
+func (a *app) commandDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
-		app.methodNotAllowed(w, []string{"DELETE"})
+		a.methodNotAllowed(w, []string{"DELETE"})
 
 		return
 	}
 
-	command, err := app.commandFromRequest(r, "id")
+	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	err = app.commandRepository.Delete(command)
+	err = a.commandRepository.Delete(command)
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
 
-	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
+	a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (app *app) commandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
+func (a *app) commandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, fmt.Errorf("%s parameter not found", parameter)
 	}
@@ -258,7 +258,7 @@ func (app *app) commandFromRequest(r *http.Request, parameter string) (*models.C
 		return nil, err
 	}
 
-	command, err := app.commandRepository.Find(id)
+	command, err := a.commandRepository.Find(id)
 	if err != nil {
 		return nil, err
 	}
@@ -266,7 +266,7 @@ func (app *app) commandFromRequest(r *http.Request, parameter string) (*models.C
 	return command, nil
 }
 
-func (app *app) commandImages() []map[string]interface{} {
+func (a *app) commandImages() []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"name":  "Door",

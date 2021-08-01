@@ -9,22 +9,22 @@ import (
 	"github.com/homettp/homettp/internal/models"
 )
 
-func (app *app) callIndex(w http.ResponseWriter, r *http.Request) {
+func (a *app) callIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" && r.Method != "POST" {
-		app.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "POST"})
 
 		return
 	}
 
-	command, err := app.commandFromRequest(r, "id")
+	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
 	if command.Token != r.URL.Query().Get("token") {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
@@ -32,82 +32,82 @@ func (app *app) callIndex(w http.ResponseWriter, r *http.Request) {
 	call := models.NewCall(command)
 	call.Payload = r.URL.Query().Get("payload")
 
-	err = app.callRepository.Create(call)
+	err = a.callRepository.Create(call)
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
 
 	select {
-	case app.queue <- call.ID:
+	case a.queue <- call.ID:
 		w.Header().Set("Content-Type", "application/json")
 
 		err = json.NewEncoder(w).Encode(call)
 		if err != nil {
-			app.serverError(w, err)
+			a.serverError(w, err)
 		}
 	default:
-		app.clientError(w, 503)
+		a.clientError(w, 503)
 	}
 }
 
-func (app *app) callHistory(w http.ResponseWriter, r *http.Request) {
+func (a *app) callHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		app.methodNotAllowed(w, []string{"GET"})
+		a.methodNotAllowed(w, []string{"GET"})
 
 		return
 	}
 
-	command, err := app.commandFromRequest(r, "id")
+	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	calls, err := app.callRepository.FindAllByCommand(command)
+	calls, err := a.callRepository.FindAllByCommand(command)
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
 
-	err = app.inertiaManager.Render(w, r, "call/History", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "call/History", map[string]interface{}{
 		"command": command,
 		"calls":   calls,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) callDelete(w http.ResponseWriter, r *http.Request) {
+func (a *app) callDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
-		app.methodNotAllowed(w, []string{"DELETE"})
+		a.methodNotAllowed(w, []string{"DELETE"})
 
 		return
 	}
 
-	call, err := app.callFromRequest(r, "id")
+	call, err := a.callFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	err = app.callRepository.Delete(call)
+	err = a.callRepository.Delete(call)
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
 
-	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
+	a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
 	http.Redirect(w, r, fmt.Sprintf("/call/history?id=%v", call.CommandID), http.StatusSeeOther)
 }
 
-func (app *app) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
+func (a *app) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, fmt.Errorf("%s parameter not found", parameter)
 	}
@@ -117,7 +117,7 @@ func (app *app) callFromRequest(r *http.Request, parameter string) (*models.Call
 		return nil, err
 	}
 
-	call, err := app.callRepository.Find(id)
+	call, err := a.callRepository.Find(id)
 	if err != nil {
 		return nil, err
 	}
