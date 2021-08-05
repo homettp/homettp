@@ -1,4 +1,5 @@
 <template>
+    <inertia-head :title="subtitle" />
     <div class="user__form layout__form">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -12,7 +13,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
+                {{ subtitle }}
             </li>
         </ol>
         <div class="card">
@@ -24,7 +25,7 @@
                     <use :xlink:href="icon(iconName)" />
                 </svg>
                 <span>
-                    {{ $metaInfo.title }}
+                    {{ subtitle }}
                 </span>
             </div>
             <form @submit.prevent="form.post(url)">
@@ -103,7 +104,7 @@
                     <div class="row">
                         <div class="col-md-10 offset-md-2">
                             <button class="btn btn-primary" type="submit">
-                                {{ $metaInfo.title }}
+                                {{ subtitle }}
                             </button>
                         </div>
                     </div>
@@ -138,6 +139,8 @@
 </template>
 
 <script>
+import { computed, ref } from 'vue';
+import { useForm } from '@inertiajs/inertia-vue3';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -150,41 +153,35 @@ export default {
         }
     },
 
-    metaInfo() {
+    setup(props) {
+        const isNew = ref(props.user.id === 0);
+
+        const subtitle = ref(isNew.value
+            ? 'Create User'
+            : 'Edit User');
+
+        const form = useForm({
+            username: props.user.username,
+            email: props.user.email,
+            password: '',
+            is_enabled: props.user.is_enabled
+        });
+
+        const iconName = computed(() => (isNew.value
+            ? 'person-plus'
+            : 'person'));
+
+        const url = computed(() => (isNew.value
+            ? '/user/create'
+            : `/user/edit?id=${props.user.id}`));
+
         return {
-            title: this.isNew
-                ? 'Create User'
-                : 'Edit User'
+            isNew,
+            subtitle,
+            form,
+            iconName,
+            url
         };
-    },
-
-    data() {
-        return {
-            form: this.$inertia.form({
-                username: this.user.username,
-                email: this.user.email,
-                password: '',
-                is_enabled: this.user.is_enabled
-            })
-        };
-    },
-
-    computed: {
-        isNew() {
-            return this.user.id === 0;
-        },
-
-        iconName() {
-            return this.isNew
-                ? 'person-plus'
-                : 'person';
-        },
-
-        url() {
-            return this.isNew
-                ? '/user/create'
-                : `/user/edit?id=${this.user.id}`;
-        }
     }
 };
 </script>

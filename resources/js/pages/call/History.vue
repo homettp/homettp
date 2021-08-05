@@ -1,4 +1,5 @@
 <template>
+    <inertia-head :title="subtitle" />
     <div class="call__history">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -17,7 +18,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
+                {{ subtitle }}
             </li>
         </ol>
         <div v-if="!calls" class="call__history--card card card-body">
@@ -52,7 +53,7 @@
                     <use :xlink:href="icon('clock-history')" />
                 </svg>
                 <span>
-                    {{ call.created_at | date }}
+                    {{ date(call.created_at) }}
                 </span>
                 <inertia-link class="btn btn-link ml-3"
                               :href="`/call/delete?id=${call.id}`"
@@ -74,6 +75,7 @@
 </template>
 
 <script>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 import Layout from '../../common/Layout.vue';
 
@@ -92,25 +94,24 @@ export default {
         }
     },
 
-    data() {
+    setup() {
+        const subtitle = ref('Call History');
+        const reloadInterval = ref();
+        const reloadTimer = ref(2500);
+
+        onMounted(() => {
+            reloadInterval.value = setInterval(() => Inertia.reload(), reloadTimer.value);
+        });
+
+        onBeforeUnmount(() => {
+            clearInterval(reloadInterval.value);
+        });
+
         return {
-            reloadInterval: undefined,
-            reloadTimer: 2500
+            subtitle,
+            reloadInterval,
+            reloadTimer
         };
-    },
-
-    metaInfo() {
-        return {
-            title: 'Call History'
-        };
-    },
-
-    mounted() {
-        this.reloadInterval = setInterval(() => Inertia.reload(), this.reloadTimer);
-    },
-
-    beforeDestroy() {
-        clearInterval(this.reloadInterval);
     }
 };
 </script>

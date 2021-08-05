@@ -1,5 +1,5 @@
 <template>
-    <div class="toast fade hide">
+    <div ref="root" class="toast fade hide">
         <div class="toast-body d-flex align-items-center">
             <svg class="bi"
                  width="1em"
@@ -15,35 +15,41 @@
 </template>
 
 <script>
+import { ref, onUnmounted } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 
 export default {
-    data() {
-        return {
-            message: ''
-        };
-    },
+    setup() {
+        const root = ref();
+        const message = ref('');
 
-    created() {
-        this.$parent.$on('flash', message => {
-            this.show(message);
-        });
-    },
-
-    mounted() {
-        this.$once(
-            'hook:destroyed',
-            Inertia.on('success', () => { this.show(this.$page.props.flash); })
-        );
-    },
-
-    methods: {
-        show(message) {
-            if (message) {
-                this.message = message;
-                $(this.$el).toast('show');
+        const show = flash => {
+            if (flash) {
+                message.value = flash;
+                $(root.value).toast('show');
             }
-        }
+        };
+
+        const onFlash = e => {
+            show(e.detail.flash);
+        };
+
+        document.addEventListener('flash', onFlash);
+
+        onUnmounted(() => {
+            document.removeEventListener('flash', onFlash);
+        });
+
+        onUnmounted(
+            Inertia.on('success', e => {
+                show(e.detail.page.props.flash);
+            })
+        );
+
+        return {
+            root,
+            message
+        };
     }
 };
 </script>

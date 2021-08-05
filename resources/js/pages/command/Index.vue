@@ -1,4 +1,5 @@
 <template>
+    <inertia-head :title="subtitle" />
     <div class="command__index layout__index">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -7,7 +8,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
+                {{ subtitle }}
             </li>
         </ol>
         <div class="layout__row row">
@@ -63,7 +64,7 @@
                             <use :xlink:href="icon('clock-history')" />
                         </svg>
                         <span>
-                            {{ command.created_at | date }}
+                            {{ date(command.created_at) }}
                         </span>
                     </div>
                 </div>
@@ -73,6 +74,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -85,14 +87,10 @@ export default {
         }
     },
 
-    metaInfo() {
-        return {
-            title: 'Commands'
-        };
-    },
+    setup() {
+        const subtitle = ref('Commands');
 
-    methods: {
-        iconName(command) {
+        const iconName = command => {
             if (command.image === 'door') {
                 return 'door-open';
             }
@@ -114,7 +112,12 @@ export default {
             }
 
             return 'command';
-        }
+        };
+
+        return {
+            subtitle,
+            iconName
+        };
     }
 };
 </script>

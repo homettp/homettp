@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
-import Vue from 'vue';
-import VueMeta from 'vue-meta';
-import { createInertiaApp, InertiaLink } from '@inertiajs/inertia-vue';
+import { createApp, h } from 'vue';
+import { createInertiaApp, InertiaLink, InertiaHead } from '@inertiajs/inertia-vue3';
 import { InertiaProgress } from '@inertiajs/progress';
 import Tooltip from './common/Tooltip';
 
@@ -14,41 +13,40 @@ try {
     require('bootstrap');
 } catch (e) {}
 
-Vue.config.productionTip = false;
-Vue.use(VueMeta);
-
 InertiaProgress.init();
-Vue.component('InertiaLink', InertiaLink);
-Vue.directive('Tooltip', Tooltip);
-
-Vue.filter('date', value => {
-    const date = DateTime.fromISO(value);
-
-    if (!date.isValid) {
-        return value;
-    }
-
-    return date.toLocaleString(DateTime.DATETIME_MED);
-});
-
-Vue.mixin({
-    methods: {
-        icon(name) {
-            return `${this.$page.props.icons}#${name}`;
-        }
-    }
-});
 
 createInertiaApp({
     // eslint-disable-next-line import/no-dynamic-require
-    resolve: name => require(`./pages/${name}.vue`),
-    setup({ el, app, props }) {
-        new Vue({
-            metaInfo: {
-                titleTemplate: title => (title ? `${title} - ${props.title}` : props.title)
-            },
+    resolve: name => require(`./Pages/${name}`),
+    setup({
+        el, App, props, plugin
+    }) {
+        props.titleCallback = title => (title
+            ? `${title} - ${props.initialPage.props.title}`
+            : props.initialPage.props.title);
 
-            render: h => h(app, props)
-        }).$mount(el);
+        createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .component('InertiaLink', InertiaLink)
+            .component('InertiaHead', InertiaHead)
+            .directive('Tooltip', Tooltip)
+            .mixin({
+                methods: {
+                    date(value) {
+                        const date = DateTime.fromISO(value);
+
+                        if (!date.isValid) {
+                            return value;
+                        }
+
+                        return date.toLocaleString(DateTime.DATETIME_MED);
+                    },
+
+                    icon(name) {
+                        return `${this.$page.props.icons}#${name}`;
+                    }
+                }
+            })
+            .mount(el);
     }
 });

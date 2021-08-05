@@ -135,6 +135,7 @@
 </template>
 
 <script>
+import { ref, onUnmounted } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 import FlashMessage from './FlashMessage.vue';
 
@@ -143,18 +144,20 @@ export default {
         FlashMessage
     },
 
-    data() {
-        return {
-            isSidebarOpen: false,
-            year: new Date().getFullYear()
-        };
-    },
+    setup() {
+        const isSidebarOpen = ref(false);
+        const year = ref(new Date().getFullYear());
 
-    mounted() {
-        this.$once(
-            'hook:destroyed',
-            Inertia.on('navigate', () => { this.isSidebarOpen = false; })
+        onUnmounted(
+            Inertia.on('navigate', () => {
+                isSidebarOpen.value = false;
+            })
         );
+
+        return {
+            isSidebarOpen,
+            year
+        };
     }
 };
 </script>

@@ -1,4 +1,5 @@
 <template>
+    <inertia-head :title="subtitle" />
     <div class="auth">
         <div class="container">
             <header class="auth__header">
@@ -23,7 +24,7 @@
                         <use :xlink:href="icon('box-arrow-in-right')" />
                     </svg>
                     <span>
-                        {{ $metaInfo.title }}
+                        {{ subtitle }}
                     </span>
                 </div>
                 <form @submit.prevent="form.post('/login')">
@@ -72,7 +73,7 @@
                     </div>
                     <div class="card-footer">
                         <button class="btn btn-primary" type="submit">
-                            {{ $metaInfo.title }}
+                            {{ subtitle }}
                         </button>
                     </div>
                 </form>
@@ -82,6 +83,9 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/inertia-vue3';
+
 export default {
     props: {
         title: {
@@ -90,19 +94,18 @@ export default {
         }
     },
 
-    metaInfo() {
-        return {
-            title: 'Login'
-        };
-    },
+    setup() {
+        const subtitle = ref('Login');
 
-    data() {
+        const form = useForm({
+            username_or_email: '',
+            password: '',
+            remember: true
+        });
+
         return {
-            form: this.$inertia.form({
-                username_or_email: '',
-                password: '',
-                remember: true
-            })
+            subtitle,
+            form
         };
     }
 };

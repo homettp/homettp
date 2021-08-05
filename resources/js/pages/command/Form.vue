@@ -1,4 +1,5 @@
 <template>
+    <inertia-head :title="subtitle" />
     <div class="command__form layout__form">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -12,7 +13,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
+                {{ subtitle }}
             </li>
         </ol>
         <div class="card">
@@ -24,7 +25,7 @@
                     <use :xlink:href="icon(iconName)" />
                 </svg>
                 <span>
-                    {{ $metaInfo.title }}
+                    {{ subtitle }}
                 </span>
             </div>
             <form @submit.prevent="form.post(url)">
@@ -98,7 +99,7 @@
                     <div class="row">
                         <div class="col-md-10 offset-md-2">
                             <button class="btn btn-primary" type="submit">
-                                {{ $metaInfo.title }}
+                                {{ subtitle }}
                             </button>
                         </div>
                     </div>
@@ -135,7 +136,7 @@
                     request to this URL will call your command:
                 </p>
                 <div class="input-group">
-                    <input ref="commandPath"
+                    <input ref="commandPathEl"
                            class="form-control"
                            type="text"
                            :value="commandPath"
@@ -191,6 +192,8 @@
 </template>
 
 <script>
+import { computed, ref, toRefs } from 'vue';
+import { useForm } from '@inertiajs/inertia-vue3';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -218,51 +221,50 @@ export default {
         }
     },
 
-    metaInfo() {
-        return {
-            title: this.isNew
-                ? 'Create Command'
-                : 'Edit Command'
-        };
-    },
+    setup(props) {
+        const isNew = ref(props.command.id === 0);
+        const commandPathEl = ref();
 
-    data() {
-        return {
-            form: this.$inertia.form({
-                name: this.command.name,
-                image: this.command.image,
-                value: this.command.value
-            })
-        };
-    },
+        const subtitle = ref(isNew.value
+            ? 'Create Command'
+            : 'Edit Command');
 
-    computed: {
-        isNew() {
-            return this.command.id === 0;
-        },
+        const form = useForm({
+            name: props.command.name,
+            image: props.command.image,
+            value: props.command.value
+        });
 
-        iconName() {
-            return this.isNew
-                ? 'plus-circle'
-                : 'command';
-        },
+        const iconName = computed(() => (isNew.value
+            ? 'plus-circle'
+            : 'command'));
 
-        url() {
-            return this.isNew
-                ? '/command/create'
-                : `/command/edit?id=${this.command.id}`;
-        }
-    },
+        const url = computed(() => (isNew.value
+            ? '/command/create'
+            : `/command/edit?id=${props.command.id}`));
 
-    methods: {
-        copy() {
-            this.$refs.commandPath.select();
-            this.$refs.commandPath.setSelectionRange(0, 99999);
+        const copy = () => {
+            commandPathEl.value.select();
+            commandPathEl.value.setSelectionRange(0, 99999);
 
             document.execCommand('copy');
 
-            this.$parent.$emit('flash', 'Copied successfully.');
-        }
+            document.dispatchEvent(new CustomEvent('flash', {
+                detail: {
+                    flash: 'Copied successfully.'
+                }
+            }));
+        };
+
+        return {
+            isNew,
+            commandPathEl,
+            subtitle,
+            form,
+            iconName,
+            url,
+            copy
+        };
     }
 };
 </script>

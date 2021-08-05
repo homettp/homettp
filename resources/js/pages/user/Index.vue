@@ -1,4 +1,5 @@
 <template>
+    <inertia-head :title="subtitle" />
     <div class="user__index layout__index">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -7,7 +8,7 @@
                 </inertia-link>
             </li>
             <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
+                {{ subtitle }}
             </li>
         </ol>
         <div class="layout__row row">
@@ -41,7 +42,7 @@
                             <use :xlink:href="icon('clock-history')" />
                         </svg>
                         <span>
-                            {{ user.created_at | date }}
+                            {{ date(user.created_at) }}
                         </span>
                     </div>
                 </div>
@@ -51,6 +52,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import Layout from '../../common/Layout.vue';
 
 export default {
@@ -68,9 +70,11 @@ export default {
         }
     },
 
-    metaInfo() {
+    setup() {
+        const subtitle = ref('Users');
+
         return {
-            title: 'Users'
+            subtitle
         };
     }
 };
