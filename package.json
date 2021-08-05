@@ -32,7 +32,6 @@
         "sass": "^1.26",
         "sass-loader": "^8.0",
         "vue": "^3.0",
-        "vue-loader": "^16.4",
-        "vue-meta": "^3.0.0-alpha.9"
+        "vue-loader": "^16.4"
     }
 }
