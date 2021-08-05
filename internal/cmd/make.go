@@ -3,9 +3,7 @@ package cmd
 import (
 	"fmt"
 	"strconv"
-	"time"
 
-	"github.com/gomodule/redigo/redis"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/petaki/support-go/cli"
 	"github.com/petaki/support-go/forms"
@@ -57,14 +55,4 @@ func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 			},
 		},
 	}).Print()
-}
-
-func newRedisPool(url string) *redis.Pool {
-	return &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			return redis.DialURL(url)
-		},
-	}
 }
