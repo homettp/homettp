@@ -118,8 +118,8 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 func newMixAndInertiaManager(debug bool, url string) (*mix.Mix, *inertia.Inertia, error) {
 	mixManager := mix.New("", "./static", "")
 
-	var err error
 	var version string
+	var err error
 
 	if debug {
 		version, err = mixManager.Hash("")
