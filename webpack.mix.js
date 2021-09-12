@@ -13,8 +13,9 @@ const mix = require('laravel-mix');
 
 mix.options({ processCssUrls: false })
     .js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'css')
-    .copy('node_modules/bootstrap-icons/bootstrap-icons.svg', 'public/images')
+    .postCss('resources/css/app.css', 'css', [
+        require('tailwindcss')
+    ])
     .copy('resources/images/favicon.ico', 'public/favicon.ico')
     .vue()
     .version()

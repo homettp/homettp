@@ -1,149 +1,135 @@
 <template>
     <inertia-head :title="subtitle" />
-    <div class="user__form layout__form">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <inertia-link href="/">
-                    Home
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item">
-                <inertia-link href="/user">
-                    Users
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item active">
-                {{ subtitle }}
-            </li>
-        </ol>
-        <div class="card">
-            <div class="card-header">
-                <svg class="bi"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon(iconName)" />
-                </svg>
+    <div class="p-5">
+        <breadcrumb :links="links" />
+        <div class="bg-white p-8">
+            <card-title>
+                <component :is="iconName" class="h-6 w-6 mr-2" />
                 <span>
                     {{ subtitle }}
                 </span>
-            </div>
-            <form @submit.prevent="form.post(url)">
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label required" for="username">
-                            Username
-                        </label>
-                        <div class="col-sm-10">
-                            <input id="username"
-                                   v-model="form.username"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.username}"
+            </card-title>
+            <form @submit.prevent="submit()">
+                <div class="grid grid-cols-1 gap-6">
+                    <label class="block">
+                        <div class="lg:flex lg:items-center">
+                            <div class="lg:w-64">
+                                Username
+                                <span class="text-cyan-500">
+                                    *
+                                </span>
+                            </div>
+                            <input v-model="form.username"
+                                   class="form-input mt-3 block w-full lg:mt-0 lg:flex-1"
+                                   :class="{'form-invalid': form.errors.username}"
                                    type="text"
                                    name="username"
                                    placeholder="Username"
                                    required>
-                            <span v-if="form.errors.username" class="invalid-feedback">
-                                {{ form.errors.username[0] }}
-                            </span>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label required" for="email">
-                            E-mail
-                        </label>
-                        <div class="col-sm-10">
-                            <input id="email"
-                                   v-model="form.email"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.email}"
+                        <div v-if="form.errors.username" class="mt-2 text-sm text-red-500 lg:ml-64">
+                            {{ form.errors.username[0] }}
+                        </div>
+                    </label>
+                    <label class="block">
+                        <div class="lg:flex lg:items-center">
+                            <div class="lg:w-64">
+                                E-mail
+                                <span class="text-cyan-500">
+                                    *
+                                </span>
+                            </div>
+                            <input v-model="form.email"
+                                   class="form-input mt-3 block w-full lg:mt-0 lg:flex-1"
+                                   :class="{'form-invalid': form.errors.email}"
                                    type="email"
                                    name="email"
                                    placeholder="E-mail"
                                    required>
-                            <span v-if="form.errors.email" class="invalid-feedback">
-                                {{ form.errors.email[0] }}
-                            </span>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label"
-                               :class="{required: isNew}"
-                               for="password">
-                            Password
-                        </label>
-                        <div class="col-sm-10">
-                            <input id="password"
-                                   v-model="form.password"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.password}"
+                        <div v-if="form.errors.email" class="mt-2 text-sm text-red-500 lg:ml-64">
+                            {{ form.errors.email[0] }}
+                        </div>
+                    </label>
+                    <label class="block">
+                        <div class="lg:flex lg:items-center">
+                            <div class="lg:w-64">
+                                Password
+                                <span v-if="isNew"
+                                      class="text-cyan-500">
+                                    *
+                                </span>
+                            </div>
+                            <input v-model="form.password"
+                                   class="form-input mt-3 block w-full lg:mt-0 lg:flex-1"
+                                   :class="{'form-invalid': form.errors.password}"
                                    type="password"
                                    name="password"
                                    placeholder="Password"
                                    :required="isNew">
-                            <span v-if="form.errors.password" class="invalid-feedback">
-                                {{ form.errors.password[0] }}
-                            </span>
                         </div>
-                    </div>
-                    <div class="row mb-0">
-                        <div class="col-sm-10 offset-sm-2">
-                            <div class="form-check">
-                                <input id="remember"
-                                       v-model="form.is_enabled"
-                                       class="form-check-input"
-                                       type="checkbox">
-                                <label class="form-check-label" for="remember">
-                                    Is Enabled?
-                                </label>
-                            </div>
+                        <div v-if="form.errors.password" class="mt-2 text-sm text-red-500 lg:ml-64">
+                            {{ form.errors.password[0] }}
                         </div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-md-10 offset-md-2">
-                            <button class="btn btn-primary" type="submit">
-                                {{ subtitle }}
-                            </button>
-                        </div>
+                    </label>
+                    <label class="flex items-center lg:ml-64">
+                        <input v-model="form.is_enabled"
+                               class="form-checkbox"
+                               type="checkbox">
+                        <span class="ml-2">
+                            Is Enabled?
+                        </span>
+                    </label>
+                    <div class="lg:ml-64">
+                        <button class="btn" type="submit">
+                            {{ subtitle }}
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
-        <div v-if="!isNew" class="form__secondary card">
-            <div class="card-header">
-                <svg class="bi"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon('trash')" />
-                </svg>
+        <div v-if="!isNew" class="bg-white p-8 mt-5">
+            <card-title>
+                <trash-icon class="h-6 w-6 mr-2" />
                 <span>
                     Delete User
                 </span>
-            </div>
-            <div class="card-body">
+            </card-title>
+            <div class="mb-6">
                 Are you sure you want to delete the user?
             </div>
-            <div class="card-footer">
-                <inertia-link class="btn btn-danger"
-                              :href="`/user/delete?id=${user.id}`"
-                              method="delete"
-                              as="button">
-                    Delete User
-                </inertia-link>
-            </div>
+            <inertia-link class="btn-red"
+                          :href="`/user/delete?id=${user.id}`"
+                          method="delete"
+                          as="button">
+                Delete User
+            </inertia-link>
         </div>
     </div>
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import {
+    TrashIcon,
+    UserIcon,
+    UserAddIcon
+} from '@heroicons/vue/outline';
+
+import { computed, toRefs } from 'vue';
 import { useForm } from '@inertiajs/inertia-vue3';
+import Breadcrumb from '../../common/Breadcrumb.vue';
+import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
 export default {
+    components: {
+        TrashIcon,
+        UserIcon,
+        UserAddIcon,
+        Breadcrumb,
+        CardTitle
+    },
+
     layout: Layout,
 
     props: {
@@ -154,33 +140,47 @@ export default {
     },
 
     setup(props) {
-        const isNew = ref(props.user.id === 0);
+        const { user } = toRefs(props);
+        const isNew = computed(() => user.value.id === 0);
 
-        const subtitle = ref(isNew.value
+        const subtitle = computed(() => (isNew.value
             ? 'Create User'
-            : 'Edit User');
-
-        const form = useForm({
-            username: props.user.username,
-            email: props.user.email,
-            password: '',
-            is_enabled: props.user.is_enabled
-        });
+            : 'Edit User'));
 
         const iconName = computed(() => (isNew.value
-            ? 'person-plus'
-            : 'person'));
+            ? 'user-add-icon'
+            : 'user-icon'));
 
         const url = computed(() => (isNew.value
             ? '/user/create'
-            : `/user/edit?id=${props.user.id}`));
+            : `/user/edit?id=${user.value.id}`));
+
+        const links = computed(() => [
+            { name: 'Users', href: '/user' },
+            { name: subtitle.value }
+        ]);
+
+        const form = useForm({
+            username: user.value.username,
+            email: user.value.email,
+            password: '',
+            is_enabled: user.value.is_enabled
+        });
+
+        const submit = () => {
+            form.post(url.value, {
+                onSuccess: () => form.reset('password')
+            });
+        };
 
         return {
             isNew,
             subtitle,
-            form,
             iconName,
-            url
+            url,
+            links,
+            form,
+            submit
         };
     }
 };

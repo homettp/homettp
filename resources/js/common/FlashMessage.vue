@@ -1,54 +1,76 @@
 <template>
-    <div ref="root" class="toast fade hide">
-        <div class="toast-body d-flex align-items-center">
-            <svg class="bi"
-                 width="1em"
-                 height="1em"
-                 fill="currentColor">
-                <use :xlink:href="icon('check-circle')" />
-            </svg>
+    <!-- eslint-disable max-len -->
+    <div class="cursor-pointer w-full mt-5 rounded-sm shadow-lg bg-white ring-1 ring-black ring-opacity-5 md:w-96"
+         @click="remove(message)">
+        <div class="flex items-center p-5 font-medium text-sm">
+            <check-circle-icon class="h-5 w-5 text-green-400 mr-2" />
             <span>
-                {{ message }}
+                {{ message.value }}
             </span>
+            <button class="ml-auto text-gray-400 hover:text-gray-500">
+                <x-icon class="h-5 w-5" />
+            </button>
         </div>
+        <div class="h-2.5 bg-blueGray-50 transition-all ease-linear duration-100"
+             :style="{width: `${progress}%`}"></div>
     </div>
+    <!-- eslint-enable max-len -->
 </template>
 
 <script>
-import { ref, onUnmounted } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
+import {
+    CheckCircleIcon,
+    XIcon
+} from '@heroicons/vue/outline';
+
+import { ref, onMounted, onUnmounted } from 'vue';
 
 export default {
-    setup() {
-        const root = ref();
-        const message = ref('');
+    components: {
+        CheckCircleIcon,
+        XIcon
+    },
 
-        const show = flash => {
-            if (flash) {
-                message.value = flash;
-                $(root.value).toast('show');
-            }
-        };
+    props: {
+        message: {
+            type: Object,
+            required: true
+        },
 
-        const onFlash = e => {
-            show(e.detail.flash);
-        };
+        remove: {
+            type: Function,
+            required: true
+        }
+    },
 
-        document.addEventListener('flash', onFlash);
+    setup(props) {
+        const messageTickInterval = ref();
+        const messageTickTimer = ref(100);
+        const messageTimer = ref(2500);
+        const progress = ref(100);
 
-        onUnmounted(() => {
-            document.removeEventListener('flash', onFlash);
+        onMounted(() => {
+            messageTickInterval.value = setInterval(() => {
+                if (Date.now() - messageTimer.value > props.message.createdAt) {
+                    progress.value = 0;
+                    props.remove(props.message);
+                } else {
+                    progress.value = (1 - (
+                        (Date.now() - props.message.createdAt) / messageTimer.value
+                    )) * 100;
+                }
+            }, messageTickTimer.value);
         });
 
-        onUnmounted(
-            Inertia.on('success', e => {
-                show(e.detail.page.props.flash);
-            })
-        );
+        onUnmounted(() => {
+            clearInterval(messageTickInterval.value);
+        });
 
         return {
-            root,
-            message
+            messageTickInterval,
+            messageTickTimer,
+            messageTimer,
+            progress
         };
     }
 };

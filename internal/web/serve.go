@@ -123,14 +123,7 @@ func newMixAndInertiaManager(url string) (*mix.Mix, *inertia.Inertia, error) {
 	}
 
 	inertiaManager := inertia.NewWithFS(url, "app.gohtml", version, views.Templates)
-
-	icons, err := mixManager.Mix("images/bootstrap-icons.svg", "")
-	if err != nil {
-		return nil, nil, err
-	}
-
 	inertiaManager.Share("title", "Homettp")
-	inertiaManager.Share("icons", icons)
 	inertiaManager.ShareFunc("mix", mixManager.Mix)
 
 	return mixManager, inertiaManager, nil

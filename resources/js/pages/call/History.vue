@@ -1,85 +1,72 @@
 <template>
     <inertia-head :title="subtitle" />
-    <div class="call__history">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <inertia-link href="/">
-                    Home
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item">
-                <inertia-link href="/">
-                    Commands
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item">
-                <inertia-link :href="`/command/edit?id=${command.id}`">
-                    {{ command.name }}
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item active">
-                {{ subtitle }}
-            </li>
-        </ol>
-        <div v-if="!calls" class="call__history--card card card-body">
-            No calls.
-        </div>
-        <div v-for="call in calls"
-             :key="call.id"
-             class="call__history--card card">
-            <div class="card-header">
-                <svg v-if="call.status === 'completed'"
-                     class="bi text-success"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon('check-circle')" />
-                </svg>
-                <svg v-else-if="call.status === 'failed'"
-                     class="bi text-danger"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon('x-circle')" />
-                </svg>
-                <div v-else class="spinner-border spinner-border-sm text-primary"></div>
-                <span class="mr-auto">
-                    #{{ call.id }}
-                </span>
-                <svg class="bi"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon('clock-history')" />
-                </svg>
-                <span>
-                    {{ date(call.created_at) }}
-                </span>
-                <inertia-link class="btn btn-link ml-3"
-                              :href="`/call/delete?id=${call.id}`"
-                              method="delete"
-                              as="button">
-                    <svg class="bi"
-                         width="1em"
-                         height="1em"
-                         fill="currentColor">
-                        <use :xlink:href="icon('trash')" />
-                    </svg>
-                </inertia-link>
+    <div class="p-5">
+        <breadcrumb :links="links" />
+        <div class="grid grid-cols-1 gap-5">
+            <div v-if="!calls"
+                 class="bg-white p-8">
+                No calls.
             </div>
-            <div class="card-body pt-0">
-                <pre v-if="call.output"><code>{{ call.output }}</code></pre>
+            <div v-for="call in calls"
+                 :key="call.id"
+                 class="bg-white p-8">
+                <card-title>
+                    <check-circle-icon v-if="call.status === 'completed'"
+                                       class="h-6 w-6 text-green-400 mr-2" />
+                    <exclamation-circle-icon v-else-if="call.status === 'failed'"
+                                             class="h-6 w-6 text-red-500 mr-2" />
+                    <!-- eslint-disable max-len -->
+                    <div v-else class="flex h-3 w-3 relative mr-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                    </div>
+                    <!-- eslint-enable max-len -->
+                    <span class="mr-auto">
+                        #{{ call.id }}
+                    </span>
+                    <clock-icon class="h-6 w-6 mr-2" />
+                    <span>
+                        {{ date(call.created_at) }}
+                    </span>
+                    <inertia-link class="link ml-2"
+                                  :href="`/call/delete?id=${call.id}`"
+                                  method="delete"
+                                  as="button">
+                        <trash-icon class="h-6 w-6" />
+                    </inertia-link>
+                </card-title>
+                <!-- eslint-disable max-len -->
+                <pre v-if="call.output" class="bg-gray-900 text-blueGray-300 text-sm p-6"><code>{{ call.output }}</code></pre>
+                <!-- eslint-enable max-len -->
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import {
+    ClockIcon,
+    CheckCircleIcon,
+    ExclamationCircleIcon,
+    TrashIcon
+} from '@heroicons/vue/outline';
+
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
+import Breadcrumb from '../../common/Breadcrumb.vue';
+import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
 export default {
+    components: {
+        ClockIcon,
+        CheckCircleIcon,
+        ExclamationCircleIcon,
+        TrashIcon,
+        Breadcrumb,
+        CardTitle
+    },
+
     layout: Layout,
 
     props: {
@@ -94,23 +81,30 @@ export default {
         }
     },
 
-    setup() {
+    setup(props) {
         const subtitle = ref('Call History');
         const reloadInterval = ref();
         const reloadTimer = ref(2500);
+
+        const links = ref([
+            { name: 'Commands', href: '/' },
+            { name: props.command.name, href: `/command/edit?id=${props.command.id}` },
+            { name: subtitle }
+        ]);
 
         onMounted(() => {
             reloadInterval.value = setInterval(() => Inertia.reload(), reloadTimer.value);
         });
 
-        onBeforeUnmount(() => {
+        onUnmounted(() => {
             clearInterval(reloadInterval.value);
         });
 
         return {
             subtitle,
             reloadInterval,
-            reloadTimer
+            reloadTimer,
+            links
         };
     }
 };
