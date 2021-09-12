@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 
+	"github.com/homettp/homettp/static"
 	"github.com/justinas/alice"
 )
 
@@ -32,7 +33,14 @@ func (a *app) routes() http.Handler {
 	mux.Handle("/logout", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.logout))
 	mux.Handle("/user", webMiddleware.Append(a.redirectIfNotAuthenticated).ThenFunc(a.userIndex))
 
-	fileServer := http.FileServer(http.Dir("./public/"))
+	var fileServer http.Handler
+
+	if a.debug {
+		fileServer = http.FileServer(http.Dir("./static/"))
+	} else {
+		staticFS := http.FS(static.Files)
+		fileServer = http.FileServer(staticFS)
+	}
 
 	mux.Handle("/css/", fileServer)
 	mux.Handle("/images/", fileServer)

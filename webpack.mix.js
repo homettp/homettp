@@ -12,12 +12,12 @@ const mix = require('laravel-mix');
  */
 
 mix.options({ processCssUrls: false })
-    .js('resources/js/app.js', 'public/js')
+    .js('resources/js/app.js', 'static/js')
     .postCss('resources/css/app.css', 'css', [
         require('tailwindcss')
     ])
-    .copy('resources/images/favicon.ico', 'public/favicon.ico')
+    .copy('resources/images/favicon.ico', 'static/favicon.ico')
     .vue()
     .version()
     .sourceMaps()
-    .setPublicPath('public');
+    .setPublicPath('static');

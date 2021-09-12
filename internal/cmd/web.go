@@ -17,6 +17,11 @@ func WebServe(group *cli.Group, command *cli.Command, arguments []string) int {
 	redisURL, redisKeyPrefix := createRedisFlags(command)
 	commandTimeout, commandWorkerCount, commandHistoryLimit := createCommandFlags(command)
 
+	_, err := command.Parse(arguments)
+	if err != nil {
+		return command.PrintHelp(group)
+	}
+
 	redisPool := newRedisPool(*redisURL)
 	defer redisPool.Close()
 
