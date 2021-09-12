@@ -1,61 +1,47 @@
 <template>
-    <div class="command__form layout__form">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <inertia-link href="/">
-                    Home
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item">
-                <inertia-link href="/">
-                    Commands
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
-            </li>
-        </ol>
-        <div class="card">
-            <div class="card-header">
-                <svg class="bi"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon(iconName)" />
-                </svg>
+    <inertia-head :title="subtitle" />
+    <div class="p-5">
+        <breadcrumb :links="links" />
+        <div class="bg-white p-8">
+            <card-title>
+                <component :is="iconName" class="h-6 w-6 mr-2" />
                 <span>
-                    {{ $metaInfo.title }}
+                    {{ subtitle }}
                 </span>
-            </div>
+            </card-title>
             <form @submit.prevent="form.post(url)">
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label required" for="name">
-                            Name
-                        </label>
-                        <div class="col-sm-10">
-                            <input id="name"
-                                   v-model="form.name"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.name}"
+                <div class="grid grid-cols-1 gap-6">
+                    <label class="block">
+                        <div class="lg:flex lg:items-center">
+                            <div class="lg:w-64">
+                                Name
+                                <span class="text-cyan-500">
+                                    *
+                                </span>
+                            </div>
+                            <input v-model="form.name"
+                                   class="form-input mt-3 block w-full lg:mt-0 lg:flex-1"
+                                   :class="{'form-invalid': form.errors.name}"
                                    type="text"
                                    name="name"
                                    placeholder="Name"
                                    required>
-                            <span v-if="form.errors.name" class="invalid-feedback">
-                                {{ form.errors.name[0] }}
-                            </span>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label required" for="image">
-                            Image
-                        </label>
-                        <div class="col-sm-10">
-                            <select id="image"
-                                    v-model="form.image"
-                                    class="form-control"
-                                    :class="{'is-invalid': form.errors.image}"
+                        <div v-if="form.errors.name" class="mt-2 text-sm text-red-500 lg:ml-64">
+                            {{ form.errors.name[0] }}
+                        </div>
+                    </label>
+                    <label class="block">
+                        <div class="lg:flex lg:items-center">
+                            <div class="lg:w-64">
+                                Image
+                                <span class="text-cyan-500">
+                                    *
+                                </span>
+                            </div>
+                            <select v-model="form.image"
+                                    class="form-select mt-3 block w-full lg:mt-0 lg:flex-1"
+                                    :class="{'form-invalid': form.errors.image}"
                                     name="image"
                                     required>
                                 <option v-for="commandImage in commandImages"
@@ -64,136 +50,131 @@
                                     {{ commandImage.name }}
                                 </option>
                             </select>
-                            <span v-if="form.errors.image" class="invalid-feedback">
-                                {{ form.errors.image[0] }}
-                            </span>
                         </div>
-                    </div>
-                    <div class="form-group row mb-0">
-                        <label class="col-sm-2 col-form-label required" for="value">
-                            Value
-                        </label>
-                        <div class="col-sm-10">
-                            <input id="value"
-                                   v-model="form.value"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.value}"
+                        <div v-if="form.errors.image" class="mt-2 text-sm text-red-500 lg:ml-64">
+                            {{ form.errors.image[0] }}
+                        </div>
+                    </label>
+                    <label class="block">
+                        <div class="lg:flex lg:items-center">
+                            <div class="lg:w-64">
+                                Value
+                                <span class="text-cyan-500">
+                                    *
+                                </span>
+                            </div>
+                            <input v-model="form.value"
+                                   class="form-input mt-3 block w-full lg:mt-0 lg:flex-1"
+                                   :class="{'form-invalid': form.errors.value}"
                                    type="text"
-                                   name="value"
+                                   name="name"
                                    placeholder="Value"
                                    required>
-                            <span v-if="form.errors.value" class="invalid-feedback">
-                                {{ form.errors.value[0] }}
-                            </span>
-                            <small class="form-text text-muted">
-                                Payload Variable:
-                                <code class="text-primary">
-                                    {{ commandPayload }}
-                                </code>
-                            </small>
                         </div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-md-10 offset-md-2">
-                            <button class="btn btn-primary" type="submit">
-                                {{ $metaInfo.title }}
-                            </button>
+                        <div v-if="form.errors.value" class="mt-2 text-sm text-red-500 lg:ml-64">
+                            {{ form.errors.value[0] }}
                         </div>
+                        <div class="text-sm mt-3 lg:ml-64">
+                            Payload Variable:
+                            <code class="text-cyan-500">{{ commandPayload }}</code>
+                        </div>
+                    </label>
+                    <div class="lg:ml-64">
+                        <button class="btn" type="submit">
+                            {{ subtitle }}
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
-        <div v-if="!isNew" class="form__secondary card">
-            <div class="card-header">
-                <svg class="bi"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon('terminal')" />
-                </svg>
+        <div v-if="!isNew" class="bg-white p-8 mt-5">
+            <card-title>
+                <terminal-icon class="h-6 w-6 mr-2" />
                 <span class="mr-auto">
                     Call Command
                 </span>
-                <inertia-link class="command__call ml-3" :href="`/call/history?id=${command.id}`">
-                    Call History
-                    <svg class="bi"
-                         width="1em"
-                         height="1em"
-                         fill="currentColor">
-                        <use :xlink:href="icon('chevron-right')" />
-                    </svg>
+                <inertia-link class="link flex items-center ml-2"
+                              :href="`/call/history?id=${command.id}`">
+                    <span class="mr-2">
+                        Call History
+                    </span>
+                    <chevron-right-icon class="h-6 w-6" />
                 </inertia-link>
-            </div>
-            <div class="card-body">
-                <p>
-                    Making a
-                    <code class="text-primary">GET</code>
-                    or
-                    <code class="text-primary">POST</code>
-                    request to this URL will call your command:
-                </p>
-                <div class="input-group">
-                    <input ref="commandPath"
-                           class="form-control"
+            </card-title>
+            <div class="mb-6">
+                Making a
+                <code class="text-cyan-500">GET</code>
+                or
+                <code class="text-cyan-500">POST</code>
+                request to this URL will call your command:
+                <div class="flex mt-3">
+                    <input ref="commandPathEl"
+                           class="form-input rounded-r-none flex-1"
                            type="text"
                            :value="commandPath"
                            readonly>
-                    <div class="input-group-append">
-                        <a class="btn btn-outline-primary"
-                           href="#"
-                           @click.prevent="copy()">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('files')" />
-                            </svg>
-                        </a>
-                    </div>
+                    <a class="btn rounded-l-none flex items-center"
+                       href="#"
+                       @click.prevent="copy()">
+                        <document-duplicate-icon class="h-5 w-5" />
+                    </a>
                 </div>
             </div>
-            <div class="card-footer">
-                <inertia-link class="btn btn-primary"
-                              :href="`/command/refresh-token?id=${command.id}`"
-                              method="put"
-                              as="button">
-                    Refresh Token
-                </inertia-link>
-            </div>
+            <inertia-link class="btn btn-primary"
+                          :href="`/command/refresh-token?id=${command.id}`"
+                          method="put"
+                          as="button">
+                Refresh Token
+            </inertia-link>
         </div>
-        <div v-if="!isNew" class="form__secondary card">
-            <div class="card-header">
-                <svg class="bi"
-                     width="1em"
-                     height="1em"
-                     fill="currentColor">
-                    <use :xlink:href="icon('trash')" />
-                </svg>
+        <div v-if="!isNew" class="bg-white p-8 mt-5">
+            <card-title>
+                <trash-icon class="h-6 w-6 mr-2" />
                 <span>
                     Delete Command
                 </span>
-            </div>
-            <div class="card-body">
+            </card-title>
+            <div class="mb-6">
                 Are you sure you want to delete the command?
             </div>
-            <div class="card-footer">
-                <inertia-link class="btn btn-danger"
-                              :href="`/command/delete?id=${command.id}`"
-                              method="delete"
-                              as="button">
-                    Delete Command
-                </inertia-link>
-            </div>
+            <inertia-link class="btn-red"
+                          :href="`/command/delete?id=${command.id}`"
+                          method="delete"
+                          as="button">
+                Delete Command
+            </inertia-link>
         </div>
     </div>
 </template>
 
 <script>
+import {
+    ChevronRightIcon,
+    DocumentDuplicateIcon,
+    TerminalIcon,
+    TrashIcon,
+    ViewGridIcon,
+    ViewGridAddIcon
+} from '@heroicons/vue/outline';
+
+import { computed, ref, toRefs } from 'vue';
+import { useForm } from '@inertiajs/inertia-vue3';
+import Breadcrumb from '../../common/Breadcrumb.vue';
+import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
 export default {
+    components: {
+        ChevronRightIcon,
+        DocumentDuplicateIcon,
+        TerminalIcon,
+        TrashIcon,
+        ViewGridIcon,
+        ViewGridAddIcon,
+        Breadcrumb,
+        CardTitle
+    },
+
     layout: Layout,
 
     props: {
@@ -218,51 +199,57 @@ export default {
         }
     },
 
-    metaInfo() {
-        return {
-            title: this.isNew
-                ? 'Create Command'
-                : 'Edit Command'
-        };
-    },
+    setup(props) {
+        const { command } = toRefs(props);
+        const isNew = computed(() => command.value.id === 0);
+        const commandPathEl = ref();
 
-    data() {
-        return {
-            form: this.$inertia.form({
-                name: this.command.name,
-                image: this.command.image,
-                value: this.command.value
-            })
-        };
-    },
+        const subtitle = computed(() => (isNew.value
+            ? 'Create Command'
+            : 'Edit Command'));
 
-    computed: {
-        isNew() {
-            return this.command.id === 0;
-        },
+        const iconName = computed(() => (isNew.value
+            ? 'view-grid-add-icon'
+            : 'view-grid-icon'));
 
-        iconName() {
-            return this.isNew
-                ? 'plus-circle'
-                : 'command';
-        },
+        const url = computed(() => (isNew.value
+            ? '/command/create'
+            : `/command/edit?id=${props.command.id}`));
 
-        url() {
-            return this.isNew
-                ? '/command/create'
-                : `/command/edit?id=${this.command.id}`;
-        }
-    },
+        const links = computed(() => [
+            { name: 'Commands', href: '/' },
+            { name: subtitle.value }
+        ]);
 
-    methods: {
-        copy() {
-            this.$refs.commandPath.select();
-            this.$refs.commandPath.setSelectionRange(0, 99999);
+        const form = useForm({
+            name: props.command.name,
+            image: props.command.image,
+            value: props.command.value
+        });
+
+        const copy = () => {
+            commandPathEl.value.select();
+            commandPathEl.value.setSelectionRange(0, 99999);
 
             document.execCommand('copy');
 
-            this.$parent.$emit('flash', 'Copied successfully.');
-        }
+            document.dispatchEvent(new CustomEvent('flash', {
+                detail: {
+                    flash: 'Copied successfully.'
+                }
+            }));
+        };
+
+        return {
+            isNew,
+            commandPathEl,
+            subtitle,
+            links,
+            form,
+            iconName,
+            url,
+            copy
+        };
     }
 };
 </script>

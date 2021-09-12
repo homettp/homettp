@@ -1,160 +1,166 @@
 <template>
-    <section class="d-flex">
+    <flash-messages />
+    <section class="flex">
         <div v-show="isSidebarOpen"
-             class="sidebar__backdrop"
+             class="bg-black bg-opacity-50 fixed inset-0 z-10 md:hidden"
              @click.prevent="isSidebarOpen = false"></div>
-        <div class="sidebar" :class="{'sidebar--open': isSidebarOpen}">
-            <div class="sidebar__header">
-                <inertia-link class="sidebar__logo" href="/">
-                    <svg class="bi"
-                         width="1em"
-                         height="1em"
-                         fill="currentColor">
-                        <use :xlink:href="icon('house')" />
-                    </svg>
+        <!-- eslint-disable max-len -->
+        <div class="fixed inset-y-0 left-0 bg-gray-800 w-60 z-20 transform transition-transform md:static md:translate-x-0"
+             :class="{'translate-x-0': isSidebarOpen, '-translate-x-full': !isSidebarOpen}">
+            <div class="flex h-20 bg-gray-900">
+                <inertia-link class="flex items-center m-auto text-white text-xl"
+                              href="/">
+                    <home-icon class="h-7 w-7 mr-2" />
                     <span>
                         {{ $page.props.title }}
                     </span>
                 </inertia-link>
             </div>
-            <div class="sidebar__content">
-                <h1 class="sidebar__content--title">
+            <div class="sidebar overflow-y-auto">
+                <sidebar-title>
                     Commands
-                </h1>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <inertia-link class="nav-link"
-                                      :class="{active: $page.props.isCommandsActive}"
-                                      href="/">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('command')" />
-                            </svg>
-                            <span>
-                                Commands
-                            </span>
-                        </inertia-link>
-                        <inertia-link class="nav-link"
-                                      :class="{active: $page.props.isCreateCommandActive}"
-                                      href="/command/create">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('plus-circle')" />
-                            </svg>
-                            <span>
-                                Create Command
-                            </span>
-                        </inertia-link>
-                    </li>
-                </ul>
-                <h1 class="sidebar__content--title">
+                </sidebar-title>
+                <sidebar-link :is-active="!!$page.props.isCommandsActive"
+                              href="/">
+                    <view-grid-icon class="h-5 w-5 mr-2" />
+                    <span>
+                        Commands
+                    </span>
+                </sidebar-link>
+                <sidebar-link :is-active="!!$page.props.isCreateCommandActive"
+                              href="/command/create">
+                    <view-grid-add-icon class="h-5 w-5 mr-2" />
+                    <span>
+                        Create Command
+                    </span>
+                </sidebar-link>
+                <sidebar-title>
                     Users
-                </h1>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <inertia-link class="nav-link"
-                                      :class="{active: $page.props.isUsersActive}"
-                                      href="/user">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('person')" />
-                            </svg>
-                            <span>
-                                Users
-                            </span>
-                        </inertia-link>
-                    </li>
-                    <li class="nav-item">
-                        <inertia-link class="nav-link"
-                                      :class="{active: $page.props.isCreateUserActive}"
-                                      href="/user/create">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('person-plus')" />
-                            </svg>
-                            <span>
-                                Create User
-                            </span>
-                        </inertia-link>
-                    </li>
-                </ul>
+                </sidebar-title>
+                <sidebar-link :is-active="!!$page.props.isUsersActive"
+                              href="/user">
+                    <user-icon class="h-5 w-5 mr-2" />
+                    <span>
+                        Users
+                    </span>
+                </sidebar-link>
+                <sidebar-link :is-active="!!$page.props.isCreateUserActive"
+                              href="/user/create">
+                    <user-add-icon class="h-5 w-5 mr-2" />
+                    <span>
+                        Create User
+                    </span>
+                </sidebar-link>
             </div>
-            <div class="sidebar__footer">
+            <div class="flex h-20 bg-blueGray-700 bg-opacity-40 text-sm text-blueGray-300">
                 <span class="m-auto">
                     &copy; {{ year }}
-                    <span class="sidebar__highlight">
+                    <span class="text-cyan-500">
                         {{ $page.props.title }}
                     </span>
                 </span>
             </div>
         </div>
-        <div class="content">
-            <header class="content__header">
-                <a class="content__header--toggler"
+        <div class="flex-1">
+            <header class="flex items-center bg-white h-20 shadow-sm px-5">
+                <a class="md:hidden"
                    href="#"
                    @click.prevent="isSidebarOpen = true">
-                    <svg class="bi"
-                         width="1em"
-                         height="1em"
-                         fill="currentColor">
-                        <use :xlink:href="icon('list')" />
-                    </svg>
+                    <menu-icon class="h-6 w-6" />
                 </a>
-                <flash-message />
-                <div class="content__header--user dropdown">
-                    <a class="dropdown-toggle"
-                       href="#"
-                       data-toggle="dropdown">
-                        <img class="img-fluid rounded-circle"
-                             :src="$page.props.auth.gravatar">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <inertia-link class="dropdown-item"
-                                      :href="`/user/edit?id=${$page.props.auth.user.id}`">
-                            Edit Profile
-                        </inertia-link>
-                        <inertia-link class="dropdown-item" href="/logout">
-                            Logout
-                        </inertia-link>
+                <Menu as="div" class="relative ml-auto">
+                    <div>
+                        <MenuButton class="w-11">
+                            <img class="rounded-full max-w-full" :src="$page.props.auth.gravatar">
+                        </MenuButton>
                     </div>
-                </div>
+                    <transition enter-active-class="transition ease-out duration-100"
+                                enter-from-class="transform opacity-0 scale-95"
+                                enter-to-class="transform opacity-100 scale-100"
+                                leave-active-class="transition ease-in duration-75"
+                                leave-from-class="transform opacity-100 scale-100"
+                                leave-to-class="transform opacity-0 scale-95">
+                        <MenuItems class="origin-top-right absolute right-0 mt-2 w-56 rounded-sm shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div class="py-1">
+                                <MenuItem v-slot="{ active }">
+                                    <inertia-link :class="[active ? 'bg-blueGray-50 text-blueGray-800' : 'text-blueGray-600', 'block px-4 py-2 text-sm']"
+                                                  :href="`/user/edit?id=${$page.props.auth.user.id}`">
+                                        Edit Profile
+                                    </inertia-link>
+                                </MenuItem>
+                                <MenuItem v-slot="{ active }">
+                                    <inertia-link :class="[active ? 'bg-blueGray-50 text-blueGray-800' : 'text-blueGray-600', 'block px-4 py-2 text-sm']"
+                                                  href="/logout">
+                                        Logout
+                                    </inertia-link>
+                                </MenuItem>
+                            </div>
+                        </MenuItems>
+                    </transition>
+                </Menu>
             </header>
-            <main class="content__main">
+            <main class="content overflow-y-auto">
                 <slot></slot>
             </main>
         </div>
+        <!-- eslint-enable max-len -->
     </section>
 </template>
 
 <script>
+import {
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems
+} from '@headlessui/vue';
+
+import {
+    HomeIcon,
+    MenuIcon,
+    UserIcon,
+    UserAddIcon,
+    ViewGridIcon,
+    ViewGridAddIcon
+} from '@heroicons/vue/outline';
+
+import { ref, onUnmounted } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
-import FlashMessage from './FlashMessage.vue';
+import FlashMessages from './FlashMessages.vue';
+import SidebarTitle from './SidebarTitle.vue';
+import SidebarLink from './SidebarLink.vue';
 
 export default {
     components: {
-        FlashMessage
+        Menu,
+        MenuButton,
+        MenuItem,
+        MenuItems,
+        HomeIcon,
+        MenuIcon,
+        UserIcon,
+        UserAddIcon,
+        ViewGridIcon,
+        ViewGridAddIcon,
+        FlashMessages,
+        SidebarTitle,
+        SidebarLink
     },
 
-    data() {
-        return {
-            isSidebarOpen: false,
-            year: new Date().getFullYear()
-        };
-    },
+    setup() {
+        const isSidebarOpen = ref(false);
+        const year = ref(new Date().getFullYear());
 
-    mounted() {
-        this.$once(
-            'hook:destroyed',
-            Inertia.on('navigate', () => { this.isSidebarOpen = false; })
+        onUnmounted(
+            Inertia.on('navigate', () => {
+                isSidebarOpen.value = false;
+            })
         );
+
+        return {
+            isSidebarOpen,
+            year
+        };
     }
 };
 </script>

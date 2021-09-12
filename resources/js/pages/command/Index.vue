@@ -1,71 +1,36 @@
 <template>
-    <div class="command__index layout__index">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <inertia-link href="/">
-                    Home
-                </inertia-link>
-            </li>
-            <li class="breadcrumb-item active">
-                {{ $metaInfo.title }}
-            </li>
-        </ol>
-        <div class="layout__row row">
-            <div v-if="!commands" class="layout__col col">
-                <div class="card card-body">
-                    No commands.
-                </div>
+    <inertia-head :title="subtitle" />
+    <div class="p-5">
+        <breadcrumb :links="links" />
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
+            <div v-if="!commands"
+                 class="bg-white p-8">
+                No commands.
             </div>
             <div v-for="command in commands"
                  :key="command.id"
-                 class="layout__col col-xl-3">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="command__icon">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon(iconName(command))" />
-                            </svg>
-                        </span>
-                        <span class="mr-auto">
-                            {{ command.name }}
-                        </span>
-                        <inertia-link v-tooltip
-                                      class="ml-3"
-                                      data-title="Call History"
-                                      :href="`/call/history?id=${command.id}`">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('terminal')" />
-                            </svg>
-                        </inertia-link>
-                        <inertia-link v-tooltip
-                                      class="ml-3"
-                                      data-title="Edit Command"
-                                      :href="`/command/edit?id=${command.id}`">
-                            <svg class="bi"
-                                 width="1em"
-                                 height="1em"
-                                 fill="currentColor">
-                                <use :xlink:href="icon('pencil')" />
-                            </svg>
-                        </inertia-link>
-                    </div>
-                    <div class="card-body d-flex align-items-center">
-                        <svg class="bi"
-                             width="1em"
-                             height="1em"
-                             fill="currentColor">
-                            <use :xlink:href="icon('clock-history')" />
-                        </svg>
-                        <span>
-                            {{ command.created_at | date }}
-                        </span>
-                    </div>
+                 class="bg-white p-8">
+                <card-title>
+                    <component :is="iconName(command)" class="h-6 w-6 mr-2" />
+                    <span class="flex-1 mr-auto">
+                        {{ command.name }}
+                    </span>
+                    <inertia-link class="link ml-2"
+                                  title="Call History"
+                                  :href="`/call/history?id=${command.id}`">
+                        <terminal-icon class="h-6 w-6" />
+                    </inertia-link>
+                    <inertia-link class="link ml-2"
+                                  title="Edit Command"
+                                  :href="`/command/edit?id=${command.id}`">
+                        <pencil-alt-icon class="h-6 w-6" />
+                    </inertia-link>
+                </card-title>
+                <div class="flex items-center">
+                    <clock-icon class="h-5 w-5 mr-2" />
+                    <span>
+                        {{ date(command.created_at) }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -73,9 +38,36 @@
 </template>
 
 <script>
+import {
+    ChipIcon,
+    ClockIcon,
+    KeyIcon,
+    LightBulbIcon,
+    LightningBoltIcon,
+    PauseIcon,
+    PencilAltIcon,
+    TerminalIcon
+} from '@heroicons/vue/outline';
+
+import { ref } from 'vue';
+import Breadcrumb from '../../common/Breadcrumb.vue';
+import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
 export default {
+    components: {
+        ChipIcon,
+        ClockIcon,
+        KeyIcon,
+        LightBulbIcon,
+        LightningBoltIcon,
+        PauseIcon,
+        PencilAltIcon,
+        TerminalIcon,
+        Breadcrumb,
+        CardTitle
+    },
+
     layout: Layout,
 
     props: {
@@ -85,36 +77,42 @@ export default {
         }
     },
 
-    metaInfo() {
-        return {
-            title: 'Commands'
-        };
-    },
+    setup() {
+        const subtitle = ref('Commands');
 
-    methods: {
-        iconName(command) {
+        const links = ref([
+            { name: subtitle }
+        ]);
+
+        const iconName = command => {
             if (command.image === 'door') {
-                return 'door-open';
+                return 'key-icon';
             }
 
             if (command.image === 'light') {
-                return 'lightbulb';
+                return 'light-bulb-icon';
             }
 
             if (command.image === 'outlet') {
-                return 'outlet';
+                return 'pause-icon';
             }
 
             if (command.image === 'plug') {
-                return 'plug';
+                return 'lightning-bolt-icon';
             }
 
             if (command.image === 'sensor') {
-                return 'cpu';
+                return 'chip-icon';
             }
 
             return 'command';
-        }
+        };
+
+        return {
+            subtitle,
+            links,
+            iconName
+        };
     }
 };
 </script>

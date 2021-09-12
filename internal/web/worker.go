@@ -11,17 +11,17 @@ import (
 	"github.com/homettp/homettp/internal/models"
 )
 
-func (app *app) worker() {
-	for id := range app.queue {
-		err := app.handleCall(id)
+func (a *app) worker() {
+	for id := range a.queue {
+		err := a.handleCall(id)
 		if err != nil {
-			app.errorLog.Print(err)
+			a.errorLog.Print(err)
 		}
 	}
 }
 
-func (app *app) handleCall(id int64) error {
-	call, err := app.callRepository.Find(id)
+func (a *app) handleCall(id int64) error {
+	call, err := a.callRepository.Find(id)
 	if err != nil {
 		return err
 	}
@@ -30,19 +30,19 @@ func (app *app) handleCall(id int64) error {
 		return fmt.Errorf("worker: invalid call model %v", id)
 	}
 
-	err = app.callRepository.Update(call, &models.Call{
+	err = a.callRepository.Update(call, &models.Call{
 		Status: models.InProgress,
 	})
 	if err != nil {
 		return err
 	}
 
-	command, err := app.commandRepository.Find(call.CommandID)
+	command, err := a.commandRepository.Find(call.CommandID)
 	if err != nil {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(app.commandTimeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.commandTimeout)*time.Second)
 	defer cancel()
 
 	name := "/bin/sh"
@@ -57,7 +57,7 @@ func (app *app) handleCall(id int64) error {
 	out, err := cmd.Output()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		err = app.callRepository.Update(call, &models.Call{
+		err = a.callRepository.Update(call, &models.Call{
 			Status: models.Failed,
 			Output: "command timed out",
 		})
@@ -65,7 +65,7 @@ func (app *app) handleCall(id int64) error {
 			return err
 		}
 	} else if err != nil {
-		err = app.callRepository.Update(call, &models.Call{
+		err = a.callRepository.Update(call, &models.Call{
 			Status: models.Failed,
 			Output: err.Error(),
 		})
@@ -73,7 +73,7 @@ func (app *app) handleCall(id int64) error {
 			return err
 		}
 	} else {
-		err = app.callRepository.Update(call, &models.Call{
+		err = a.callRepository.Update(call, &models.Call{
 			Status: models.Completed,
 			Output: string(out),
 		})

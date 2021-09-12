@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-blueGray-100 text-blueGray-600;
+    }
+
+    .sidebar {
+        height: calc(100vh - 10rem);
+    }
+
+    .content {
+        height: calc(100vh - 5rem);
+    }
+}
+
+@layer components {
+    .link {
+        @apply text-cyan-500 hover:text-cyan-600;
+    }
+
+    .form-input {
+        @apply border-gray-100 text-blueGray-600 placeholder-gray-400 rounded-sm focus:border-cyan-500 focus:ring-cyan-500;
+    }
+
+    .form-select {
+        @apply border-gray-100 text-blueGray-600 rounded-sm focus:border-cyan-500 focus:ring-cyan-500;
+    }
+
+    .form-invalid {
+        @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+    }
+
+    .form-checkbox {
+        @apply text-cyan-500 focus:border-cyan-500 focus:ring-cyan-500;
+    }
+
+    .btn {
+        @apply bg-cyan-500 text-white py-2 px-6 rounded-sm hover:bg-cyan-600;
+    }
+
+    .btn-red {
+        @apply bg-red-500 text-white py-2 px-6 rounded-sm hover:bg-red-600;
+    }
+}

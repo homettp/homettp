@@ -1,88 +1,90 @@
 <template>
-    <div class="auth">
-        <div class="container">
-            <header class="auth__header">
-                <inertia-link class="auth__logo" href="/login">
-                    <svg class="bi"
-                         width="1em"
-                         height="1em"
-                         fill="currentColor">
-                        <use :xlink:href="icon('house')" />
-                    </svg>
-                    <span>
-                        {{ title }}
-                    </span>
-                </inertia-link>
-            </header>
-            <div class="card">
-                <div class="card-header">
-                    <svg class="bi"
-                         width="1em"
-                         height="1em"
-                         fill="currentColor">
-                        <use :xlink:href="icon('box-arrow-in-right')" />
-                    </svg>
-                    <span>
-                        {{ $metaInfo.title }}
-                    </span>
+    <inertia-head :title="subtitle" />
+    <div class="container mx-auto">
+        <header class="flex justify-center py-8">
+            <inertia-link class="flex items-center text-2xl text-gray-800" href="/login">
+                <home-icon class="h-8 w-8 mr-2" />
+                <span>
+                    {{ title }}
+                </span>
+            </inertia-link>
+        </header>
+        <div class="bg-white max-w-sm mx-auto p-8">
+            <card-title>
+                <login-icon class="h-6 w-6 mr-2" />
+                <span class="font-medium">
+                    {{ subtitle }}
+                </span>
+            </card-title>
+            <form @submit.prevent="form.post('/login')">
+                <div class="grid grid-cols-1 gap-6">
+                    <label class="block">
+                        <div>
+                            Username / E-mail
+                            <span class="text-cyan-500">
+                                *
+                            </span>
+                        </div>
+                        <input v-model="form.username_or_email"
+                               class="form-input mt-3 block w-full"
+                               :class="{'form-invalid': form.errors.username_or_email}"
+                               type="text"
+                               name="username_or_email"
+                               placeholder="Username / E-mail"
+                               required>
+                        <div v-if="form.errors.username_or_email" class="mt-2 text-sm text-red-500">
+                            {{ form.errors.username_or_email[0] }}
+                        </div>
+                    </label>
+                    <label class="block">
+                        <div>
+                            Password
+                            <span class="text-cyan-500">
+                                *
+                            </span>
+                        </div>
+                        <input id="password"
+                               v-model="form.password"
+                               class="form-input mt-3 block w-full"
+                               :class="{'form-invalid': form.errors.password}"
+                               type="password"
+                               name="password"
+                               placeholder="Password"
+                               required>
+                        <div v-if="form.errors.password" class="mt-2 text-sm text-red-500">
+                            {{ form.errors.password[0] }}
+                        </div>
+                    </label>
+                    <label class="flex items-center">
+                        <input v-model="form.remember"
+                               class="form-checkbox"
+                               type="checkbox">
+                        <span class="ml-2">
+                            Remember Me
+                        </span>
+                    </label>
+                    <button class="btn block" type="submit">
+                        {{ subtitle }}
+                    </button>
                 </div>
-                <form @submit.prevent="form.post('/login')">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label class="form-control-label required" for="username_or_email">
-                                Username / E-mail
-                            </label>
-                            <input id="username_or_email"
-                                   v-model="form.username_or_email"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.username_or_email}"
-                                   type="text"
-                                   name="username_or_email"
-                                   placeholder="Username / E-mail"
-                                   required>
-                            <span v-if="form.errors.username_or_email" class="invalid-feedback">
-                                {{ form.errors.username_or_email[0] }}
-                            </span>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-control-label required" for="password">
-                                Password
-                            </label>
-                            <input id="password"
-                                   v-model="form.password"
-                                   class="form-control"
-                                   :class="{'is-invalid': form.errors.password}"
-                                   type="password"
-                                   name="password"
-                                   placeholder="Password"
-                                   required>
-                            <span v-if="form.errors.password" class="invalid-feedback">
-                                {{ form.errors.password[0] }}
-                            </span>
-                        </div>
-                        <div class="form-check">
-                            <input id="remember"
-                                   v-model="form.remember"
-                                   class="form-check-input"
-                                   type="checkbox">
-                            <label class="form-check-label" for="remember">
-                                Remember Me
-                            </label>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-primary" type="submit">
-                            {{ $metaInfo.title }}
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </template>
 
 <script>
+import { ref } from 'vue';
+import { HomeIcon, LoginIcon } from '@heroicons/vue/outline';
+import { useForm } from '@inertiajs/inertia-vue3';
+import CardTitle from '../../common/CardTitle.vue';
+
 export default {
+    components: {
+        HomeIcon,
+        LoginIcon,
+        CardTitle
+    },
+
     props: {
         title: {
             type: String,
@@ -90,19 +92,18 @@ export default {
         }
     },
 
-    metaInfo() {
-        return {
-            title: 'Login'
-        };
-    },
+    setup() {
+        const subtitle = ref('Login');
 
-    data() {
+        const form = useForm({
+            username_or_email: '',
+            password: '',
+            remember: true
+        });
+
         return {
-            form: this.$inertia.form({
-                username_or_email: '',
-                password: '',
-                remember: true
-            })
+            subtitle,
+            form
         };
     }
 };

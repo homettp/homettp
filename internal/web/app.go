@@ -21,8 +21,8 @@ const (
 type app struct {
 	debug               bool
 	url                 string
-	errorLog            *log.Logger
 	infoLog             *log.Logger
+	errorLog            *log.Logger
 	redisPool           *redis.Pool
 	redisKeyPrefix      string
 	commandTimeout      int

@@ -9,16 +9,16 @@ import (
 	"github.com/petaki/support-go/forms"
 )
 
-func (app *app) userIndex(w http.ResponseWriter, r *http.Request) {
+func (a *app) userIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		app.methodNotAllowed(w, []string{"GET"})
+		a.methodNotAllowed(w, []string{"GET"})
 
 		return
 	}
 
-	users, err := app.userRepository.FindAll()
+	users, err := a.userRepository.FindAll()
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
@@ -29,44 +29,44 @@ func (app *app) userIndex(w http.ResponseWriter, r *http.Request) {
 		gravatars[user.Username] = user.Gravatar(96)
 	}
 
-	err = app.inertiaManager.Render(w, r, "user/Index", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Index", map[string]interface{}{
 		"isUsersActive": true,
 		"users":         users,
 		"gravatars":     gravatars,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) userCreate(w http.ResponseWriter, r *http.Request) {
+func (a *app) userCreate(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		app.getUserCreate(w, r)
+		a.getUserCreate(w, r)
 	case "POST":
-		app.postUserCreate(w, r)
+		a.postUserCreate(w, r)
 	default:
-		app.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "POST"})
 	}
 }
 
-func (app *app) getUserCreate(w http.ResponseWriter, r *http.Request) {
-	err := app.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+func (a *app) getUserCreate(w http.ResponseWriter, r *http.Request) {
+	err := a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
 		"isCreateUserActive": true,
 		"user":               models.NewUser(),
 		"errors":             forms.Bag{},
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
+func (a *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 	user := models.NewUser()
 
 	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
-		app.formError(w, err)
+		a.formError(w, err)
 
 		return
 	}
@@ -74,7 +74,7 @@ func (app *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 	models.UserCreateRules(form)
 
 	if form.IsValid() {
-		err = app.userRepository.Create(user.Fill(form))
+		err = a.userRepository.Create(user.Fill(form))
 		if err != nil {
 			switch err {
 			case models.ErrDuplicateUsername:
@@ -82,67 +82,67 @@ func (app *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 			case models.ErrDuplicateEmail:
 				form.Errors.Add("email", "The email has already been taken.")
 			default:
-				app.serverError(w, err)
+				a.serverError(w, err)
 
 				return
 			}
 		} else {
-			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
+			a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Created successfully.")
 			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.ID), http.StatusSeeOther)
 
 			return
 		}
 	}
 
-	err = app.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
 		"isCreateUserActive": true,
 		"user":               user,
 		"errors":             form.Errors,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) userEdit(w http.ResponseWriter, r *http.Request) {
+func (a *app) userEdit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		app.getUserEdit(w, r)
+		a.getUserEdit(w, r)
 	case "POST":
-		app.postUserEdit(w, r)
+		a.postUserEdit(w, r)
 	default:
-		app.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "POST"})
 	}
 }
 
-func (app *app) getUserEdit(w http.ResponseWriter, r *http.Request) {
-	user, err := app.userFromRequest(r, "id")
+func (a *app) getUserEdit(w http.ResponseWriter, r *http.Request) {
+	user, err := a.userFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	err = app.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
 		"user":   user,
 		"errors": forms.Bag{},
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
-	user, err := app.userFromRequest(r, "id")
+func (a *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
+	user, err := a.userFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
 	form, err := forms.NewFromRequest(w, r)
 	if err != nil {
-		app.formError(w, err)
+		a.formError(w, err)
 
 		return
 	}
@@ -150,7 +150,7 @@ func (app *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
 	models.UserUpdateRules(form)
 
 	if form.IsValid() {
-		err = app.userRepository.Update(user, (models.NewUser()).Fill(form))
+		err = a.userRepository.Update(user, (models.NewUser()).Fill(form))
 		if err != nil {
 			switch err {
 			case models.ErrDuplicateUsername:
@@ -158,53 +158,53 @@ func (app *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
 			case models.ErrDuplicateEmail:
 				form.Errors.Add("email", "The email has already been taken.")
 			default:
-				app.serverError(w, err)
+				a.serverError(w, err)
 
 				return
 			}
 		} else {
-			app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
+			a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
 			http.Redirect(w, r, fmt.Sprintf("/user/edit?id=%v", user.ID), http.StatusSeeOther)
 
 			return
 		}
 	}
 
-	err = app.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
 		"user":   user,
 		"errors": form.Errors,
 	})
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 	}
 }
 
-func (app *app) userDelete(w http.ResponseWriter, r *http.Request) {
+func (a *app) userDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
-		app.methodNotAllowed(w, []string{"DELETE"})
+		a.methodNotAllowed(w, []string{"DELETE"})
 
 		return
 	}
 
-	user, err := app.userFromRequest(r, "id")
+	user, err := a.userFromRequest(r, "id")
 	if err != nil {
-		app.notFound(w)
+		a.notFound(w)
 
 		return
 	}
 
-	err = app.userRepository.Delete(user)
+	err = a.userRepository.Delete(user)
 	if err != nil {
-		app.serverError(w, err)
+		a.serverError(w, err)
 
 		return
 	}
 
-	app.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
+	a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
 	http.Redirect(w, r, "/user", http.StatusSeeOther)
 }
 
-func (app *app) userFromRequest(r *http.Request, parameter string) (*models.User, error) {
+func (a *app) userFromRequest(r *http.Request, parameter string) (*models.User, error) {
 	if r.URL.Query().Get(parameter) == "" {
 		return nil, fmt.Errorf("%s parameter not found", parameter)
 	}
@@ -214,7 +214,7 @@ func (app *app) userFromRequest(r *http.Request, parameter string) (*models.User
 		return nil, err
 	}
 
-	user, err := app.userRepository.Find(id)
+	user, err := a.userRepository.Find(id)
 	if err != nil {
 		return nil, err
 	}

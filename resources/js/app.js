@@ -1,57 +1,39 @@
 import { DateTime } from 'luxon';
-import Vue from 'vue';
-import VueMeta from 'vue-meta';
-import { App, plugin } from '@inertiajs/inertia-vue';
+import { createApp, h } from 'vue';
+import { createInertiaApp, InertiaLink, InertiaHead } from '@inertiajs/inertia-vue3';
 import { InertiaProgress } from '@inertiajs/progress';
-import Tooltip from './common/Tooltip';
 
 window._ = require('lodash');
 
-try {
-    window.Popper = require('popper.js').default;
-    window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap');
-} catch (e) {}
-
 InertiaProgress.init();
 
-Vue.config.productionTip = false;
-Vue.use(plugin);
-Vue.use(VueMeta);
+createInertiaApp({
+    // eslint-disable-next-line import/no-dynamic-require
+    resolve: name => require(`./pages/${name}`),
+    setup({
+        el, App, props, plugin
+    }) {
+        props.titleCallback = title => (title
+            ? `${title} - ${props.initialPage.props.title}`
+            : props.initialPage.props.title);
 
-Vue.directive('tooltip', Tooltip);
+        createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .component('InertiaLink', InertiaLink)
+            .component('InertiaHead', InertiaHead)
+            .mixin({
+                methods: {
+                    date(value) {
+                        const date = DateTime.fromISO(value);
 
-Vue.filter('date', value => {
-    const date = DateTime.fromISO(value);
+                        if (!date.isValid) {
+                            return value;
+                        }
 
-    if (!date.isValid) {
-        return value;
+                        return date.toLocaleString(DateTime.DATETIME_MED);
+                    }
+                }
+            })
+            .mount(el);
     }
-
-    return date.toLocaleString(DateTime.DATETIME_MED);
 });
-
-Vue.mixin({
-    methods: {
-        icon(name) {
-            return `${this.$page.props.icons}#${name}`;
-        }
-    }
-});
-
-const el = document.getElementById('app');
-const initialPage = JSON.parse(el.dataset.page);
-
-new Vue({
-    metaInfo: {
-        titleTemplate: title => (title ? `${title} - ${initialPage.props.title}` : initialPage.props.title)
-    },
-
-    render: h => h(App, {
-        props: {
-            initialPage,
-            resolveComponent: name => import(`./pages/${name}.vue`).then(module => module.default)
-        }
-    })
-}).$mount(el);

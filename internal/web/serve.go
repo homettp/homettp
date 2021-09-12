@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,11 +21,7 @@ import (
 )
 
 // Serve function.
-func Serve(debug bool, addr, url, key, redisURL, redisKeyPrefix string, commandTimeout, commandWorkerCount, commandHistoryLimit int) {
-	infoLog := log.New(os.Stdout, cli.Cyan("INFO\t"), log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, cli.Red("ERROR\t"), log.Ldate|log.Ltime|log.Lshortfile)
-
-	redisPool := newRedisPool(redisURL)
+func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.Pool, commandTimeout, commandWorkerCount, commandHistoryLimit int) {
 	sessionManager := scs.New()
 	sessionManager.Store = redisstore.NewWithPrefix(redisPool, fmt.Sprintf("%sscs:session:", redisKeyPrefix))
 
@@ -36,12 +31,12 @@ func Serve(debug bool, addr, url, key, redisURL, redisKeyPrefix string, commandT
 		HTTPOnly: true,
 	})
 	if err != nil {
-		errorLog.Fatal(err)
+		cli.ErrorLog.Fatal(err)
 	}
 
 	mixManager, inertiaManager, err := newMixAndInertiaManager(url)
 	if err != nil {
-		errorLog.Fatal(err)
+		cli.ErrorLog.Fatal(err)
 	}
 
 	queue := make(chan int64, 100)
@@ -49,8 +44,8 @@ func Serve(debug bool, addr, url, key, redisURL, redisKeyPrefix string, commandT
 	webApp := &app{
 		debug:               debug,
 		url:                 url,
-		errorLog:            errorLog,
-		infoLog:             infoLog,
+		infoLog:             cli.InfoLog,
+		errorLog:            cli.ErrorLog,
 		redisPool:           redisPool,
 		redisKeyPrefix:      redisKeyPrefix,
 		commandTimeout:      commandTimeout,
@@ -82,7 +77,7 @@ func Serve(debug bool, addr, url, key, redisURL, redisKeyPrefix string, commandT
 
 	srv := &http.Server{
 		Addr:         addr,
-		ErrorLog:     errorLog,
+		ErrorLog:     webApp.errorLog,
 		Handler:      webApp.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
@@ -92,32 +87,31 @@ func Serve(debug bool, addr, url, key, redisURL, redisKeyPrefix string, commandT
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	infoLog.Printf("Starting server on "+cli.Green("%s"), addr)
+	webApp.infoLog.Printf("Starting server on "+cli.Green("%s"), addr)
 
 	go func() {
 		err = srv.ListenAndServe()
 
 		if err != nil && err != http.ErrServerClosed {
-			errorLog.Fatal(err)
+			webApp.errorLog.Fatal(err)
 		}
 	}()
 
 	<-done
-	infoLog.Print("Server stopped")
+	webApp.infoLog.Print("Server stopped")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(webApp.commandTimeout)*time.Second)
 	defer func() {
 		close(queue)
-		redisPool.Close()
 		cancel()
 	}()
 
 	err = srv.Shutdown(ctx)
 	if err != nil {
-		errorLog.Fatal(err)
+		webApp.errorLog.Fatal(err)
 	}
 
-	infoLog.Print("Server exited properly")
+	webApp.infoLog.Print("Server exited properly")
 }
 
 func newMixAndInertiaManager(url string) (*mix.Mix, *inertia.Inertia, error) {
@@ -129,25 +123,8 @@ func newMixAndInertiaManager(url string) (*mix.Mix, *inertia.Inertia, error) {
 	}
 
 	inertiaManager := inertia.NewWithFS(url, "app.gohtml", version, views.Templates)
-
-	icons, err := mixManager.Mix("images/bootstrap-icons.svg", "")
-	if err != nil {
-		return nil, nil, err
-	}
-
 	inertiaManager.Share("title", "Homettp")
-	inertiaManager.Share("icons", icons)
 	inertiaManager.ShareFunc("mix", mixManager.Mix)
 
 	return mixManager, inertiaManager, nil
-}
-
-func newRedisPool(url string) *redis.Pool {
-	return &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			return redis.DialURL(url)
-		},
-	}
 }

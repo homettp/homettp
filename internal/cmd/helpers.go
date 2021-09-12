@@ -3,7 +3,9 @@ package cmd
 import (
 	"os"
 	"strconv"
+	"time"
 
+	"github.com/gomodule/redigo/redis"
 	"github.com/petaki/support-go/cli"
 )
 
@@ -35,4 +37,14 @@ func createCommandFlags(command *cli.Command) (*int, *int, *int) {
 	commandHistoryLimit := command.FlagSet().Int("command-history-limit", envCommandHistoryLimit, "Command History Limit")
 
 	return commandTimeout, commandWorkerCount, commandHistoryLimit
+}
+
+func newRedisPool(url string) *redis.Pool {
+	return &redis.Pool{
+		MaxIdle:     3,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.DialURL(url)
+		},
+	}
 }
