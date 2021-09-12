@@ -15,6 +15,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/homettp/homettp/resources/views"
+	"github.com/homettp/homettp/static"
 	"github.com/petaki/inertia-go"
 	"github.com/petaki/support-go/cli"
 	"github.com/petaki/support-go/mix"
@@ -34,7 +35,7 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 		cli.ErrorLog.Fatal(err)
 	}
 
-	mixManager, inertiaManager, err := newMixAndInertiaManager(url)
+	mixManager, inertiaManager, err := newMixAndInertiaManager(debug, url)
 	if err != nil {
 		cli.ErrorLog.Fatal(err)
 	}
@@ -114,17 +115,41 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 	webApp.infoLog.Print("Server exited properly")
 }
 
-func newMixAndInertiaManager(url string) (*mix.Mix, *inertia.Inertia, error) {
-	mixManager := mix.New("")
+func newMixAndInertiaManager(debug bool, url string) (*mix.Mix, *inertia.Inertia, error) {
+	mixManager := mix.New("", "./static", "")
 
-	version, err := mixManager.Hash("")
-	if err != nil {
-		return nil, nil, err
+	var version string
+	var err error
+
+	if debug {
+		version, err = mixManager.Hash("")
+		if err != nil {
+			return nil, nil, err
+		}
+	} else {
+		file, err := static.Files.Open("mix-manifest.json")
+		if err != nil {
+			return nil, nil, err
+		}
+
+		defer file.Close()
+
+		version, err = mixManager.HashFromFile(file)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	inertiaManager := inertia.NewWithFS(url, "app.gohtml", version, views.Templates)
 	inertiaManager.Share("title", "Homettp")
-	inertiaManager.ShareFunc("mix", mixManager.Mix)
+
+	inertiaManager.ShareFunc("asset", func(path string) (string, error) {
+		if debug {
+			return mixManager.Mix(path, "")
+		}
+
+		return "/" + path, nil
+	})
 
 	return mixManager, inertiaManager, nil
 }

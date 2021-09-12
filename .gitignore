@@ -1,10 +1,10 @@
 /dist
 /node_modules
-/public/css
-/public/favicon.ico
-/public/hot
-/public/images
-/public/js
-/public/mix-manifest.json
+/static/css
+/static/favicon.ico
+/static/hot
+/static/images
+/static/js
+/static/mix-manifest.json
 .env
 yarn-error.log
