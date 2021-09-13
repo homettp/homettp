@@ -19,6 +19,8 @@ github.com/petaki/inertia-go v1.1.0 h1:wo8HXq9iHv6Lld3x5mx8M/i08QxjsjXfkJhDcc2vz
 github.com/petaki/inertia-go v1.1.0/go.mod h1:vOh9Ny1TFGeIXnOFEq6jeBGbo7STtTvMD+6wz9XI57c=
 github.com/petaki/support-go v1.3.0 h1:DFsggefHZUQhRvuvYxTdarewGC04GwGy8JRzbcZTHNk=
 github.com/petaki/support-go v1.3.0/go.mod h1:PHk2IV3V7Wf6ALnhG0eN5oUJ7kZ9FcwiQsawH8DbFSs=
+github.com/petaki/support-go v1.4.0 h1:OB5o+QxTBnLwj+Q2GU0JbGTE8jb8OFOEfu69A3gTWXk=
+github.com/petaki/support-go v1.4.0/go.mod h1:stE8De9u6JijWygDJbu2jCCkfEOWLMlEanH0pIZRvNY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
