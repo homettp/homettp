@@ -10,6 +10,6 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/justinas/alice v1.2.0
 	github.com/petaki/inertia-go v1.1.0
-	github.com/petaki/support-go v1.3.0
+	github.com/petaki/support-go v1.4.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 )

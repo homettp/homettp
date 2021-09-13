@@ -127,14 +127,7 @@ func newMixAndInertiaManager(debug bool, url string) (*mix.Mix, *inertia.Inertia
 			return nil, nil, err
 		}
 	} else {
-		file, err := static.Files.Open("mix-manifest.json")
-		if err != nil {
-			return nil, nil, err
-		}
-
-		defer file.Close()
-
-		version, err = mixManager.HashFromFile(file)
+		version, err = mixManager.HashFromFS("", static.Files)
 		if err != nil {
 			return nil, nil, err
 		}
