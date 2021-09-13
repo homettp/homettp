@@ -1,14 +1,14 @@
 VERSION := $(if $(RELEASE_VERSION),$(RELEASE_VERSION),"master")
 
-all: pre_clean ui darwin linux windows post_clean
+all: pre_clean ui darwin linux linux_arm windows post_clean
 
 pre_clean:
 	rm -rf dist
+	mkdir dist
+	cp .env.example dist/.env
 
 ui:
 	yarn prod
-	mkdir dist
-	cp .env.example dist/.env
 
 darwin:
 	GOOS=darwin GOARCH=amd64 go build -o dist/homettp
@@ -18,6 +18,11 @@ darwin:
 linux:
 	GOOS=linux GOARCH=amd64 go build -o dist/homettp
 	cd dist && zip -r homettp_$(VERSION)_linux_amd64.zip .env homettp
+	rm -f dist/homettp
+
+linux_arm:
+	GOOS=linux GOARCH=arm64 go build -o dist/homettp
+	cd dist && zip -r homettp_$(VERSION)_linux_arm64.zip .env homettp
 	rm -f dist/homettp
 
 windows:
