@@ -1,6 +1,6 @@
 module github.com/homettp/homettp
 
-go 1.16
+go 1.17
 
 require (
 	github.com/alexedwards/scs/redisstore v0.0.0-20210904201103-9ffa4cfa9323
