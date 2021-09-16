@@ -5,7 +5,6 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/chmike/securecookie"
-	"github.com/gomodule/redigo/redis"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/petaki/inertia-go"
 	"github.com/petaki/support-go/mix"
@@ -23,8 +22,6 @@ type app struct {
 	url                 string
 	infoLog             *log.Logger
 	errorLog            *log.Logger
-	redisPool           *redis.Pool
-	redisKeyPrefix      string
 	commandTimeout      int
 	commandWorkerCount  int
 	commandHistoryLimit int
