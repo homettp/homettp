@@ -47,8 +47,6 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 		url:                 url,
 		infoLog:             cli.InfoLog,
 		errorLog:            cli.ErrorLog,
-		redisPool:           redisPool,
-		redisKeyPrefix:      redisKeyPrefix,
 		commandTimeout:      commandTimeout,
 		commandWorkerCount:  commandWorkerCount,
 		commandHistoryLimit: commandHistoryLimit,
