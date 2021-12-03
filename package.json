@@ -20,10 +20,10 @@
         "@tailwindcss/forms": "^0.3.3",
         "@vue/compiler-sfc": "^3.1",
         "autoprefixer": "^10.3",
-        "eslint": "^7.7",
-        "eslint-config-airbnb-base": "^14.2",
-        "eslint-plugin-import": "^2.22",
-        "eslint-plugin-vue": "^7.14",
+        "eslint": "^8.3",
+        "eslint-config-airbnb-base": "^15.0",
+        "eslint-plugin-import": "^2.25",
+        "eslint-plugin-vue": "^8.1",
         "laravel-mix": "^6.0",
         "lodash": "^4.17",
         "luxon": "^1.25",
@@ -31,6 +31,7 @@
         "resolve-url-loader": "^4.0",
         "tailwindcss": "^2.2",
         "vue": "^3.0",
+        "vue-eslint-parser": "^8.0.1",
         "vue-loader": "^16.4"
     }
 }
