@@ -17,7 +17,7 @@
         "@inertiajs/inertia": "^0.10",
         "@inertiajs/inertia-vue3": "^0.5",
         "@inertiajs/progress": "^0.2",
-        "@tailwindcss/forms": "^0.3.3",
+        "@tailwindcss/forms": "^0.3",
         "@vue/compiler-sfc": "^3.1",
         "autoprefixer": "^10.3",
         "eslint": "^8.3",
