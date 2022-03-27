@@ -11,5 +11,5 @@ require (
 	github.com/justinas/alice v1.2.0
 	github.com/petaki/inertia-go v1.2.0
 	github.com/petaki/support-go v1.4.1
-	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000
+	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064
 )
