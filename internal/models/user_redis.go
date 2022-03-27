@@ -282,9 +282,9 @@ func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (
 			if errors.Is(err, redis.ErrNil) {
 				return nil, ErrInvalidCredentials
 			}
+		} else {
+			return nil, err
 		}
-
-		return nil, err
 	}
 
 	values, err := redis.Values(conn.Do("HGETALL", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(id)))
