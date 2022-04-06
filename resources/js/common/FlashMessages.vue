@@ -21,7 +21,7 @@ export default {
         const messages = ref([]);
 
         const remove = message => {
-            const index = _.findIndex(messages.value, { id: message.id });
+            const index = messages.value.findIndex(current => current.id === message.id);
 
             if (index !== -1) {
                 messages.value.splice(index, 1);

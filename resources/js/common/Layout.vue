@@ -52,7 +52,7 @@
                     </span>
                 </sidebar-link>
             </div>
-            <div class="flex h-20 bg-blueGray-700 bg-opacity-40 text-sm text-blueGray-300">
+            <div class="flex h-20 bg-slate-700 bg-opacity-40 text-sm text-slate-300">
                 <span class="m-auto">
                     &copy; {{ year }}
                     <span class="text-cyan-500">
@@ -83,13 +83,13 @@
                         <MenuItems class="origin-top-right absolute right-0 mt-2 w-56 rounded-sm shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                             <div class="py-1">
                                 <MenuItem v-slot="{ active }">
-                                    <inertia-link :class="[active ? 'bg-blueGray-50 text-blueGray-800' : 'text-blueGray-600', 'block px-4 py-2 text-sm']"
+                                    <inertia-link :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'block px-4 py-2 text-sm']"
                                                   :href="`/user/edit?id=${$page.props.auth.user.id}`">
                                         Edit Profile
                                     </inertia-link>
                                 </MenuItem>
                                 <MenuItem v-slot="{ active }">
-                                    <inertia-link :class="[active ? 'bg-blueGray-50 text-blueGray-800' : 'text-blueGray-600', 'block px-4 py-2 text-sm']"
+                                    <inertia-link :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'block px-4 py-2 text-sm']"
                                                   href="/logout">
                                         Logout
                                     </inertia-link>

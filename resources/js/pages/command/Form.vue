@@ -1,5 +1,5 @@
 <template>
-    <inertia-head :title="subtitle" />
+    <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
         <div class="bg-white p-8">

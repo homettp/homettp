@@ -1,9 +1,8 @@
 import { DateTime } from 'luxon';
 import { createApp, h } from 'vue';
-import { createInertiaApp, InertiaLink, InertiaHead } from '@inertiajs/inertia-vue3';
+import { createInertiaApp, InertiaLink } from '@inertiajs/inertia-vue3';
 import { InertiaProgress } from '@inertiajs/progress';
-
-window._ = require('lodash');
+import AppTitle from './common/AppTitle.vue';
 
 InertiaProgress.init();
 
@@ -13,14 +12,10 @@ createInertiaApp({
     setup({
         el, App, props, plugin
     }) {
-        props.titleCallback = title => (title
-            ? `${title} - ${props.initialPage.props.title}`
-            : props.initialPage.props.title);
-
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .component('InertiaLink', InertiaLink)
-            .component('InertiaHead', InertiaHead)
+            .component('AppTitle', AppTitle)
             .mixin({
                 methods: {
                     date(value) {

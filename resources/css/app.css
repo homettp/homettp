@@ -4,7 +4,7 @@
 
 @layer base {
     body {
-        @apply bg-blueGray-100 text-blueGray-600;
+        @apply bg-slate-100 text-slate-600;
     }
 
     .sidebar {
@@ -22,11 +22,11 @@
     }
 
     .form-input {
-        @apply border-gray-100 text-blueGray-600 placeholder-gray-400 rounded-sm focus:border-cyan-500 focus:ring-cyan-500;
+        @apply border-gray-100 text-slate-600 placeholder-gray-400 rounded-sm focus:border-cyan-500 focus:ring-cyan-500;
     }
 
     .form-select {
-        @apply border-gray-100 text-blueGray-600 rounded-sm focus:border-cyan-500 focus:ring-cyan-500;
+        @apply border-gray-100 text-slate-600 rounded-sm focus:border-cyan-500 focus:ring-cyan-500;
     }
 
     .form-invalid {

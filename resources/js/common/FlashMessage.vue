@@ -11,7 +11,7 @@
                 <x-icon class="h-5 w-5" />
             </button>
         </div>
-        <div class="h-2.5 bg-blueGray-50 transition-all ease-linear duration-100"
+        <div class="h-2.5 bg-slate-50 transition-all ease-linear duration-100"
              :style="{width: `${progress}%`}"></div>
     </div>
     <!-- eslint-enable max-len -->

@@ -15,9 +15,6 @@ module.exports = {
         jquery: true,
         node: true
     },
-    globals: {
-        _: 'readonly'
-    },
     settings: {
         'import/core-modules': ['webpack']
     },

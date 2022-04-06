@@ -1,5 +1,5 @@
 <template>
-    <inertia-head :title="subtitle" />
+    <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
         <div class="grid grid-cols-1 gap-5">
@@ -36,7 +36,7 @@
                     </inertia-link>
                 </card-title>
                 <!-- eslint-disable max-len -->
-                <pre v-if="call.output" class="bg-gray-900 text-blueGray-300 text-sm p-6"><code>{{ call.output }}</code></pre>
+                <pre v-if="call.output" class="bg-gray-900 text-slate-300 text-sm p-6"><code>{{ call.output }}</code></pre>
                 <!-- eslint-enable max-len -->
             </div>
         </div>

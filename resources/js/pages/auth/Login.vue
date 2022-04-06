@@ -1,5 +1,5 @@
 <template>
-    <inertia-head :title="subtitle" />
+    <app-title :title="subtitle" />
     <div class="container mx-auto">
         <header class="flex justify-center py-8">
             <inertia-link class="flex items-center text-2xl text-gray-800" href="/login">
