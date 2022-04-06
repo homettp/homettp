@@ -7,7 +7,7 @@
         <template v-for="(link, index) in links"
                   :key="link.name">
             <div v-if="index === 0"
-                 class="px-2 text-blueGray-300">
+                 class="px-2 text-slate-300">
                 /
             </div>
             <inertia-link v-if="link.href"
@@ -19,7 +19,7 @@
                 {{ link.name }}
             </div>
             <div v-if="index < links.length - 1"
-                 class="px-2 text-blueGray-300">
+                 class="px-2 text-slate-300">
                 /
             </div>
         </template>

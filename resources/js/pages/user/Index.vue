@@ -1,5 +1,5 @@
 <template>
-    <inertia-head :title="subtitle" />
+    <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
