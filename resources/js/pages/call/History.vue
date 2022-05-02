@@ -36,7 +36,7 @@
                     </inertia-link>
                 </card-title>
                 <!-- eslint-disable max-len -->
-                <pre v-if="call.output" class="bg-gray-900 text-slate-300 text-sm p-6"><code>{{ call.output }}</code></pre>
+                <pre v-if="call.output" class="bg-gray-900 text-slate-300 text-xs p-6 whitespace-pre-wrap">{{ call.output }}</pre>
                 <!-- eslint-enable max-len -->
             </div>
         </div>
@@ -83,8 +83,8 @@ export default {
 
     setup(props) {
         const subtitle = ref('Call History');
-        const reloadInterval = ref();
-        const reloadTimer = ref(2500);
+        const reloadInterval = ref(undefined);
+        const reloadTimer = 2500;
 
         const links = ref([
             { name: 'Commands', href: '/' },
@@ -93,7 +93,7 @@ export default {
         ]);
 
         onMounted(() => {
-            reloadInterval.value = setInterval(() => Inertia.reload(), reloadTimer.value);
+            reloadInterval.value = setInterval(() => Inertia.reload(), reloadTimer);
         });
 
         onUnmounted(() => {
