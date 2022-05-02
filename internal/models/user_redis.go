@@ -187,7 +187,7 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 		}
 	}
 
-	if len(newUser.Password) > 0 && bytes.Compare(user.Password, newUser.Password) != 0 {
+	if len(newUser.Password) > 0 && !bytes.Equal(user.Password, newUser.Password) {
 		user.Password, err = bcrypt.GenerateFromPassword(newUser.Password, 12)
 		if err != nil {
 			return err
