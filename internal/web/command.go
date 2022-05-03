@@ -209,7 +209,7 @@ func (a *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	token, err := a.generateToken()
 	if err != nil {
-		a.notFound(w)
+		a.serverError(w, err)
 
 		return
 	}
@@ -217,6 +217,8 @@ func (a *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	err = a.commandRepository.UpdateToken(command, token)
 	if err != nil {
 		a.serverError(w, err)
+
+		return
 	}
 
 	a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Updated successfully.")
