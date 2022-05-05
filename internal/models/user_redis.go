@@ -139,10 +139,9 @@ func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 	sort.Strings(usernames)
 
 	var users []*User
-	var id int
 
 	for _, username := range usernames {
-		id, err = strconv.Atoi(values[username])
+		id, err := strconv.Atoi(values[username])
 		if err != nil {
 			return nil, err
 		}
