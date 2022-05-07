@@ -222,7 +222,7 @@ func (rcr *RedisCommandRepository) Delete(command *Command) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	calls, err := redis.Int64s(
+	ids, err := redis.Int64s(
 		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.ID), 0, -1),
 	)
 	if err != nil {
@@ -234,7 +234,7 @@ func (rcr *RedisCommandRepository) Delete(command *Command) error {
 		return err
 	}
 
-	for _, id := range calls {
+	for _, id := range ids {
 		err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10))
 		if err != nil {
 			return err
