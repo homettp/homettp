@@ -11,8 +11,8 @@
         </header>
         <div class="bg-white max-w-sm mx-auto p-8">
             <card-title>
-                <login-icon class="h-6 w-6 mr-2" />
-                <span class="font-medium">
+                <login-icon class="h-6 w-6 sm:mr-2" />
+                <span>
                     {{ subtitle }}
                 </span>
             </card-title>

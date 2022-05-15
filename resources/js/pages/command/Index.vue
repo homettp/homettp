@@ -11,16 +11,16 @@
                  :key="command.id"
                  class="bg-white p-8">
                 <card-title>
-                    <component :is="iconName(command)" class="h-6 w-6 mr-2" />
-                    <span class="flex-1 mr-auto">
+                    <component :is="iconName(command)" class="h-6 w-6 sm:mr-2" />
+                    <span class="flex-1 sm:mr-auto">
                         {{ command.name }}
                     </span>
-                    <inertia-link class="link ml-2"
+                    <inertia-link class="link sm:ml-2"
                                   title="Call History"
                                   :href="`/call/history?id=${command.id}`">
                         <terminal-icon class="h-6 w-6" />
                     </inertia-link>
-                    <inertia-link class="link ml-2"
+                    <inertia-link class="link sm:ml-2"
                                   title="Edit Command"
                                   :href="`/command/edit?id=${command.id}`">
                         <pencil-alt-icon class="h-6 w-6" />

@@ -4,7 +4,7 @@
         <breadcrumb :links="links" />
         <div class="bg-white p-8">
             <card-title>
-                <component :is="iconName" class="h-6 w-6 mr-2" />
+                <component :is="iconName" class="h-6 w-6 sm:mr-2" />
                 <span>
                     {{ subtitle }}
                 </span>
@@ -89,11 +89,11 @@
         </div>
         <div v-if="!isNew" class="bg-white p-8 mt-5">
             <card-title>
-                <terminal-icon class="h-6 w-6 mr-2" />
+                <terminal-icon class="h-6 w-6 sm:mr-2" />
                 <span class="mr-auto">
                     Call Command
                 </span>
-                <inertia-link class="link flex items-center ml-2"
+                <inertia-link class="link flex items-center sm:ml-2"
                               :href="`/call/history?id=${command.id}`">
                     <span class="mr-2">
                         Call History
@@ -129,7 +129,7 @@
         </div>
         <div v-if="!isNew" class="bg-white p-8 mt-5">
             <card-title>
-                <trash-icon class="h-6 w-6 mr-2" />
+                <trash-icon class="h-6 w-6 sm:mr-2" />
                 <span>
                     Delete Command
                 </span>
