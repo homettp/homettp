@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed inset-x-5 top-20 md:left-auto">
+    <div class="fixed inset-x-5 top-20 z-10 md:left-auto">
         <flash-message v-for="message in messages"
                        :key="message.id"
                        :message="message"
