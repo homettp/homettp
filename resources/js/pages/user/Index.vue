@@ -7,12 +7,12 @@
                  :key="user.id"
                  class="bg-white p-8">
                 <card-title>
-                    <img class="rounded-full h-12 w-12 mr-2"
+                    <img class="rounded-full h-12 w-12 sm:mr-2"
                          :src="gravatars[user.username]">
-                    <span class="flex-1 mr-auto">
+                    <span class="flex-1 sm:mr-auto">
                         {{ user.username }}
                     </span>
-                    <inertia-link class="link ml-2"
+                    <inertia-link class="link sm:ml-2"
                                   title="Edit User"
                                   :href="`/user/edit?id=${user.id}`">
                         <pencil-alt-icon class="h-6 w-6" />
