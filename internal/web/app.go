@@ -18,19 +18,17 @@ const (
 )
 
 type app struct {
-	debug               bool
-	url                 string
-	infoLog             *log.Logger
-	errorLog            *log.Logger
-	commandTimeout      int
-	commandWorkerCount  int
-	commandHistoryLimit int
-	sessionManager      *scs.SessionManager
-	rememberCookie      *securecookie.Obj
-	mixManager          *mix.Mix
-	inertiaManager      *inertia.Inertia
-	queue               chan int64
-	commandRepository   models.CommandRepository
-	callRepository      models.CallRepository
-	userRepository      models.UserRepository
+	debug             bool
+	url               string
+	infoLog           *log.Logger
+	errorLog          *log.Logger
+	commandTimeout    int
+	sessionManager    *scs.SessionManager
+	rememberCookie    *securecookie.Obj
+	mixManager        *mix.Mix
+	inertiaManager    *inertia.Inertia
+	queue             chan int64
+	commandRepository models.CommandRepository
+	callRepository    models.CallRepository
+	userRepository    models.UserRepository
 }

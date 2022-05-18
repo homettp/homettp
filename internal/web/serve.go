@@ -43,18 +43,16 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 	queue := make(chan int64, 100)
 
 	webApp := &app{
-		debug:               debug,
-		url:                 url,
-		infoLog:             cli.InfoLog,
-		errorLog:            cli.ErrorLog,
-		commandTimeout:      commandTimeout,
-		commandWorkerCount:  commandWorkerCount,
-		commandHistoryLimit: commandHistoryLimit,
-		sessionManager:      sessionManager,
-		rememberCookie:      rememberCookie,
-		mixManager:          mixManager,
-		inertiaManager:      inertiaManager,
-		queue:               queue,
+		debug:          debug,
+		url:            url,
+		infoLog:        cli.InfoLog,
+		errorLog:       cli.ErrorLog,
+		commandTimeout: commandTimeout,
+		sessionManager: sessionManager,
+		rememberCookie: rememberCookie,
+		mixManager:     mixManager,
+		inertiaManager: inertiaManager,
+		queue:          queue,
 		commandRepository: &models.RedisCommandRepository{
 			RedisPool:      redisPool,
 			RedisKeyPrefix: redisKeyPrefix,
