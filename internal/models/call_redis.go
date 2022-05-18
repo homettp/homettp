@@ -14,9 +14,9 @@ const (
 
 // RedisCallRepository type.
 type RedisCallRepository struct {
-	RedisPool           *redis.Pool
-	RedisKeyPrefix      string
-	CommandHistoryLimit int
+	RedisPool      *redis.Pool
+	RedisKeyPrefix string
+	HistoryLimit   int
 }
 
 // Create function.
@@ -58,7 +58,7 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	}
 
 	ids, err := redis.Int64s(
-		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), rcr.CommandHistoryLimit, -1),
+		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), rcr.HistoryLimit, -1),
 	)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	}
 
 	err = conn.Send(
-		"LTRIM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), 0, rcr.CommandHistoryLimit-1,
+		"LTRIM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), 0, rcr.HistoryLimit-1,
 	)
 	if err != nil {
 		return err

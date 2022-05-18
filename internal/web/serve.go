@@ -60,9 +60,9 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 			RedisKeyPrefix: redisKeyPrefix,
 		},
 		callRepository: &models.RedisCallRepository{
-			RedisPool:           redisPool,
-			RedisKeyPrefix:      redisKeyPrefix,
-			CommandHistoryLimit: commandHistoryLimit,
+			RedisPool:      redisPool,
+			RedisKeyPrefix: redisKeyPrefix,
+			HistoryLimit:   commandHistoryLimit,
 		},
 		userRepository: &models.RedisUserRepository{
 			RedisPool:      redisPool,
