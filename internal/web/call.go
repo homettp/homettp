@@ -16,7 +16,7 @@ func (a *app) callIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	command, err := a.commandFromRequest(r, "id")
+	command, err := a.commandFromRequest(r, "commandID")
 	if err != nil {
 		a.notFound(w)
 
@@ -104,7 +104,7 @@ func (a *app) callDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.sessionManager.Put(r.Context(), sessionKeyFlashMessage, "Deleted successfully.")
-	http.Redirect(w, r, fmt.Sprintf("/call/history?id=%v", call.CommandID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/call/history?commandID=%v", call.CommandID), http.StatusSeeOther)
 }
 
 func (a *app) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
