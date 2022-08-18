@@ -54,7 +54,7 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
+		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
 	)
 	if err != nil {
 		return err
@@ -188,7 +188,7 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
+		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
 	)
 	if err != nil {
 		return err

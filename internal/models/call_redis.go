@@ -39,7 +39,7 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
+		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
 	)
 	if err != nil {
 		return err
@@ -152,7 +152,7 @@ func (rcr *RedisCallRepository) Update(call, newCall *Call) error {
 	call.Output = newCall.Output
 
 	_, err := conn.Do(
-		"HMSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
+		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
 	)
 	if err != nil {
 		return err

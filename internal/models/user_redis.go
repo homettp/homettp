@@ -66,7 +66,7 @@ func (rur *RedisUserRepository) Create(user *User) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
+		"HSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
 	)
 	if err != nil {
 		return err
@@ -237,7 +237,7 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	}
 
 	err = conn.Send(
-		"HMSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
+		"HSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
 	)
 	if err != nil {
 		return err
