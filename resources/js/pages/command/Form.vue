@@ -115,7 +115,7 @@
                            readonly>
                     <a class="btn rounded-l-none flex items-center"
                        href="#"
-                       @click.prevent="copy()">
+                       @click.prevent="copy(commandPathEl)">
                         <document-duplicate-icon class="h-5 w-5" />
                     </a>
                 </div>
@@ -227,19 +227,6 @@ export default {
             value: props.command.value
         });
 
-        const copy = () => {
-            commandPathEl.value.select();
-            commandPathEl.value.setSelectionRange(0, 99999);
-
-            document.execCommand('copy');
-
-            document.dispatchEvent(new CustomEvent('flash', {
-                detail: {
-                    flash: 'Copied successfully.'
-                }
-            }));
-        };
-
         return {
             isNew,
             commandPathEl,
@@ -247,8 +234,7 @@ export default {
             links,
             form,
             iconName,
-            url,
-            copy
+            url
         };
     }
 };
