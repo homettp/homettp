@@ -77,5 +77,5 @@ func (c *Command) Fill(form *forms.Form) *Command {
 
 // Path function.
 func (c *Command) Path(url string) string {
-	return fmt.Sprintf("%s/call?id=%v&token=%s", url, c.ID, c.Token)
+	return fmt.Sprintf("%s/call?commandID=%v&token=%s", url, c.ID, c.Token)
 }
