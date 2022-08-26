@@ -59,7 +59,7 @@ func (a *app) callHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	command, err := a.commandFromRequest(r, "id")
+	command, err := a.commandFromRequest(r, "commandID")
 	if err != nil {
 		a.notFound(w)
 

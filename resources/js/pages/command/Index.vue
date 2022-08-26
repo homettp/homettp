@@ -17,7 +17,7 @@
                     </span>
                     <inertia-link class="link sm:ml-2"
                                   title="Call History"
-                                  :href="`/call/history?id=${command.id}`">
+                                  :href="`/call/history?commandID=${command.id}`">
                         <terminal-icon class="h-6 w-6" />
                     </inertia-link>
                     <inertia-link class="link sm:ml-2"
