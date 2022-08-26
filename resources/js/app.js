@@ -18,6 +18,16 @@ createInertiaApp({
             .component('AppTitle', AppTitle)
             .mixin({
                 methods: {
+                    copy(inputEl) {
+                        navigator.clipboard.writeText(inputEl.value).then(() => {
+                            document.dispatchEvent(new CustomEvent('flash', {
+                                detail: {
+                                    flash: 'Copied successfully.'
+                                }
+                            }));
+                        });
+                    },
+
                     date(value) {
                         const date = DateTime.fromISO(value);
 
