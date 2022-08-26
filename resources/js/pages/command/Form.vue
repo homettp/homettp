@@ -94,7 +94,7 @@
                     Call Command
                 </span>
                 <inertia-link class="link flex items-center sm:ml-2"
-                              :href="`/call/history?id=${command.id}`">
+                              :href="`/call/history?commandID=${command.id}`">
                     <span class="mr-2">
                         Call History
                     </span>
