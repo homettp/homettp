@@ -947,10 +947,10 @@
   resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.6.7.tgz#433b86e5f86203606e7ac4851777173a327dd8c4"
   integrity sha512-5sTCBpkUoFE7zhANn/6Z+pf3PUA7MD6BBaTsJcQybq9E4fnNiMM9agOJI9meXbtcawE6Dm8EeB5A8HAJEnZCbQ==
 
-"@heroicons/vue@^1.0":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@heroicons/vue/-/vue-1.0.6.tgz#d8b90734b436eb5a87f40cc300b64a0fb0031f7f"
-  integrity sha512-ng2YcCQrdoQWEFpw+ipFl2rZo8mZ56v0T5+MyfQQvNqfKChwgP6DMloZLW+rl17GEcHkE3H82UTAMKBKZr4+WA==
+"@heroicons/vue@^2.0.10":
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/@heroicons/vue/-/vue-2.0.10.tgz#9de6807b13d77db82f10a652d5ec5c0c00393b54"
+  integrity sha512-K32WvSqsuWQrxqAAGCaTELW6VCOgg7OeVP+VBwCMbyeflnguJlCfHNlJ+0z4aPpgJCWB2RESRy3x59t+2byKSg==
 
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.5"

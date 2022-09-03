@@ -18,12 +18,12 @@
                     <inertia-link class="link sm:ml-2"
                                   title="Call History"
                                   :href="`/call/history?commandID=${command.id}`">
-                        <terminal-icon class="h-6 w-6" />
+                        <command-line-icon class="h-6 w-6" />
                     </inertia-link>
                     <inertia-link class="link sm:ml-2"
                                   title="Edit Command"
                                   :href="`/command/edit?id=${command.id}`">
-                        <pencil-alt-icon class="h-6 w-6" />
+                        <pencil-square-icon class="h-6 w-6" />
                     </inertia-link>
                 </card-title>
                 <div class="flex items-center">
@@ -39,15 +39,15 @@
 
 <script>
 import {
-    ChipIcon,
+    BoltIcon,
     ClockIcon,
+    CpuChipIcon,
+    CommandLineIcon,
+    EllipsisHorizontalCircleIcon,
     KeyIcon,
     LightBulbIcon,
-    LightningBoltIcon,
-    PauseIcon,
-    PencilAltIcon,
-    TerminalIcon
-} from '@heroicons/vue/outline';
+    PencilSquareIcon
+} from '@heroicons/vue/24/outline';
 
 import { ref } from 'vue';
 import Breadcrumb from '../../common/Breadcrumb.vue';
@@ -56,14 +56,14 @@ import Layout from '../../common/Layout.vue';
 
 export default {
     components: {
-        ChipIcon,
+        BoltIcon,
         ClockIcon,
+        CpuChipIcon,
+        CommandLineIcon,
+        EllipsisHorizontalCircleIcon,
         KeyIcon,
         LightBulbIcon,
-        LightningBoltIcon,
-        PauseIcon,
-        PencilAltIcon,
-        TerminalIcon,
+        PencilSquareIcon,
         Breadcrumb,
         CardTitle
     },
@@ -94,15 +94,15 @@ export default {
             }
 
             if (command.image === 'outlet') {
-                return 'pause-icon';
+                return 'ellipsis-horizontal-circle-icon';
             }
 
             if (command.image === 'plug') {
-                return 'lightning-bolt-icon';
+                return 'bolt-icon';
             }
 
             if (command.image === 'sensor') {
-                return 'chip-icon';
+                return 'cpu-chip-icon';
             }
 
             return 'command';

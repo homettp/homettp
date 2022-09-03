@@ -8,7 +8,7 @@
                 {{ message.value }}
             </span>
             <button class="ml-auto text-gray-400 hover:text-gray-500">
-                <x-icon class="h-5 w-5" />
+                <x-mark-icon class="h-5 w-5" />
             </button>
         </div>
         <div class="h-2.5 bg-slate-50 transition-all ease-linear duration-100"
@@ -20,15 +20,15 @@
 <script>
 import {
     CheckCircleIcon,
-    XIcon
-} from '@heroicons/vue/outline';
+    XMarkIcon
+} from '@heroicons/vue/24/outline';
 
 import { ref, onMounted, onUnmounted } from 'vue';
 
 export default {
     components: {
         CheckCircleIcon,
-        XIcon
+        XMarkIcon
     },
 
     props: {

@@ -15,7 +15,7 @@
                     <inertia-link class="link sm:ml-2"
                                   title="Edit User"
                                   :href="`/user/edit?id=${user.id}`">
-                        <pencil-alt-icon class="h-6 w-6" />
+                        <pencil-square-icon class="h-6 w-6" />
                     </inertia-link>
                 </card-title>
                 <div class="flex items-center">
@@ -32,8 +32,8 @@
 <script>
 import {
     ClockIcon,
-    PencilAltIcon
-} from '@heroicons/vue/outline';
+    PencilSquareIcon
+} from '@heroicons/vue/24/outline';
 
 import { ref } from 'vue';
 import Breadcrumb from '../../common/Breadcrumb.vue';
@@ -43,7 +43,7 @@ import Layout from '../../common/Layout.vue';
 export default {
     components: {
         ClockIcon,
-        PencilAltIcon,
+        PencilSquareIcon,
         Breadcrumb,
         CardTitle
     },
