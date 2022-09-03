@@ -89,7 +89,7 @@
         </div>
         <div v-if="!isNew" class="bg-white p-8 mt-5">
             <card-title>
-                <terminal-icon class="h-6 w-6 sm:mr-2" />
+                <command-line-icon class="h-6 w-6 sm:mr-2" />
                 <span class="mr-auto">
                     Call Command
                 </span>
@@ -150,12 +150,11 @@
 <script>
 import {
     ChevronRightIcon,
+    CommandLineIcon,
     DocumentDuplicateIcon,
-    TerminalIcon,
-    TrashIcon,
-    ViewGridIcon,
-    ViewGridAddIcon
-} from '@heroicons/vue/outline';
+    PlusIcon,
+    TrashIcon
+} from '@heroicons/vue/24/outline';
 
 import { computed, ref, toRefs } from 'vue';
 import { useForm } from '@inertiajs/inertia-vue3';
@@ -166,11 +165,10 @@ import Layout from '../../common/Layout.vue';
 export default {
     components: {
         ChevronRightIcon,
+        CommandLineIcon,
         DocumentDuplicateIcon,
-        TerminalIcon,
+        PlusIcon,
         TrashIcon,
-        ViewGridIcon,
-        ViewGridAddIcon,
         Breadcrumb,
         CardTitle
     },
@@ -209,8 +207,8 @@ export default {
             : 'Edit Command'));
 
         const iconName = computed(() => (isNew.value
-            ? 'view-grid-add-icon'
-            : 'view-grid-icon'));
+            ? 'plus-icon'
+            : 'command-line-icon'));
 
         const url = computed(() => (isNew.value
             ? '/command/create'

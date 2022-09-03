@@ -49,7 +49,7 @@ import {
     CheckCircleIcon,
     ExclamationCircleIcon,
     TrashIcon
-} from '@heroicons/vue/outline';
+} from '@heroicons/vue/24/outline';
 
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Inertia } from '@inertiajs/inertia';

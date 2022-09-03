@@ -21,14 +21,14 @@
             </sidebar-title>
             <sidebar-link :is-active="!!$page.props.isCommandsActive"
                           href="/">
-                <view-grid-icon class="h-5 w-5 mr-2" />
+                <command-line-icon class="h-5 w-5 mr-2" />
                 <span>
                     Commands
                 </span>
             </sidebar-link>
             <sidebar-link :is-active="!!$page.props.isCreateCommandActive"
                           href="/command/create">
-                <view-grid-add-icon class="h-5 w-5 mr-2" />
+                <plus-icon class="h-5 w-5 mr-2" />
                 <span>
                     Create Command
                 </span>
@@ -45,7 +45,7 @@
             </sidebar-link>
             <sidebar-link :is-active="!!$page.props.isCreateUserActive"
                           href="/user/create">
-                <user-add-icon class="h-5 w-5 mr-2" />
+                <user-plus-icon class="h-5 w-5 mr-2" />
                 <span>
                     Create User
                 </span>
@@ -65,7 +65,7 @@
             <a class="md:hidden"
                href="#"
                @click.prevent="isSidebarOpen = true">
-                <menu-icon class="h-6 w-6" />
+                <bars3-icon class="h-6 w-6" />
             </a>
             <Menu as="div" class="relative ml-auto">
                 <div>
@@ -114,13 +114,13 @@ import {
 } from '@headlessui/vue';
 
 import {
+    Bars3Icon,
+    CommandLineIcon,
     HomeIcon,
-    MenuIcon,
+    PlusIcon,
     UserIcon,
-    UserAddIcon,
-    ViewGridIcon,
-    ViewGridAddIcon
-} from '@heroicons/vue/outline';
+    UserPlusIcon
+} from '@heroicons/vue/24/outline';
 
 import { ref, onUnmounted } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
@@ -134,12 +134,12 @@ export default {
         MenuButton,
         MenuItem,
         MenuItems,
+        Bars3Icon,
+        CommandLineIcon,
         HomeIcon,
-        MenuIcon,
+        PlusIcon,
         UserIcon,
-        UserAddIcon,
-        ViewGridIcon,
-        ViewGridAddIcon,
+        UserPlusIcon,
         FlashMessages,
         SidebarTitle,
         SidebarLink

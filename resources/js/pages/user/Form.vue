@@ -112,8 +112,8 @@
 import {
     TrashIcon,
     UserIcon,
-    UserAddIcon
-} from '@heroicons/vue/outline';
+    UserPlusIcon
+} from '@heroicons/vue/24/outline';
 
 import { computed, toRefs } from 'vue';
 import { useForm } from '@inertiajs/inertia-vue3';
@@ -125,7 +125,7 @@ export default {
     components: {
         TrashIcon,
         UserIcon,
-        UserAddIcon,
+        UserPlusIcon,
         Breadcrumb,
         CardTitle
     },
@@ -148,7 +148,7 @@ export default {
             : 'Edit User'));
 
         const iconName = computed(() => (isNew.value
-            ? 'user-add-icon'
+            ? 'user-plus-icon'
             : 'user-icon'));
 
         const url = computed(() => (isNew.value

@@ -11,7 +11,7 @@
         </header>
         <div class="bg-white max-w-sm mx-auto p-8">
             <card-title>
-                <login-icon class="h-6 w-6 sm:mr-2" />
+                <arrow-right-on-rectangle-icon class="h-6 w-6 sm:mr-2" />
                 <span>
                     {{ subtitle }}
                 </span>
@@ -74,14 +74,14 @@
 
 <script>
 import { ref } from 'vue';
-import { HomeIcon, LoginIcon } from '@heroicons/vue/outline';
+import { ArrowRightOnRectangleIcon, HomeIcon } from '@heroicons/vue/24/outline';
 import { useForm } from '@inertiajs/inertia-vue3';
 import CardTitle from '../../common/CardTitle.vue';
 
 export default {
     components: {
+        ArrowRightOnRectangleIcon,
         HomeIcon,
-        LoginIcon,
         CardTitle
     },
 
