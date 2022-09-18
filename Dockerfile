@@ -3,6 +3,8 @@ ARG TARGETARCH
 
 WORKDIR /app
 
+RUN apk add --no-cache curl
+
 COPY dist/.env ./
 COPY dist/${TARGETARCH}/homettp ./
 
