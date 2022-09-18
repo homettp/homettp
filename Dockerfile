@@ -6,7 +6,7 @@ WORKDIR /app
 COPY dist/.env ./
 COPY dist/${TARGETARCH}/homettp ./
 
-RUN ln -s /busybox/sh /bin/sh
+RUN /busybox/sh -c ln -s /busybox/sh /bin/sh
 
 EXPOSE 4000
 
