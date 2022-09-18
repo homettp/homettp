@@ -19,6 +19,8 @@ github.com/petaki/inertia-go v1.3.0 h1:3d4/U4fo0cL/KfKcaBi4B8vAesm7DGxDjvkhnCqUd
 github.com/petaki/inertia-go v1.3.0/go.mod h1:Je2TLJnqIX6EWqIp4ICeZunOaXEcEVJQ45GdHQdVNR8=
 github.com/petaki/support-go v1.5.0 h1:hYH8/6rSRjgmi4Cgj9mH2EbLiSZjGEKunktjzwfQ9ic=
 github.com/petaki/support-go v1.5.0/go.mod h1:skX0GRcFl6cATpY5lJjYRTRG9uUKQH6VpfiVLR1GUu4=
+github.com/petaki/support-go v1.5.1 h1:OX428pnryLJrMrjunIk7torg3iZM0YpeORH9d26XyMk=
+github.com/petaki/support-go v1.5.1/go.mod h1:skX0GRcFl6cATpY5lJjYRTRG9uUKQH6VpfiVLR1GUu4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
@@ -27,6 +29,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa h1:zuSxTR4o9y82ebqCUJYNGJbGPo6sKVl54f/TVDObg1c=
 golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 h1:Y/gsMcFOcR+6S6f3YeMKl5g+dZMEWqcz5Czj/GWYbkM=
+golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
