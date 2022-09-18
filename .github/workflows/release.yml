@@ -1,8 +1,9 @@
-name: tests
+name: release
 
 on:
   push:
-  pull_request:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -33,30 +34,28 @@ jobs:
       - name: Install UI dependencies
         run: yarn install
 
-      - name: Lint UI code
-        run: yarn lint
-
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.19
 
-      - name: Test
-        run: go test -v -race ./...
-
-      - name: Vet
-        run: go vet ./...
-
-      - name: Staticcheck
-        uses: dominikh/staticcheck-action@v1.2.0
-        with:
-          version: "2022.1.3"
-          install-go: false
+      - name: Set version
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
       - name: Build
         run: make
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: dist/
+      - name: Upload release
+        run: |
+          set -x
+          assets=()
+          for asset in ./dist/*.zip; do
+            assets+=("-a" "$asset")
+          done
+          hub release create -d "${assets[@]}" -m "$RELEASE_VERSION" "$RELEASE_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
