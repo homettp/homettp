@@ -1,13 +1,10 @@
-FROM gcr.io/distroless/base-debian11:debug
+FROM alpine
 ARG TARGETARCH
 
 WORKDIR /app
 
 COPY dist/.env ./
 COPY dist/${TARGETARCH}/homettp ./
-
-SHELL ["/busybox/sh", "-c"]
-RUN ln -s /busybox/sh /bin/sh
 
 EXPOSE 4000
 
