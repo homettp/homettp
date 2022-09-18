@@ -49,7 +49,7 @@ func (a *app) handleCall(id int64) error {
 	arg := "-c"
 
 	if runtime.GOOS == "windows" {
-		name = "cmd"
+		name = "cmd.exe"
 		arg = "/C"
 	}
 
