@@ -74,24 +74,24 @@
                     </MenuButton>
                 </div>
                 <transition enter-active-class="transition ease-out duration-100"
-                            enter-from-class="transform opacity-0 scale-95"
-                            enter-to-class="transform opacity-100 scale-100"
+                            enter-from-class="opacity-0 scale-95"
+                            enter-to-class="opacity-100 scale-100"
                             leave-active-class="transition ease-in duration-75"
-                            leave-from-class="transform opacity-100 scale-100"
-                            leave-to-class="transform opacity-0 scale-95">
+                            leave-from-class="opacity-100 scale-100"
+                            leave-to-class="opacity-0 scale-95">
                     <MenuItems class="origin-top-right absolute right-0 mt-2 w-56 rounded-sm shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div class="py-1">
                             <MenuItem v-slot="{ active }">
-                                <inertia-link :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'block px-4 py-2 text-sm']"
-                                              :href="`/user/edit?id=${$page.props.auth.user.id}`">
+                                <button :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'flex w-full items-center px-4 py-2 text-sm']"
+                                        @click="Inertia.visit(`/user/edit?id=${$page.props.auth.user.id}`)">
                                     Edit Profile
-                                </inertia-link>
+                                </button>
                             </MenuItem>
                             <MenuItem v-slot="{ active }">
-                                <inertia-link :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'block px-4 py-2 text-sm']"
-                                              href="/logout">
+                                <button :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'flex w-full items-center px-4 py-2 text-sm']"
+                                        @click="Inertia.visit('/logout')">
                                     Logout
-                                </inertia-link>
+                                </button>
                             </MenuItem>
                         </div>
                     </MenuItems>
@@ -156,6 +156,7 @@ export default {
         );
 
         return {
+            Inertia,
             isSidebarOpen,
             year
         };
