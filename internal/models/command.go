@@ -26,7 +26,7 @@ const (
 	Sensor CommandImage = "sensor"
 
 	// PayloadVariable pattern.
-	PayloadVariable string = "{payload}"
+	PayloadVariable string = "%p"
 )
 
 // Command type.
