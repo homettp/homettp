@@ -38,7 +38,7 @@
                     </inertia-link>
                 </card-title>
                 <!-- eslint-disable max-len -->
-                <div v-if="isShow(call)">
+                <div v-if="isShow(call)" class="mb-6">
                     <pre class="bg-gray-900 text-slate-300 text-xs p-6 whitespace-pre-wrap">{{ call.output || 'No output.' }}</pre>
                 </div>
                 <!-- eslint-enable max-len -->
