@@ -9,7 +9,8 @@
             </div>
             <div v-for="call in calls"
                  :key="call.id"
-                 class="bg-white p-8">
+                 class="bg-white px-8 pt-8 pb-2 cursor-pointer hover:bg-gray-50"
+                 @click="toggle(call)">
                 <card-title>
                     <check-circle-icon v-if="call.status === 'completed'"
                                        class="h-6 w-6 text-green-400 sm:mr-2" />
@@ -31,12 +32,15 @@
                     <inertia-link class="link sm:ml-2"
                                   :href="`/call/delete?id=${call.id}`"
                                   method="delete"
-                                  as="button">
+                                  as="button"
+                                  @click.stop>
                         <trash-icon class="h-6 w-6" />
                     </inertia-link>
                 </card-title>
                 <!-- eslint-disable max-len -->
-                <pre v-if="call.output" class="bg-gray-900 text-slate-300 text-xs p-6 whitespace-pre-wrap">{{ call.output }}</pre>
+                <div v-if="isShow(call)">
+                    <pre class="bg-gray-900 text-slate-300 text-xs p-6 whitespace-pre-wrap">{{ call.output || 'No output.' }}</pre>
+                </div>
                 <!-- eslint-enable max-len -->
             </div>
         </div>
@@ -56,6 +60,7 @@ import { Inertia } from '@inertiajs/inertia';
 import Breadcrumb from '../../common/Breadcrumb.vue';
 import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
+import useToggle from '../../common/useToggle';
 
 export default {
     components: {
@@ -83,8 +88,10 @@ export default {
 
     setup(props) {
         const subtitle = ref('Call History');
-        const reloadInterval = ref(undefined);
+        const { isShow, toggle } = useToggle();
         const reloadTimer = 2500;
+
+        let reloadInterval;
 
         const links = ref([
             { name: 'Commands', href: '/' },
@@ -93,18 +100,18 @@ export default {
         ]);
 
         onMounted(() => {
-            reloadInterval.value = setInterval(() => Inertia.reload(), reloadTimer);
+            reloadInterval = setInterval(() => Inertia.reload(), reloadTimer);
         });
 
         onUnmounted(() => {
-            clearInterval(reloadInterval.value);
+            clearInterval(reloadInterval);
         });
 
         return {
             subtitle,
-            reloadInterval,
-            reloadTimer,
-            links
+            links,
+            isShow,
+            toggle
         };
     }
 };
