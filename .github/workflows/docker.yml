@@ -44,8 +44,14 @@ jobs:
         with:
           go-version: 1.19
 
+      - name: Set version
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+
       - name: Build
         run: make docker
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
@@ -70,6 +76,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set docker version
+        if: startsWith(steps.vars.outputs.tag, 'v')
+        id: dockerVars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
+
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v2
         with:
@@ -77,6 +88,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           builder: ${{ steps.buildx.outputs.name }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest${{ (startsWith(steps.vars.outputs.tag, 'v') && format(',{0}/{1}:{2}', env.REGISTRY, env.IMAGE_NAME, steps.dockerVars.outputs.tag)) || '' }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
