@@ -2,14 +2,14 @@
     <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
-        <div class="grid grid-cols-1 gap-5">
+        <div class="grid grid-cols-1 divide-y divide-gray-100">
             <div v-if="!calls"
-                 class="bg-white p-8">
+                 class="bg-white px-8 py-6">
                 No calls.
             </div>
             <div v-for="call in calls"
                  :key="call.id"
-                 class="bg-white px-8 pt-8 pb-2 cursor-pointer hover:bg-gray-50"
+                 class="bg-white px-8 pt-6 cursor-pointer hover:bg-gray-50"
                  @click="toggle(call)">
                 <card-title>
                     <check-circle-icon v-if="call.status === 'completed'"
