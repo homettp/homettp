@@ -146,6 +146,8 @@ COMMAND_HISTORY_LIMIT=100
 
 ## Usage
 
+The following commands show how to use the package.
+
 ### 1. Make a user
 
 ```
