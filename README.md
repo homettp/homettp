@@ -5,6 +5,14 @@
 [![Build Status](https://github.com/homettp/homettp/workflows/tests/badge.svg)](https://github.com/homettp/homettp/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE.md)
 
+## Features
+
+- HTTP-based command runner
+- Call history with collapsible command output
+- Command management with re-generable tokens
+- User authentication with remember me option
+- User management
+
 ## Getting Started
 
 Before you start, you need to install the prerequisites.
