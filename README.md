@@ -15,7 +15,7 @@ Before you start, you need to install the prerequisites.
 - `/bin/sh` on Linux/MacOS for command execution
 - `cmd.exe` on Windows for command execution
 
-### Install with Docker
+### Run with Docker
 
 Image can be found at package page on [GitHub](https://github.com/homettp/homettp/pkgs/container/homettp).
 
