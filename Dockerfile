@@ -10,5 +10,5 @@ COPY dist/${TARGETARCH}/homettp ./
 
 EXPOSE 4000
 
-ENTRYPOINT ["./homettp"]
+ENTRYPOINT ["homettp"]
 CMD ["web", "serve"]
