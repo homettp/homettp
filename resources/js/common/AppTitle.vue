@@ -1,7 +1,7 @@
 <template>
-    <Head :title="title ? `${title} - ${$page.props.title}` : $page.props.title">
+    <inertia-head :title="title ? `${title} - ${$page.props.title}` : $page.props.title">
         <slot></slot>
-    </Head>
+    </inertia-head>
 </template>
 
 <script>
@@ -9,7 +9,7 @@ import { Head } from '@inertiajs/vue3';
 
 export default {
     components: {
-        Head
+        InertiaHead: Head
     },
 
     props: {

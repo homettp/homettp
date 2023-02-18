@@ -67,7 +67,7 @@
                @click.prevent="isSidebarOpen = true">
                 <bars3-icon class="h-6 w-6" />
             </a>
-            <Menu as="div" class="relative ml-auto">
+            <MenuLayout as="div" class="relative ml-auto">
                 <div>
                     <MenuButton class="w-11">
                         <img class="rounded-full max-w-full" :src="$page.props.auth.gravatar">
@@ -96,7 +96,7 @@
                         </div>
                     </MenuItems>
                 </transition>
-            </Menu>
+            </MenuLayout>
         </header>
         <main class="content overflow-y-auto" scroll-region>
             <slot></slot>
@@ -130,7 +130,7 @@ import SidebarLink from './SidebarLink.vue';
 
 export default {
     components: {
-        Menu,
+        MenuLayout: Menu,
         MenuButton,
         MenuItem,
         MenuItems,

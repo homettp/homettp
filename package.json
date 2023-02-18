@@ -11,24 +11,24 @@
         "lint": "yarn eslint --ext .js,.vue ./resources/js"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.15",
-        "@headlessui/vue": "^1.4",
+        "@babel/eslint-parser": "^7.19",
+        "@headlessui/vue": "^1.7",
         "@heroicons/vue": "^2.0",
         "@inertiajs/vue3": "^1.0",
         "@tailwindcss/forms": "^0.5",
-        "@vue/compiler-sfc": "^3.1",
+        "@vue/compiler-sfc": "^3.2",
         "autoprefixer": "^10.4",
-        "eslint": "^8.3",
+        "eslint": "^8.34",
         "eslint-config-airbnb-base": "^15.0",
-        "eslint-plugin-import": "^2.25",
-        "eslint-plugin-vue": "^8.1",
+        "eslint-plugin-import": "^2.27",
+        "eslint-plugin-vue": "^9.9",
         "laravel-mix": "^6.0",
-        "luxon": "^1.25",
+        "luxon": "^3.2",
         "postcss": "^8.4",
-        "resolve-url-loader": "^4.0",
-        "tailwindcss": "^3.0",
-        "vue": "^3.0",
-        "vue-eslint-parser": "^8.0",
-        "vue-loader": "^16.4"
+        "resolve-url-loader": "^5.0",
+        "tailwindcss": "^3.2",
+        "vue": "^3.2",
+        "vue-eslint-parser": "^9.1",
+        "vue-loader": "^17.0"
     }
 }
