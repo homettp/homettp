@@ -75,7 +75,7 @@
 <script>
 import { ref } from 'vue';
 import { ArrowRightOnRectangleIcon, HomeIcon } from '@heroicons/vue/24/outline';
-import { useForm } from '@inertiajs/inertia-vue3';
+import { useForm } from '@inertiajs/vue3';
 import CardTitle from '../../common/CardTitle.vue';
 
 export default {

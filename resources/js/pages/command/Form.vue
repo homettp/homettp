@@ -159,7 +159,7 @@ import {
 } from '@heroicons/vue/24/outline';
 
 import { computed, ref, toRefs } from 'vue';
-import { useForm } from '@inertiajs/inertia-vue3';
+import { useForm } from '@inertiajs/vue3';
 import Breadcrumb from '../../common/Breadcrumb.vue';
 import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
