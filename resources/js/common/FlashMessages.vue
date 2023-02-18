@@ -9,7 +9,7 @@
 
 <script>
 import { ref, onUnmounted } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
+import { router } from '@inertiajs/vue3';
 import FlashMessage from './FlashMessage.vue';
 
 export default {
@@ -52,7 +52,7 @@ export default {
         });
 
         onUnmounted(
-            Inertia.on('success', e => {
+            router.on('success', e => {
                 add(e.detail.page.props.flash);
             })
         );

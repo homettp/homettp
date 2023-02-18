@@ -1,10 +1,7 @@
 import { DateTime } from 'luxon';
 import { createApp, h } from 'vue';
-import { createInertiaApp, InertiaLink } from '@inertiajs/inertia-vue3';
-import { InertiaProgress } from '@inertiajs/progress';
+import { createInertiaApp, Link } from '@inertiajs/vue3';
 import AppTitle from './common/AppTitle.vue';
-
-InertiaProgress.init();
 
 createInertiaApp({
     // eslint-disable-next-line import/no-dynamic-require
@@ -14,7 +11,7 @@ createInertiaApp({
     }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
-            .component('InertiaLink', InertiaLink)
+            .component('InertiaLink', Link)
             .component('AppTitle', AppTitle)
             .mixin({
                 methods: {

@@ -46,8 +46,8 @@ Downloads can be found at releases page on [GitHub](https://github.com/homettp/h
 
 #### Prerequisites for building
 
-- GO: `Version >= 1.19`
-- Node.js: `Version >= 14.0`
+- GO: `Version >= 1.20`
+- Node.js: `Version >= 18.0`
 - Yarn or NPM
 
 #### 1. Clone the repository:

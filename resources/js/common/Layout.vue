@@ -67,7 +67,7 @@
                @click.prevent="isSidebarOpen = true">
                 <bars3-icon class="h-6 w-6" />
             </a>
-            <Menu as="div" class="relative ml-auto">
+            <MenuLayout as="div" class="relative ml-auto">
                 <div>
                     <MenuButton class="w-11">
                         <img class="rounded-full max-w-full" :src="$page.props.auth.gravatar">
@@ -83,20 +83,20 @@
                         <div class="py-1">
                             <MenuItem v-slot="{ active }">
                                 <button :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'flex w-full items-center px-4 py-2 text-sm']"
-                                        @click="Inertia.visit(`/user/edit?id=${$page.props.auth.user.id}`)">
+                                        @click="router.visit(`/user/edit?id=${$page.props.auth.user.id}`)">
                                     Edit Profile
                                 </button>
                             </MenuItem>
                             <MenuItem v-slot="{ active }">
                                 <button :class="[active ? 'bg-slate-50 text-slate-800' : 'text-slate-600', 'flex w-full items-center px-4 py-2 text-sm']"
-                                        @click="Inertia.visit('/logout')">
+                                        @click="router.visit('/logout')">
                                     Logout
                                 </button>
                             </MenuItem>
                         </div>
                     </MenuItems>
                 </transition>
-            </Menu>
+            </MenuLayout>
         </header>
         <main class="content overflow-y-auto" scroll-region>
             <slot></slot>
@@ -123,14 +123,14 @@ import {
 } from '@heroicons/vue/24/outline';
 
 import { ref, onUnmounted } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
+import { router } from '@inertiajs/vue3';
 import FlashMessages from './FlashMessages.vue';
 import SidebarTitle from './SidebarTitle.vue';
 import SidebarLink from './SidebarLink.vue';
 
 export default {
     components: {
-        Menu,
+        MenuLayout: Menu,
         MenuButton,
         MenuItem,
         MenuItems,
@@ -150,13 +150,13 @@ export default {
         const year = ref(new Date().getFullYear());
 
         onUnmounted(
-            Inertia.on('navigate', () => {
+            router.on('navigate', () => {
                 isSidebarOpen.value = false;
             })
         );
 
         return {
-            Inertia,
+            router,
             isSidebarOpen,
             year
         };
