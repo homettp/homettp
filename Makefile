@@ -28,7 +28,7 @@ linux:
 	rm -f dist/homettp
 
 docker_linux:
-	GOOS=linux GOARCH=amd64 go build -o dist/amd64/homettp .
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o dist/amd64/homettp .
 
 linux_arm64:
 	GOOS=linux GOARCH=arm64 go build -o dist/homettp .
@@ -36,7 +36,7 @@ linux_arm64:
 	rm -f dist/homettp
 
 docker_linux_arm64:
-	GOOS=linux GOARCH=arm64 go build -o dist/arm64/homettp .
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o dist/arm64/homettp .
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -o dist/homettp.exe .
