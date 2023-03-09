@@ -23,7 +23,7 @@ darwin_arm64:
 	rm -f dist/homettp
 
 linux:
-	GOOS=linux GOARCH=amd64 go build -o dist/homettp .
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o dist/homettp .
 	cd dist && zip homettp_$(VERSION)_linux_amd64.zip .env homettp
 	rm -f dist/homettp
 
@@ -31,7 +31,7 @@ docker_linux:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o dist/amd64/homettp .
 
 linux_arm64:
-	GOOS=linux GOARCH=arm64 go build -o dist/homettp .
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o dist/homettp .
 	cd dist && zip homettp_$(VERSION)_linux_arm64.zip .env homettp
 	rm -f dist/homettp
 
