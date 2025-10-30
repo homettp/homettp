@@ -1,13 +1,13 @@
 package web
 
 import (
+	"github.com/petaki/support-go/vite"
 	"log"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/chmike/securecookie"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/petaki/inertia-go"
-	"github.com/petaki/support-go/mix"
 )
 
 const (
@@ -25,7 +25,7 @@ type app struct {
 	commandTimeout    int
 	sessionManager    *scs.SessionManager
 	rememberCookie    *securecookie.Obj
-	mixManager        *mix.Mix
+	viteManager       *vite.Vite
 	inertiaManager    *inertia.Inertia
 	queue             chan int64
 	commandRepository models.CommandRepository

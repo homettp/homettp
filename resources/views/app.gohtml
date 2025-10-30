@@ -4,11 +4,16 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap">
-        <link rel="stylesheet" href="{{ asset "css/app.css" }}">
-        <link rel="icon" type="image/x-icon" href="{{ asset "favicon.ico" }}">
-        <script src="{{ asset "js/app.js" }}" defer></script>
+        {{ range (css "resources/js/app.js") }}
+            <link rel="stylesheet" href="{{ . }}">
+        {{ end }}
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
     <body>
         <div id="app" data-page="{{ marshal .page }}"></div>
+        {{ if isRunningHot }}
+            <script type="module" src="{{ asset "@vite/client" }}"></script>
+        {{ end }}
+        <script type="module" src="{{ asset "resources/js/app.js" }}"></script>
     </body>
 </html>
