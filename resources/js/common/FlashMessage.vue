@@ -1,6 +1,6 @@
 <template>
     <!-- eslint-disable max-len -->
-    <div class="cursor-pointer w-full mt-5 rounded-sm shadow-lg bg-white ring-1 ring-black ring-opacity-5 md:w-96"
+    <div class="cursor-pointer w-full mt-5 rounded-xs shadow-lg bg-white ring-1 ring-black ring-opacity-5 md:w-96"
          @click="remove(message)">
         <div class="flex items-center p-5 font-medium text-sm">
             <check-circle-icon class="h-5 w-5 text-green-400 mr-2" />

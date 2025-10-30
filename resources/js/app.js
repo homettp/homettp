@@ -3,9 +3,14 @@ import { createApp, h } from 'vue';
 import { createInertiaApp, Link } from '@inertiajs/vue3';
 import AppTitle from './common/AppTitle.vue';
 
+import '../css/app.css';
+
 createInertiaApp({
-    // eslint-disable-next-line import/no-dynamic-require
-    resolve: name => require(`./pages/${name}`),
+    resolve: name => {
+        const pages = import.meta.glob('./pages/**/*.vue', { eager: true });
+
+        return pages[`./pages/${name}.vue`];
+    },
     setup({
         el, App, props, plugin
     }) {

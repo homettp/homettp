@@ -46,8 +46,8 @@ Downloads can be found at releases page on [GitHub](https://github.com/homettp/h
 
 #### Prerequisites for building
 
-- GO: `Version >= 1.20`
-- Node.js: `Version >= 18.0`
+- GO: `Version >= 1.25`
+- Node.js: `Version >= 22.0`
 - Yarn or NPM
 
 #### 1. Clone the repository:
@@ -71,7 +71,7 @@ yarn install
 #### 4. Build the UI
 
 ```
-yarn prod
+yarn build
 ```
 
 #### 5. Build the Homettp:
