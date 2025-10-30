@@ -71,7 +71,7 @@ yarn install
 #### 4. Build the UI
 
 ```
-yarn prod
+yarn build
 ```
 
 #### 5. Build the Homettp:

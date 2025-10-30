@@ -10,7 +10,7 @@ pre_clean:
 	cp .env.example dist/.env
 
 ui:
-	yarn prod
+	yarn build
 
 darwin:
 	GOOS=darwin GOARCH=amd64 go build -o dist/homettp .
