@@ -28,7 +28,6 @@ export default defineConfig([
             globals: {
                 ...globals.browser,
                 ...globals.commonjs,
-                ...globals.jquery,
                 ...globals.node
             },
 
