@@ -42,9 +42,7 @@ func (a *app) routes() http.Handler {
 		fileServer = http.FileServer(staticFS)
 	}
 
-	mux.Handle("/css/", fileServer)
-	mux.Handle("/images/", fileServer)
-	mux.Handle("/js/", fileServer)
+	mux.Handle("/build/", fileServer)
 	mux.Handle("/favicon.ico", fileServer)
 
 	return baseMiddleware.Then(mux)
