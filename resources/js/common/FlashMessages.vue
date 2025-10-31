@@ -7,60 +7,47 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import FlashMessage from './FlashMessage.vue';
 
-export default {
-    components: {
-        FlashMessage
-    },
+const messages = ref([]);
 
-    setup() {
-        const messages = ref([]);
+const remove = message => {
+    const index = messages.value.findIndex(current => current.id === message.id);
 
-        const remove = message => {
-            const index = messages.value.findIndex(current => current.id === message.id);
-
-            if (index !== -1) {
-                messages.value.splice(index, 1);
-            }
-        };
-
-        const add = flash => {
-            if (flash) {
-                const createdAt = Date.now();
-                const id = flash + Math.random() * createdAt;
-
-                messages.value.unshift({
-                    id,
-                    value: flash,
-                    createdAt
-                });
-            }
-        };
-
-        const onFlash = e => {
-            add(e.detail.flash);
-        };
-
-        document.addEventListener('flash', onFlash);
-
-        onUnmounted(() => {
-            document.removeEventListener('flash', onFlash);
-        });
-
-        onUnmounted(
-            router.on('success', e => {
-                add(e.detail.page.props.flash);
-            })
-        );
-
-        return {
-            messages,
-            remove
-        };
+    if (index !== -1) {
+        messages.value.splice(index, 1);
     }
 };
+
+const add = flash => {
+    if (flash) {
+        const createdAt = Date.now();
+        const id = flash + Math.random() * createdAt;
+
+        messages.value.unshift({
+            id,
+            value: flash,
+            createdAt
+        });
+    }
+};
+
+const onFlash = e => {
+    add(e.detail.flash);
+};
+
+document.addEventListener('flash', onFlash);
+
+onUnmounted(() => {
+    document.removeEventListener('flash', onFlash);
+});
+
+onUnmounted(
+    router.on('success', e => {
+        add(e.detail.page.props.flash);
+    })
+);
 </script>

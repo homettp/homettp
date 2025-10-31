@@ -2,13 +2,14 @@
     <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
-        <div class="bg-white p-8">
+        <div class="bg-white dark:bg-slate-700 p-8">
             <card-title>
                 <component :is="iconName" class="h-6 w-6 sm:mr-2" />
                 <span>
                     {{ subtitle }}
                 </span>
             </card-title>
+            <!-- eslint-disable max-len -->
             <form @submit.prevent="form.post(url)">
                 <div class="grid grid-cols-1 gap-6">
                     <label class="block">
@@ -27,7 +28,7 @@
                                    placeholder="Name"
                                    required>
                         </div>
-                        <div v-if="form.errors.name" class="mt-2 text-sm text-red-500 lg:ml-64">
+                        <div v-if="form.errors.name" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.name[0] }}
                         </div>
                     </label>
@@ -51,7 +52,7 @@
                                 </option>
                             </select>
                         </div>
-                        <div v-if="form.errors.image" class="mt-2 text-sm text-red-500 lg:ml-64">
+                        <div v-if="form.errors.image" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.image[0] }}
                         </div>
                     </label>
@@ -72,7 +73,7 @@
                                    placeholder="myapp --toggle light1 --input %p"
                                    required>
                         </div>
-                        <div v-if="form.errors.value" class="mt-2 text-sm text-red-500 lg:ml-64">
+                        <div v-if="form.errors.value" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.value[0] }}
                         </div>
                         <div class="text-sm mt-3 lg:ml-64">
@@ -88,8 +89,9 @@
                     </div>
                 </div>
             </form>
+            <!-- eslint-enable max-len -->
         </div>
-        <div v-if="!isNew" class="bg-white p-8 mt-5">
+        <div v-if="!isNew" class="bg-white dark:bg-slate-700 p-8 mt-5">
             <card-title>
                 <command-line-icon class="h-6 w-6 sm:mr-2" />
                 <span class="mr-auto">
@@ -129,7 +131,7 @@
                 Refresh Token
             </inertia-link>
         </div>
-        <div v-if="!isNew" class="bg-white p-8 mt-5">
+        <div v-if="!isNew" class="bg-white dark:bg-slate-700 p-8 mt-5">
             <card-title>
                 <trash-icon class="h-6 w-6 sm:mr-2" />
                 <span>
@@ -149,7 +151,7 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     ChevronRightIcon,
     CommandLineIcon,
@@ -158,84 +160,67 @@ import {
     TrashIcon
 } from '@heroicons/vue/24/outline';
 
-import { computed, ref, toRefs } from 'vue';
+import {
+    computed,
+    ref,
+    defineProps,
+    defineOptions
+} from 'vue';
+
 import { useForm } from '@inertiajs/vue3';
 import Breadcrumb from '../../common/Breadcrumb.vue';
 import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
-export default {
-    components: {
-        ChevronRightIcon,
-        CommandLineIcon,
-        DocumentDuplicateIcon,
-        PlusIcon,
-        TrashIcon,
-        Breadcrumb,
-        CardTitle
+const { command } = defineProps({
+    command: {
+        type: Object,
+        required: true
     },
 
-    layout: Layout,
-
-    props: {
-        command: {
-            type: Object,
-            required: true
-        },
-
-        commandImages: {
-            type: Array,
-            required: true
-        },
-
-        commandPayload: {
-            type: String,
-            required: true
-        },
-
-        commandPath: {
-            type: String,
-            default: ''
-        }
+    commandImages: {
+        type: Array,
+        required: true
     },
 
-    setup(props) {
-        const { command } = toRefs(props);
-        const isNew = computed(() => command.value.id === 0);
-        const commandPathEl = ref();
+    commandPayload: {
+        type: String,
+        required: true
+    },
 
-        const subtitle = computed(() => (isNew.value
-            ? 'Create Command'
-            : 'Edit Command'));
-
-        const iconName = computed(() => (isNew.value
-            ? 'plus-icon'
-            : 'command-line-icon'));
-
-        const url = computed(() => (isNew.value
-            ? '/command/create'
-            : `/command/edit?id=${props.command.id}`));
-
-        const links = computed(() => [
-            { name: 'Commands', href: '/' },
-            { name: subtitle.value }
-        ]);
-
-        const form = useForm({
-            name: props.command.name,
-            image: props.command.image,
-            value: props.command.value
-        });
-
-        return {
-            isNew,
-            commandPathEl,
-            subtitle,
-            links,
-            form,
-            iconName,
-            url
-        };
+    commandPath: {
+        type: String,
+        default: ''
     }
-};
+});
+
+defineOptions({
+    layout: Layout
+});
+
+const isNew = computed(() => command.id === 0);
+const commandPathEl = ref();
+
+const subtitle = computed(() => (isNew.value
+    ? 'Create Command'
+    : 'Edit Command'));
+
+const iconName = computed(() => (isNew.value
+    ? PlusIcon
+    : CommandLineIcon));
+
+const url = computed(() => (isNew.value
+    ? '/command/create'
+    : `/command/edit?id=${command.id}`));
+
+const links = computed(() => [
+    { name: 'Commands', href: '/' },
+    { name: subtitle.value }
+]);
+
+const form = useForm({
+    name: command.name,
+    image: command.image,
+    value: command.value
+});
 </script>
