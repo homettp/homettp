@@ -11,7 +11,7 @@
         </header>
         <div class="bg-white max-w-sm mx-auto p-8">
             <card-title>
-                <arrow-right-on-rectangle-icon class="h-6 w-6 sm:mr-2" />
+                <arrow-right-end-on-rectangle-icon class="h-6 w-6 sm:mr-2" />
                 <span>
                     {{ subtitle }}
                 </span>
@@ -72,39 +72,24 @@
     </div>
 </template>
 
-<script>
-import { ref } from 'vue';
-import { ArrowRightOnRectangleIcon, HomeIcon } from '@heroicons/vue/24/outline';
+<script setup>
+import { ref, defineProps } from 'vue';
+import { ArrowRightEndOnRectangleIcon, HomeIcon } from '@heroicons/vue/24/outline';
 import { useForm } from '@inertiajs/vue3';
 import CardTitle from '../../common/CardTitle.vue';
 
-export default {
-    components: {
-        ArrowRightOnRectangleIcon,
-        HomeIcon,
-        CardTitle
-    },
-
-    props: {
-        title: {
-            type: String,
-            required: true
-        }
-    },
-
-    setup() {
-        const subtitle = ref('Login');
-
-        const form = useForm({
-            username_or_email: '',
-            password: '',
-            remember: true
-        });
-
-        return {
-            subtitle,
-            form
-        };
+defineProps({
+    title: {
+        type: String,
+        required: true
     }
-};
+});
+
+const subtitle = ref('Login');
+
+const form = useForm({
+    username_or_email: '',
+    password: '',
+    remember: true
+});
 </script>

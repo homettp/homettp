@@ -5,6 +5,23 @@ import AppTitle from './common/AppTitle.vue';
 
 import '../css/app.css';
 
+window.isDark = () => localStorage.theme === 'dark'
+    || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+window.currentTheme = () => (!('theme' in localStorage)
+    ? 'system'
+    : localStorage.theme);
+
+window.setTheme = theme => {
+    document.documentElement.classList.toggle('dark', window.isDark());
+
+    document.dispatchEvent(new CustomEvent('set-theme', {
+        detail: {
+            theme
+        }
+    }));
+};
+
 createInertiaApp({
     resolve: name => {
         const pages = import.meta.glob('./pages/**/*.vue', { eager: true });

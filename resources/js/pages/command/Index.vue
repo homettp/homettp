@@ -4,12 +4,12 @@
         <breadcrumb :links="links" />
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
             <div v-if="!commands"
-                 class="bg-white p-8">
+                 class="bg-white dark:bg-slate-700 p-8">
                 No commands.
             </div>
             <div v-for="command in commands"
                  :key="command.id"
-                 class="bg-white p-8">
+                 class="bg-white dark:bg-slate-700 p-8">
                 <card-title>
                     <component :is="iconName(command)" class="h-6 w-6 sm:mr-2" />
                     <span class="flex-1 sm:mr-auto">
@@ -37,7 +37,7 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     BoltIcon,
     ClockIcon,
@@ -49,70 +49,49 @@ import {
     PencilSquareIcon
 } from '@heroicons/vue/24/outline';
 
-import { ref } from 'vue';
+import { ref, defineProps, defineOptions } from 'vue';
 import Breadcrumb from '../../common/Breadcrumb.vue';
 import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
-export default {
-    components: {
-        BoltIcon,
-        ClockIcon,
-        CpuChipIcon,
-        CommandLineIcon,
-        EllipsisHorizontalCircleIcon,
-        KeyIcon,
-        LightBulbIcon,
-        PencilSquareIcon,
-        Breadcrumb,
-        CardTitle
-    },
-
-    layout: Layout,
-
-    props: {
-        commands: {
-            type: Array,
-            default: () => []
-        }
-    },
-
-    setup() {
-        const subtitle = ref('Commands');
-
-        const links = ref([
-            { name: subtitle }
-        ]);
-
-        const iconName = command => {
-            if (command.image === 'door') {
-                return 'key-icon';
-            }
-
-            if (command.image === 'light') {
-                return 'light-bulb-icon';
-            }
-
-            if (command.image === 'outlet') {
-                return 'ellipsis-horizontal-circle-icon';
-            }
-
-            if (command.image === 'plug') {
-                return 'bolt-icon';
-            }
-
-            if (command.image === 'sensor') {
-                return 'cpu-chip-icon';
-            }
-
-            return 'command';
-        };
-
-        return {
-            subtitle,
-            links,
-            iconName
-        };
+defineProps({
+    commands: {
+        type: Array,
+        default: () => []
     }
+});
+
+defineOptions({
+    layout: Layout
+});
+
+const subtitle = ref('Commands');
+
+const links = ref([
+    { name: subtitle }
+]);
+
+const iconName = command => {
+    if (command.image === 'door') {
+        return KeyIcon;
+    }
+
+    if (command.image === 'light') {
+        return LightBulbIcon;
+    }
+
+    if (command.image === 'outlet') {
+        return EllipsisHorizontalCircleIcon;
+    }
+
+    if (command.image === 'plug') {
+        return BoltIcon;
+    }
+
+    if (command.image === 'sensor') {
+        return CpuChipIcon;
+    }
+
+    return 'command';
 };
 </script>

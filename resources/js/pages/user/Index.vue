@@ -5,7 +5,7 @@
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
             <div v-for="user in users"
                  :key="user.id"
-                 class="bg-white p-8">
+                 class="bg-white dark:bg-slate-700 p-8">
                 <card-title>
                     <img class="rounded-full h-12 w-12 sm:mr-2"
                          :src="gravatars[user.username]">
@@ -29,50 +29,41 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     ClockIcon,
     PencilSquareIcon
 } from '@heroicons/vue/24/outline';
 
-import { ref } from 'vue';
+import {
+    ref,
+    defineProps,
+    defineOptions
+} from 'vue';
+
 import Breadcrumb from '../../common/Breadcrumb.vue';
 import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
-export default {
-    components: {
-        ClockIcon,
-        PencilSquareIcon,
-        Breadcrumb,
-        CardTitle
+defineProps({
+    users: {
+        type: Array,
+        required: true
     },
 
-    layout: Layout,
-
-    props: {
-        users: {
-            type: Array,
-            required: true
-        },
-
-        gravatars: {
-            type: Object,
-            required: true
-        }
-    },
-
-    setup() {
-        const subtitle = ref('Users');
-
-        const links = ref([
-            { name: subtitle }
-        ]);
-
-        return {
-            subtitle,
-            links
-        };
+    gravatars: {
+        type: Object,
+        required: true
     }
-};
+});
+
+defineOptions({
+    layout: Layout
+});
+
+const subtitle = ref('Users');
+
+const links = ref([
+    { name: subtitle }
+]);
 </script>

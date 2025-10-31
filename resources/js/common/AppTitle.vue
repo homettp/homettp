@@ -1,22 +1,18 @@
 <template>
-    <inertia-head :title="title ? `${title} - ${$page.props.title}` : $page.props.title">
+    <inertia-head :title="title
+        ? `${title} - ${$page.props.title}${$page.props.suffix}`
+        : `${$page.props.title}${$page.props.suffix}`">
         <slot></slot>
     </inertia-head>
 </template>
 
-<script>
-import { Head } from '@inertiajs/vue3';
+<script setup>
+import { defineProps } from 'vue';
 
-export default {
-    components: {
-        InertiaHead: Head
-    },
-
-    props: {
-        title: {
-            type: String,
-            default: ''
-        }
+defineProps({
+    title: {
+        type: String,
+        default: ''
     }
-};
+});
 </script>

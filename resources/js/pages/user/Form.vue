@@ -2,13 +2,14 @@
     <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
-        <div class="bg-white p-8">
+        <div class="bg-white dark:bg-slate-700 p-8">
             <card-title>
                 <component :is="iconName" class="h-6 w-6 sm:mr-2" />
                 <span>
                     {{ subtitle }}
                 </span>
             </card-title>
+            <!-- eslint-disable max-len -->
             <form @submit.prevent="submit()">
                 <div class="grid grid-cols-1 gap-6">
                     <label class="block">
@@ -27,7 +28,7 @@
                                    placeholder="Username"
                                    required>
                         </div>
-                        <div v-if="form.errors.username" class="mt-2 text-sm text-red-500 lg:ml-64">
+                        <div v-if="form.errors.username" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.username[0] }}
                         </div>
                     </label>
@@ -47,7 +48,7 @@
                                    placeholder="E-mail"
                                    required>
                         </div>
-                        <div v-if="form.errors.email" class="mt-2 text-sm text-red-500 lg:ml-64">
+                        <div v-if="form.errors.email" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.email[0] }}
                         </div>
                     </label>
@@ -68,7 +69,7 @@
                                    placeholder="Password"
                                    :required="isNew">
                         </div>
-                        <div v-if="form.errors.password" class="mt-2 text-sm text-red-500 lg:ml-64">
+                        <div v-if="form.errors.password" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.password[0] }}
                         </div>
                     </label>
@@ -87,8 +88,9 @@
                     </div>
                 </div>
             </form>
+            <!-- eslint-enable max-len -->
         </div>
-        <div v-if="!isNew" class="bg-white p-8 mt-5">
+        <div v-if="!isNew" class="bg-white dark:bg-slate-700 p-8 mt-5">
             <card-title>
                 <trash-icon class="h-6 w-6 sm:mr-2" />
                 <span>
@@ -108,80 +110,64 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     TrashIcon,
     UserIcon,
     UserPlusIcon
 } from '@heroicons/vue/24/outline';
 
-import { computed, toRefs } from 'vue';
+import {
+    computed,
+    defineProps,
+    defineOptions
+} from 'vue';
+
 import { useForm } from '@inertiajs/vue3';
 import Breadcrumb from '../../common/Breadcrumb.vue';
 import CardTitle from '../../common/CardTitle.vue';
 import Layout from '../../common/Layout.vue';
 
-export default {
-    components: {
-        TrashIcon,
-        UserIcon,
-        UserPlusIcon,
-        Breadcrumb,
-        CardTitle
-    },
-
-    layout: Layout,
-
-    props: {
-        user: {
-            type: Object,
-            required: true
-        }
-    },
-
-    setup(props) {
-        const { user } = toRefs(props);
-        const isNew = computed(() => user.value.id === 0);
-
-        const subtitle = computed(() => (isNew.value
-            ? 'Create User'
-            : 'Edit User'));
-
-        const iconName = computed(() => (isNew.value
-            ? 'user-plus-icon'
-            : 'user-icon'));
-
-        const url = computed(() => (isNew.value
-            ? '/user/create'
-            : `/user/edit?id=${user.value.id}`));
-
-        const links = computed(() => [
-            { name: 'Users', href: '/user' },
-            { name: subtitle.value }
-        ]);
-
-        const form = useForm({
-            username: user.value.username,
-            email: user.value.email,
-            password: '',
-            is_enabled: user.value.is_enabled
-        });
-
-        const submit = () => {
-            form.post(url.value, {
-                onSuccess: () => form.reset('password')
-            });
-        };
-
-        return {
-            isNew,
-            subtitle,
-            iconName,
-            url,
-            links,
-            form,
-            submit
-        };
+const { user } = defineProps({
+    user: {
+        type: Object,
+        required: true
     }
+});
+
+defineOptions({
+    layout: Layout
+});
+
+const isNew = computed(() => user.id === 0);
+
+const subtitle = computed(() => (isNew.value
+    ? 'Create User'
+    : 'Edit User'));
+
+const iconName = computed(() => (isNew.value
+    ? UserPlusIcon
+    : UserIcon));
+
+const url = computed(() => (isNew.value
+    ? '/user/create'
+    : `/user/edit?id=${user.id}`));
+
+const links = computed(() => [
+    { name: 'Users', href: '/user' },
+    { name: subtitle.value }
+]);
+
+const form = useForm({
+    username: user.username,
+    email: user.email,
+    password: '',
+    is_enabled: user.is_enabled
+});
+
+const submit = () => {
+    form.post(url.value, {
+        onSuccess: () => form.reset('password')
+    });
 };
 </script>
