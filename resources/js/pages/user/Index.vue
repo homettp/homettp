@@ -14,7 +14,7 @@
                     </span>
                     <inertia-link class="link sm:ml-2"
                                   title="Edit User"
-                                  :href="`/user/edit?id=${user.id}`">
+                                  :href="userEditPath(user.id)">
                         <pencil-square-icon class="h-6 w-6" />
                     </inertia-link>
                 </card-title>
@@ -29,37 +29,30 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     ClockIcon,
     PencilSquareIcon
 } from '@heroicons/vue/24/outline';
 
-import {
-    ref,
-    defineProps,
-    defineOptions
-} from 'vue';
+import { ref } from 'vue';
+import useDate from '../../use/useDate';
+import usePaths from '../../use/usePaths';
+import Breadcrumb from '../../base/Breadcrumb.vue';
+import CardTitle from '../../base/CardTitle.vue';
+import Layout from '../../base/Layout.vue';
 
-import Breadcrumb from '../../common/Breadcrumb.vue';
-import CardTitle from '../../common/CardTitle.vue';
-import Layout from '../../common/Layout.vue';
-
-defineProps({
-    users: {
-        type: Array,
-        required: true
-    },
-
-    gravatars: {
-        type: Object,
-        required: true
-    }
-});
+defineProps<{
+    users: object[]
+    gravatars: Record<string, string>
+}>();
 
 defineOptions({
     layout: Layout
 });
+
+const { date } = useDate();
+const { userEditPath } = usePaths();
 
 const subtitle = ref('Users');
 

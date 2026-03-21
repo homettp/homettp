@@ -1,7 +1,7 @@
 <template>
     <div class="flex mb-5">
         <inertia-link class="text-cyan-500 hover:text-cyan-600"
-                      href="/">
+                      :href="commandIndexPath()">
             Home
         </inertia-link>
         <template v-for="(link, index) in links"
@@ -26,13 +26,13 @@
     </div>
 </template>
 
-<script setup>
-import { defineProps } from 'vue';
+<script setup lang="ts">
+import type { BreadcrumbLink } from '../types';
+import usePaths from '../use/usePaths';
 
-defineProps({
-    links: {
-        type: Array,
-        required: true
-    }
-});
+defineProps<{
+    links: BreadcrumbLink[]
+}>();
+
+const { commandIndexPath } = usePaths();
 </script>

@@ -101,7 +101,7 @@
                 Are you sure you want to delete the user?
             </div>
             <inertia-link class="btn-red"
-                          :href="`/user/delete?id=${user.id}`"
+                          :href="userDeletePath(user.id)"
                           method="delete"
                           as="button">
                 Delete User
@@ -110,34 +110,34 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     TrashIcon,
     UserIcon,
     UserPlusIcon
 } from '@heroicons/vue/24/outline';
 
-import {
-    computed,
-    defineProps,
-    defineOptions
-} from 'vue';
-
+import { computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import Breadcrumb from '../../common/Breadcrumb.vue';
-import CardTitle from '../../common/CardTitle.vue';
-import Layout from '../../common/Layout.vue';
+import usePaths from '../../use/usePaths';
+import Breadcrumb from '../../base/Breadcrumb.vue';
+import CardTitle from '../../base/CardTitle.vue';
+import Layout from '../../base/Layout.vue';
 
-const { user } = defineProps({
-    user: {
-        type: Object,
-        required: true
-    }
-});
+const { user } = defineProps<{
+    user: Record<string, any>
+}>();
 
 defineOptions({
     layout: Layout
 });
+
+const {
+    userCreatePath,
+    userDeletePath,
+    userEditPath,
+    userIndexPath
+} = usePaths();
 
 const isNew = computed(() => user.id === 0);
 
@@ -150,11 +150,11 @@ const iconName = computed(() => (isNew.value
     : UserIcon));
 
 const url = computed(() => (isNew.value
-    ? '/user/create'
-    : `/user/edit?id=${user.id}`));
+    ? userCreatePath()
+    : userEditPath(user.id)));
 
 const links = computed(() => [
-    { name: 'Users', href: '/user' },
+    { name: 'Users', href: userIndexPath() },
     { name: subtitle.value }
 ]);
 

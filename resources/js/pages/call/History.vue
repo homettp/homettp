@@ -29,7 +29,7 @@
                         {{ date(call.created_at) }}
                     </span>
                     <inertia-link class="link sm:ml-2"
-                                  :href="`/call/delete?id=${call.id}`"
+                                  :href="callDeletePath(call.id)"
                                   method="delete"
                                   as="button"
                                   @click.stop>
@@ -45,7 +45,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     ClockIcon,
     CheckCircleIcon,
@@ -53,45 +53,39 @@ import {
     TrashIcon
 } from '@heroicons/vue/24/outline';
 
-import {
-    ref,
-    onMounted,
-    onUnmounted,
-    defineProps,
-    defineOptions
-} from 'vue';
-
+import { ref, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
-import Breadcrumb from '../../common/Breadcrumb.vue';
-import CardTitle from '../../common/CardTitle.vue';
-import Layout from '../../common/Layout.vue';
-import useToggle from '../../common/useToggle';
+import useDate from '../../use/useDate';
+import usePaths from '../../use/usePaths';
+import useToggle from '../../use/useToggle';
+import Breadcrumb from '../../base/Breadcrumb.vue';
+import CardTitle from '../../base/CardTitle.vue';
+import Layout from '../../base/Layout.vue';
 
-const { command } = defineProps({
-    command: {
-        type: Object,
-        required: true
-    },
-
-    calls: {
-        type: Array,
-        default: () => []
-    }
-});
+const {
+    command,
+    calls = []
+} = defineProps<{
+    command: Record<string, any>
+    calls?: object[]
+}>();
 
 defineOptions({
     layout: Layout
 });
 
-const subtitle = ref('Call History');
+const { date } = useDate();
+const { callDeletePath, commandEditPath, commandIndexPath } = usePaths();
 const { isShow, toggle } = useToggle();
+
+const subtitle = ref('Call History');
 const reloadTimer = 2500;
 
-let reloadInterval;
+let reloadInterval: ReturnType<typeof setInterval>;
 
 const links = ref([
-    { name: 'Commands', href: '/' },
-    { name: command.name, href: `/command/edit?id=${command.id}` },
+    { name: 'Commands', href: commandIndexPath() },
+    { name: command.name, href: commandEditPath(command.id) },
     { name: subtitle }
 ]);
 

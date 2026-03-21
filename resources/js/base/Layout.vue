@@ -8,7 +8,7 @@
          :class="{'translate-x-0': isSidebarOpen, '-translate-x-full': !isSidebarOpen}">
         <div class="flex h-20 bg-gray-900">
             <inertia-link class="flex items-center m-auto text-white text-xl"
-                          href="/">
+                          :href="commandIndexPath()">
                 <home-icon class="h-7 w-7 mr-2" />
                 <span>
                     {{ $page.props.title }}
@@ -20,14 +20,14 @@
                 Commands
             </sidebar-title>
             <sidebar-link :is-active="!!$page.props.isCommandsActive"
-                          href="/">
+                          :href="commandIndexPath()">
                 <command-line-icon class="h-5 w-5 mr-2" />
                 <span>
                     Commands
                 </span>
             </sidebar-link>
             <sidebar-link :is-active="!!$page.props.isCreateCommandActive"
-                          href="/command/create">
+                          :href="commandCreatePath()">
                 <plus-icon class="h-5 w-5 mr-2" />
                 <span>
                     Create Command
@@ -37,14 +37,14 @@
                 Users
             </sidebar-title>
             <sidebar-link :is-active="!!$page.props.isUsersActive"
-                          href="/user">
+                          :href="userIndexPath()">
                 <user-icon class="h-5 w-5 mr-2" />
                 <span>
                     Users
                 </span>
             </sidebar-link>
             <sidebar-link :is-active="!!$page.props.isCreateUserActive"
-                          href="/user/create">
+                          :href="userCreatePath()">
                 <user-plus-icon class="h-5 w-5 mr-2" />
                 <span>
                     Create User
@@ -101,13 +101,13 @@
                         <div class="py-1">
                             <MenuItem v-slot="{ active }">
                                 <button :class="[active ? 'bg-slate-50 dark:hover:bg-slate-700/40 text-slate-800 dark:text-slate-300' : 'text-slate-600 dark:text-slate-400', 'flex w-full items-center px-4 py-2 text-sm']"
-                                        @click="router.visit(`/user/edit?id=${$page.props.auth.user.id}`)">
+                                        @click="router.visit(userEditPath($page.props.auth.user.id))">
                                     Edit Profile
                                 </button>
                             </MenuItem>
                             <MenuItem v-slot="{ active }">
                                 <button :class="[active ? 'bg-slate-50 dark:hover:bg-slate-700/40 text-slate-800 dark:text-slate-300' : 'text-slate-600 dark:text-slate-400', 'flex w-full items-center px-4 py-2 text-sm']"
-                                        @click="router.visit('/logout')">
+                                        @click="router.visit(logoutPath())">
                                     Logout
                                 </button>
                             </MenuItem>
@@ -123,7 +123,7 @@
     <!-- eslint-enable max-len -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     Menu as MainMenu,
     MenuButton,
@@ -145,9 +145,19 @@ import {
 
 import { ref, onUnmounted, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import usePaths from '../use/usePaths';
 import FlashMessages from './FlashMessages.vue';
 import SidebarTitle from './SidebarTitle.vue';
 import SidebarLink from './SidebarLink.vue';
+
+const {
+    commandIndexPath,
+    commandCreatePath,
+    logoutPath,
+    userCreatePath,
+    userEditPath,
+    userIndexPath
+} = usePaths();
 
 const theme = ref(
     window.currentTheme()

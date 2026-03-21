@@ -8,18 +8,9 @@
     <!-- eslint-enable max-len -->
 </template>
 
-<script setup>
-import { defineProps } from 'vue';
-
-defineProps({
-    isActive: {
-        type: Boolean,
-        required: true
-    },
-
-    href: {
-        type: String,
-        required: true
-    }
-});
+<script setup lang="ts">
+defineProps<{
+    isActive: boolean
+    href: string
+}>();
 </script>
