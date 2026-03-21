@@ -17,12 +17,12 @@
                     </span>
                     <inertia-link class="link sm:ml-2"
                                   title="Call History"
-                                  :href="`/call/history?commandID=${command.id}`">
+                                  :href="callHistoryPath(command.id)">
                         <command-line-icon class="h-6 w-6" />
                     </inertia-link>
                     <inertia-link class="link sm:ml-2"
                                   title="Edit Command"
-                                  :href="`/command/edit?id=${command.id}`">
+                                  :href="commandEditPath(command.id)">
                         <pencil-square-icon class="h-6 w-6" />
                     </inertia-link>
                 </card-title>
@@ -37,7 +37,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     BoltIcon,
     ClockIcon,
@@ -49,21 +49,25 @@ import {
     PencilSquareIcon
 } from '@heroicons/vue/24/outline';
 
-import { ref, defineProps, defineOptions } from 'vue';
-import Breadcrumb from '../../common/Breadcrumb.vue';
-import CardTitle from '../../common/CardTitle.vue';
-import Layout from '../../common/Layout.vue';
+import { ref } from 'vue';
+import useDate from '../../use/useDate';
+import usePaths from '../../use/usePaths';
+import Breadcrumb from '../../base/Breadcrumb.vue';
+import CardTitle from '../../base/CardTitle.vue';
+import Layout from '../../base/Layout.vue';
 
-defineProps({
-    commands: {
-        type: Array,
-        default: () => []
-    }
-});
+const {
+    commands = []
+} = defineProps<{
+    commands?: object[]
+}>();
 
 defineOptions({
     layout: Layout
 });
+
+const { date } = useDate();
+const { callHistoryPath, commandEditPath } = usePaths();
 
 const subtitle = ref('Commands');
 

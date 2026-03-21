@@ -6,13 +6,10 @@
     </inertia-head>
 </template>
 
-<script setup>
-import { defineProps } from 'vue';
-
-defineProps({
-    title: {
-        type: String,
-        default: ''
-    }
-});
+<script setup lang="ts">
+const {
+    title = ''
+} = defineProps<{
+    title?: string
+}>();
 </script>

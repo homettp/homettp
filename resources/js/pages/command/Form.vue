@@ -98,7 +98,7 @@
                     Call Command
                 </span>
                 <inertia-link class="link flex items-center sm:ml-2"
-                              :href="`/call/history?commandID=${command.id}`">
+                              :href="callHistoryPath(command.id)">
                     <span class="mr-2">
                         Call History
                     </span>
@@ -119,13 +119,13 @@
                            readonly>
                     <a class="btn rounded-l-none flex items-center"
                        href="#"
-                       @click.prevent="copy(commandPathEl)">
+                       @click.prevent="copy(commandPathEl.value)">
                         <document-duplicate-icon class="h-5 w-5" />
                     </a>
                 </div>
             </div>
             <inertia-link class="btn btn-primary"
-                          :href="`/command/refresh-token?id=${command.id}`"
+                          :href="commandRefreshTokenPath(command.id)"
                           method="put"
                           as="button">
                 Refresh Token
@@ -142,7 +142,7 @@
                 Are you sure you want to delete the command?
             </div>
             <inertia-link class="btn-red"
-                          :href="`/command/delete?id=${command.id}`"
+                          :href="commandDeletePath(command.id)"
                           method="delete"
                           as="button">
                 Delete Command
@@ -151,7 +151,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     ChevronRightIcon,
     CommandLineIcon,
@@ -160,46 +160,43 @@ import {
     TrashIcon
 } from '@heroicons/vue/24/outline';
 
-import {
-    computed,
-    ref,
-    defineProps,
-    defineOptions
-} from 'vue';
-
+import { computed, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import Breadcrumb from '../../common/Breadcrumb.vue';
-import CardTitle from '../../common/CardTitle.vue';
-import Layout from '../../common/Layout.vue';
+import type { CommandImage } from '../../types';
+import useCopy from '../../use/useCopy';
+import usePaths from '../../use/usePaths';
+import Breadcrumb from '../../base/Breadcrumb.vue';
+import CardTitle from '../../base/CardTitle.vue';
+import Layout from '../../base/Layout.vue';
 
-const { command } = defineProps({
-    command: {
-        type: Object,
-        required: true
-    },
-
-    commandImages: {
-        type: Array,
-        required: true
-    },
-
-    commandPayload: {
-        type: String,
-        required: true
-    },
-
-    commandPath: {
-        type: String,
-        default: ''
-    }
-});
+const {
+    command,
+    commandImages,
+    commandPayload,
+    commandPath = ''
+} = defineProps<{
+    command: Record<string, any>
+    commandImages: CommandImage[]
+    commandPayload: string
+    commandPath?: string
+}>();
 
 defineOptions({
     layout: Layout
 });
 
+const { copy } = useCopy();
+const {
+    callHistoryPath,
+    commandCreatePath,
+    commandDeletePath,
+    commandEditPath,
+    commandIndexPath,
+    commandRefreshTokenPath
+} = usePaths();
+
 const isNew = computed(() => command.id === 0);
-const commandPathEl = ref();
+const commandPathEl = ref<HTMLInputElement>();
 
 const subtitle = computed(() => (isNew.value
     ? 'Create Command'
@@ -210,11 +207,11 @@ const iconName = computed(() => (isNew.value
     : CommandLineIcon));
 
 const url = computed(() => (isNew.value
-    ? '/command/create'
-    : `/command/edit?id=${command.id}`));
+    ? commandCreatePath()
+    : commandEditPath(command.id)));
 
 const links = computed(() => [
-    { name: 'Commands', href: '/' },
+    { name: 'Commands', href: commandIndexPath() },
     { name: subtitle.value }
 ]);
 

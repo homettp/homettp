@@ -2,7 +2,7 @@
     <app-title :title="subtitle" />
     <div class="container mx-auto">
         <header class="flex justify-center py-8">
-            <inertia-link class="flex items-center text-2xl text-gray-800" href="/login">
+            <inertia-link class="flex items-center text-2xl text-gray-800" :href="loginPath()">
                 <home-icon class="h-8 w-8 mr-2" />
                 <span>
                     {{ title }}
@@ -16,7 +16,7 @@
                     {{ subtitle }}
                 </span>
             </card-title>
-            <form @submit.prevent="form.post('/login')">
+            <form @submit.prevent="form.post(loginPath())">
                 <div class="grid grid-cols-1 gap-6">
                     <label class="block">
                         <div>
@@ -72,18 +72,18 @@
     </div>
 </template>
 
-<script setup>
-import { ref, defineProps } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { ArrowRightEndOnRectangleIcon, HomeIcon } from '@heroicons/vue/24/outline';
 import { useForm } from '@inertiajs/vue3';
-import CardTitle from '../../common/CardTitle.vue';
+import usePaths from '../../use/usePaths';
+import CardTitle from '../../base/CardTitle.vue';
 
-defineProps({
-    title: {
-        type: String,
-        required: true
-    }
-});
+defineProps<{
+    title: string
+}>();
+
+const { loginPath } = usePaths();
 
 const subtitle = ref('Login');
 

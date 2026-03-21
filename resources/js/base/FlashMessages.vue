@@ -7,14 +7,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import type { FlashMessageItem } from '../types';
 import FlashMessage from './FlashMessage.vue';
 
-const messages = ref([]);
+const messages = ref<FlashMessageItem[]>([]);
 
-const remove = message => {
+const remove = (message: FlashMessageItem) => {
     const index = messages.value.findIndex(current => current.id === message.id);
 
     if (index !== -1) {
@@ -22,10 +23,10 @@ const remove = message => {
     }
 };
 
-const add = flash => {
+const add = (flash: string) => {
     if (flash) {
         const createdAt = Date.now();
-        const id = flash + Math.random() * createdAt;
+        const id = flash.length + Math.random() * createdAt;
 
         messages.value.unshift({
             id,
@@ -47,7 +48,7 @@ onUnmounted(() => {
 
 onUnmounted(
     router.on('success', e => {
-        add(e.detail.page.props.flash);
+        add(e.detail.page.props.flash as string);
     })
 );
 </script>

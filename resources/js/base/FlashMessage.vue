@@ -17,53 +17,44 @@
     <!-- eslint-enable max-len -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     CheckCircleIcon,
     XMarkIcon
 } from '@heroicons/vue/24/outline';
 
-import {
-    ref,
-    onMounted,
-    onUnmounted,
-    defineProps
-} from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import type { FlashMessageItem } from '../types';
+
+interface FlashMessageProps {
+    message: FlashMessageItem
+    remove: (message: FlashMessageItem) => void
+}
 
 const {
     message,
     remove
-} = defineProps({
-    message: {
-        type: Object,
-        required: true
-    },
+} = defineProps<FlashMessageProps>();
 
-    remove: {
-        type: Function,
-        required: true
-    }
-});
-
-const messageTickInterval = ref();
-const messageTickTimer = ref(100);
-const messageTimer = ref(2500);
+let messageTickInterval: ReturnType<typeof setInterval>;
+const messageTickTimer = 100;
+const messageTimer = 2500;
 const progress = ref(100);
 
 onMounted(() => {
-    messageTickInterval.value = setInterval(() => {
-        if (Date.now() - messageTimer.value > message.createdAt) {
+    messageTickInterval = setInterval(() => {
+        if (Date.now() - messageTimer > message.createdAt) {
             progress.value = 0;
             remove(message);
         } else {
             progress.value = (1 - (
-                (Date.now() - message.createdAt) / messageTimer.value
+                (Date.now() - message.createdAt) / messageTimer
             )) * 100;
         }
-    }, messageTickTimer.value);
+    }, messageTickTimer);
 });
 
 onUnmounted(() => {
-    clearInterval(messageTickInterval.value);
+    clearInterval(messageTickInterval);
 });
 </script>

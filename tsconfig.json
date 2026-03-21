@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "baseUrl": ".",
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "jsx": "preserve",
+        "lib": ["DOM", "ES2022"],
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "noEmit": true,
+        "noImplicitAny": false,
+        "paths": { "@/*": ["resources/js/*"] },
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "target": "ES2022",
+        "types": ["vite/client"],
+        "useDefineForClassFields": true
+    },
+    "include": [
+        "resources/js/**/*.ts",
+        "resources/js/**/*.vue",
+        "resources/js/**/*.d.ts",
+        "vite.config.ts"
+    ],
+    "vueCompilerOptions": {
+        "skipTemplateCodegen": true
+    }
+}
