@@ -29,7 +29,7 @@ func (a *app) commandIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.inertiaManager.Render(w, r, "command/Index", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Index", map[string]any{
 		"isCommandsActive": true,
 		"commands":         commands,
 	})
@@ -50,7 +50,7 @@ func (a *app) commandCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) getCommandCreate(w http.ResponseWriter, r *http.Request) {
-	err := a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err := a.inertiaManager.Render(w, r, "command/Form", map[string]any{
 		"isCreateCommandActive": true,
 		"command":               models.NewCommand(),
 		"commandImages":         a.commandImages(),
@@ -100,7 +100,7 @@ func (a *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Form", map[string]any{
 		"isCreateCommandActive": true,
 		"command":               command,
 		"commandImages":         a.commandImages(),
@@ -131,7 +131,7 @@ func (a *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Form", map[string]any{
 		"command":        command,
 		"commandImages":  a.commandImages(),
 		"commandPayload": models.PayloadVariable,
@@ -181,7 +181,7 @@ func (a *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = a.inertiaManager.Render(w, r, "command/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "command/Form", map[string]any{
 		"command":        command,
 		"commandImages":  a.commandImages(),
 		"commandPayload": models.PayloadVariable,
@@ -268,8 +268,8 @@ func (a *app) commandFromRequest(r *http.Request, parameter string) (*models.Com
 	return command, nil
 }
 
-func (a *app) commandImages() []map[string]interface{} {
-	return []map[string]interface{}{
+func (a *app) commandImages() []map[string]any {
+	return []map[string]any{
 		{
 			"name":  "Door",
 			"value": models.Door,

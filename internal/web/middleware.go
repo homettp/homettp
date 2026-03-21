@@ -142,7 +142,7 @@ func (a *app) authenticate(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), contextKeyAuthUser, user)
-		ctx = a.inertiaManager.WithProp(ctx, "auth", map[string]interface{}{
+		ctx = a.inertiaManager.WithProp(ctx, "auth", map[string]any{
 			"user":     user,
 			"gravatar": user.Gravatar(88),
 		})

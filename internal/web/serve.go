@@ -68,7 +68,7 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 		},
 	}
 
-	for i := 0; i < commandWorkerCount; i++ {
+	for range commandWorkerCount {
 		go webApp.worker()
 	}
 

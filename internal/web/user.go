@@ -29,7 +29,7 @@ func (a *app) userIndex(w http.ResponseWriter, r *http.Request) {
 		gravatars[user.Username] = user.Gravatar(96)
 	}
 
-	err = a.inertiaManager.Render(w, r, "user/Index", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Index", map[string]any{
 		"isUsersActive": true,
 		"users":         users,
 		"gravatars":     gravatars,
@@ -51,7 +51,7 @@ func (a *app) userCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) getUserCreate(w http.ResponseWriter, r *http.Request) {
-	err := a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err := a.inertiaManager.Render(w, r, "user/Form", map[string]any{
 		"isCreateUserActive": true,
 		"user":               models.NewUser(),
 		"errors":             forms.Bag{},
@@ -94,7 +94,7 @@ func (a *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Form", map[string]any{
 		"isCreateUserActive": true,
 		"user":               user,
 		"errors":             form.Errors,
@@ -123,7 +123,7 @@ func (a *app) getUserEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Form", map[string]any{
 		"user":   user,
 		"errors": forms.Bag{},
 	})
@@ -170,7 +170,7 @@ func (a *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = a.inertiaManager.Render(w, r, "user/Form", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "user/Form", map[string]any{
 		"user":   user,
 		"errors": form.Errors,
 	})

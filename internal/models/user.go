@@ -74,5 +74,5 @@ func (u *User) Gravatar(size int) string {
 
 // RememberCookie function.
 func (u *User) RememberCookie() []byte {
-	return []byte(fmt.Sprintf("%v|%s", u.ID, u.RememberToken))
+	return fmt.Appendf(nil, "%v|%s", u.ID, u.RememberToken)
 }

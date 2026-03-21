@@ -73,7 +73,7 @@ func (a *app) callHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.inertiaManager.Render(w, r, "call/History", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "call/History", map[string]any{
 		"command": command,
 		"calls":   calls,
 	})
