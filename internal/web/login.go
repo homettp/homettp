@@ -20,7 +20,7 @@ func (a *app) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) getLogin(w http.ResponseWriter, r *http.Request) {
-	err := a.inertiaManager.Render(w, r, "auth/Login", map[string]interface{}{
+	err := a.inertiaManager.Render(w, r, "auth/Login", map[string]any{
 		"errors": forms.Bag{},
 	})
 	if err != nil {
@@ -96,7 +96,7 @@ func (a *app) postLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = a.inertiaManager.Render(w, r, "auth/Login", map[string]interface{}{
+	err = a.inertiaManager.Render(w, r, "auth/Login", map[string]any{
 		"errors": form.Errors,
 	})
 	if err != nil {

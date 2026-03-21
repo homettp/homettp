@@ -16,12 +16,12 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 }
 
 // RedisArg function.
-func (t Timestamp) RedisArg() interface{} {
+func (t Timestamp) RedisArg() any {
 	return time.Time(t).Format(time.RFC3339)
 }
 
 // RedisScan function.
-func (t *Timestamp) RedisScan(src interface{}) error {
+func (t *Timestamp) RedisScan(src any) error {
 	bs, ok := src.([]byte)
 	if !ok {
 		return ErrTimestamp

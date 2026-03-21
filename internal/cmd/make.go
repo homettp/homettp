@@ -19,7 +19,7 @@ func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 		return command.PrintHelp(group)
 	}
 
-	form := forms.New(map[string]interface{}{
+	form := forms.New(map[string]any{
 		"username":   parsed[0],
 		"email":      parsed[1],
 		"password":   parsed[2],
