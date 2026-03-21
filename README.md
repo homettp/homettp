@@ -15,7 +15,7 @@
 
 ## Getting Started
 
-Before you start, you need to install the prerequisites.
+Follow the steps below to install and configure Homettp.
 
 ### Prerequisites
 
@@ -25,9 +25,9 @@ Before you start, you need to install the prerequisites.
 
 ### Run with Docker
 
-Image can be found at package page on [GitHub](https://github.com/homettp/homettp/pkgs/container/homettp).
+Image can be found at the package page on [GitHub](https://github.com/homettp/homettp/pkgs/container/homettp).
 
-```
+```bash
 docker run --rm \
 -e APP_URL=http://127.0.0.1:4000 \
 -e APP_KEY=$(openssl rand -hex 16) \
@@ -36,59 +36,51 @@ docker run --rm \
 ghcr.io/homettp/homettp
 ```
 
-### Install from binary
+### Install from Binary
 
-Downloads can be found at releases page on [GitHub](https://github.com/homettp/homettp/releases).
+Download the latest release for your platform from the [GitHub Releases](https://github.com/homettp/homettp/releases) page.
 
 ---
 
-### Install from source
+### Install from Source
 
-#### Prerequisites for building
+#### Prerequisites
 
-- GO: `Version >= 1.25`
+- Go: `Version >= 1.26`
 - Node.js: `Version >= 22.0`
 - Yarn or NPM
 
-#### 1. Clone the repository:
+#### Steps
 
-```
+1. Clone the repository:
+
+```bash
 git clone git@github.com:homettp/homettp.git
 ```
 
-#### 2. Open the folder:
+2. Install UI dependencies and build:
 
-```
+```bash
 cd homettp
-```
-
-#### 3. Install the UI dependencies
-
-```
 yarn install
-```
-
-#### 4. Build the UI
-
-```
 yarn build
 ```
 
-#### 5. Build the Homettp:
+3. Build the binary:
 
-```
+```bash
 go build
 ```
 
-#### 6. Copy the example configuration:
+4. Copy and edit the configuration:
 
-```
+```bash
 cp .env.example .env
 ```
 
 ## Configuration
 
-The configruation is stored in the `.env` file.
+All configuration is done through environment variables in the `.env` file.
 
 ### Application Key (encryption key)
 
@@ -138,7 +130,7 @@ COMMAND_TIMEOUT=60
 COMMAND_WORKER_COUNT=2
 ```
 
-### Command Histroy Limit
+### Command History Limit
 
 ```
 COMMAND_HISTORY_LIMIT=100
@@ -146,17 +138,15 @@ COMMAND_HISTORY_LIMIT=100
 
 ## Usage
 
-The following commands show how to use the package.
-
 ### 1. Make a user
 
-```
+```bash
 ./homettp make user <username> <email> <password>
 ```
 
 ### 2. Run the app
 
-```
+```bash
 ./homettp web serve
 ```
 
