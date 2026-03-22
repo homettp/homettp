@@ -87,7 +87,9 @@ cp .env.example .env
 
 All configuration is done through environment variables in the `.env` file.
 
-### Application Key (encryption key)
+### General
+
+#### Application Key (encryption key)
 
 - For example generate with `openssl rand -hex 16` command
 
@@ -95,13 +97,13 @@ All configuration is done through environment variables in the `.env` file.
 APP_KEY=
 ```
 
-### Application Address
+#### Application Address
 
 ```
 APP_ADDR=:4000
 ```
 
-### Application URL
+#### Application URL
 
 ```
 APP_URL=http://127.0.0.1:4000
@@ -109,13 +111,15 @@ APP_URL=http://127.0.0.1:4000
 
 ---
 
-### Redis URL
+### Redis
+
+#### Redis URL
 
 ```
 REDIS_URL=redis://127.0.0.1:6379/0
 ```
 
-### Redis Key Prefix
+#### Redis Key Prefix
 
 ```
 REDIS_KEY_PREFIX=homettp:
@@ -123,19 +127,21 @@ REDIS_KEY_PREFIX=homettp:
 
 ---
 
-### Command Timeout (in seconds)
+### Command
+
+#### Command Timeout (in seconds)
 
 ```
 COMMAND_TIMEOUT=60
 ```
 
-### Command Worker Count
+#### Command Worker Count
 
 ```
 COMMAND_WORKER_COUNT=2
 ```
 
-### Command History Limit
+#### Command History Limit
 
 ```
 COMMAND_HISTORY_LIMIT=100
