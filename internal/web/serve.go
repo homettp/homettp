@@ -13,6 +13,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/chmike/securecookie"
 	"github.com/gomodule/redigo/redis"
+	"github.com/homettp/homettp/internal/config"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/homettp/homettp/resources/views"
 	"github.com/homettp/homettp/static"
@@ -22,11 +23,11 @@ import (
 )
 
 // Serve function.
-func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.Pool, commandTimeout, commandWorkerCount, commandHistoryLimit int) {
+func Serve(appConfig *config.Config, redisPool *redis.Pool) {
 	sessionManager := scs.New()
-	sessionManager.Store = redisstore.NewWithPrefix(redisPool, fmt.Sprintf("%sscs:session:", redisKeyPrefix))
+	sessionManager.Store = redisstore.NewWithPrefix(redisPool, fmt.Sprintf("%sscs:session:", appConfig.RedisKeyPrefix))
 
-	rememberCookie, err := securecookie.New(rememberCookieName, []byte(key), securecookie.Params{
+	rememberCookie, err := securecookie.New(rememberCookieName, []byte(appConfig.Key), securecookie.Params{
 		Path:     "/",
 		MaxAge:   157680000, // Five years
 		HTTPOnly: true,
@@ -35,7 +36,7 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 		cli.ErrorLog.Fatal(err)
 	}
 
-	viteManager, inertiaManager, err := newViteAndInertiaManager(debug, url)
+	viteManager, inertiaManager, err := newViteAndInertiaManager(appConfig)
 	if err != nil {
 		cli.ErrorLog.Fatal(err)
 	}
@@ -43,11 +44,9 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 	queue := make(chan int64, 100)
 
 	webApp := &app{
-		debug:          debug,
-		url:            url,
+		appConfig:      appConfig,
 		infoLog:        cli.InfoLog,
 		errorLog:       cli.ErrorLog,
-		commandTimeout: commandTimeout,
 		sessionManager: sessionManager,
 		rememberCookie: rememberCookie,
 		viteManager:    viteManager,
@@ -55,25 +54,25 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 		queue:          queue,
 		commandRepository: &models.RedisCommandRepository{
 			RedisPool:      redisPool,
-			RedisKeyPrefix: redisKeyPrefix,
+			RedisKeyPrefix: appConfig.RedisKeyPrefix,
 		},
 		callRepository: &models.RedisCallRepository{
 			RedisPool:      redisPool,
-			RedisKeyPrefix: redisKeyPrefix,
-			HistoryLimit:   commandHistoryLimit,
+			RedisKeyPrefix: appConfig.RedisKeyPrefix,
+			HistoryLimit:   appConfig.CommandHistoryLimit,
 		},
 		userRepository: &models.RedisUserRepository{
 			RedisPool:      redisPool,
-			RedisKeyPrefix: redisKeyPrefix,
+			RedisKeyPrefix: appConfig.RedisKeyPrefix,
 		},
 	}
 
-	for range commandWorkerCount {
+	for range appConfig.CommandWorkerCount {
 		go webApp.worker()
 	}
 
 	srv := &http.Server{
-		Addr:         addr,
+		Addr:         appConfig.Addr,
 		ErrorLog:     webApp.errorLog,
 		Handler:      webApp.routes(),
 		IdleTimeout:  time.Minute,
@@ -84,7 +83,7 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	webApp.infoLog.Printf("Starting server on "+cli.Green("%s"), addr)
+	webApp.infoLog.Printf("Starting server on "+cli.Green("%s"), appConfig.Addr)
 
 	go func() {
 		err = srv.ListenAndServe()
@@ -97,7 +96,7 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 	<-done
 	webApp.infoLog.Print("Server stopped")
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(webApp.commandTimeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(appConfig.CommandTimeout)*time.Second)
 	defer func() {
 		close(queue)
 		cancel()
@@ -111,12 +110,12 @@ func Serve(debug bool, addr, url, key, redisKeyPrefix string, redisPool *redis.P
 	webApp.infoLog.Print("Server exited properly")
 }
 
-func newViteAndInertiaManager(debug bool, url string) (*vite.Vite, *inertia.Inertia, error) {
+func newViteAndInertiaManager(appConfig *config.Config) (*vite.Vite, *inertia.Inertia, error) {
 	var viteManager *vite.Vite
 	var version string
 	var err error
 
-	if debug {
+	if appConfig.Debug {
 		viteManager = vite.New("static", "build")
 	} else {
 		viteManager = vite.NewWithFS("static", "build", static.Files)
@@ -127,7 +126,7 @@ func newViteAndInertiaManager(debug bool, url string) (*vite.Vite, *inertia.Iner
 		return nil, nil, err
 	}
 
-	inertiaManager := inertia.NewWithFS(url, "app.gohtml", version, views.Templates)
+	inertiaManager := inertia.NewWithFS(appConfig.URL, "app.gohtml", version, views.Templates)
 	inertiaManager.Share("title", "Homettp")
 	inertiaManager.ShareFunc("isRunningHot", viteManager.IsRunningHot)
 	inertiaManager.ShareFunc("asset", viteManager.Asset)

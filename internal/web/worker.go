@@ -42,7 +42,7 @@ func (a *app) handleCall(id int64) error {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.commandTimeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.appConfig.CommandTimeout)*time.Second)
 	defer cancel()
 
 	name := "/bin/sh"

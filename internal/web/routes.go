@@ -35,7 +35,7 @@ func (a *app) routes() http.Handler {
 
 	var fileServer http.Handler
 
-	if a.debug {
+	if a.appConfig.Debug {
 		fileServer = http.FileServer(http.Dir("./static/"))
 	} else {
 		staticFS := http.FS(static.Files)
