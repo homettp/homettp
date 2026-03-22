@@ -1,41 +1,25 @@
 package cmd
 
 import (
-	"os"
-
+	"github.com/homettp/homettp/internal/config"
+	"github.com/homettp/homettp/internal/service"
 	"github.com/homettp/homettp/internal/web"
 	"github.com/petaki/support-go/cli"
 )
 
 // WebServe command.
 func WebServe(group *cli.Group, command *cli.Command, arguments []string) int {
-	debug := command.FlagSet().Bool("debug", false, "Application Debug Mode")
-	addr := command.FlagSet().String("addr", os.Getenv("APP_ADDR"), "Application Address")
-	url := command.FlagSet().String("url", os.Getenv("APP_URL"), "Application URL")
-	key := command.FlagSet().String("key", os.Getenv("APP_KEY"), "Application Key")
-
-	redisURL, redisKeyPrefix := createRedisFlags(command)
-	commandTimeout, commandWorkerCount, commandHistoryLimit := createCommandFlags(command)
-
-	_, err := command.Parse(arguments)
+	appConfig, err := config.NewConfig(command, arguments)
 	if err != nil {
+		cli.ErrorLog.Fatal(err)
+
 		return command.PrintHelp(group)
 	}
 
-	redisPool := newRedisPool(*redisURL)
+	redisPool := service.RedisPool(appConfig)
 	defer redisPool.Close()
 
-	web.Serve(
-		*debug,
-		*addr,
-		*url,
-		*key,
-		*redisKeyPrefix,
-		redisPool,
-		*commandTimeout,
-		*commandWorkerCount,
-		*commandHistoryLimit,
-	)
+	web.Serve(appConfig, redisPool)
 
 	return cli.Success
 }

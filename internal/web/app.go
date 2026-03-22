@@ -1,13 +1,14 @@
 package web
 
 import (
-	"github.com/petaki/support-go/vite"
 	"log"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/chmike/securecookie"
+	"github.com/homettp/homettp/internal/config"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/petaki/inertia-go"
+	"github.com/petaki/support-go/vite"
 )
 
 const (
@@ -18,11 +19,9 @@ const (
 )
 
 type app struct {
-	debug             bool
-	url               string
+	appConfig         *config.Config
 	infoLog           *log.Logger
 	errorLog          *log.Logger
-	commandTimeout    int
 	sessionManager    *scs.SessionManager
 	rememberCookie    *securecookie.Obj
 	viteManager       *vite.Vite

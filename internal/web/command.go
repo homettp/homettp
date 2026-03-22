@@ -135,7 +135,7 @@ func (a *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 		"command":        command,
 		"commandImages":  a.commandImages(),
 		"commandPayload": models.PayloadVariable,
-		"commandPath":    command.Path(a.url),
+		"commandPath":    command.Path(a.appConfig.URL),
 		"errors":         forms.Bag{},
 	})
 	if err != nil {
@@ -185,7 +185,7 @@ func (a *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 		"command":        command,
 		"commandImages":  a.commandImages(),
 		"commandPayload": models.PayloadVariable,
-		"commandPath":    command.Path(a.url),
+		"commandPath":    command.Path(a.appConfig.URL),
 		"errors":         form.Errors,
 	})
 	if err != nil {
