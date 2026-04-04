@@ -118,7 +118,7 @@ func newViteAndInertiaManager(appConfig *config.Config) (*vite.Vite, *inertia.In
 	if appConfig.Debug {
 		viteManager = vite.New("static", "build")
 	} else {
-		viteManager = vite.NewWithFS("static", "build", static.Files)
+		viteManager = vite.New("static", "build", static.Files)
 	}
 
 	version, err = viteManager.ManifestHash()
@@ -126,7 +126,7 @@ func newViteAndInertiaManager(appConfig *config.Config) (*vite.Vite, *inertia.In
 		return nil, nil, err
 	}
 
-	inertiaManager := inertia.NewWithFS(appConfig.URL, "app.gohtml", version, views.Templates)
+	inertiaManager := inertia.New(appConfig.URL, "app.gohtml", version, views.Templates)
 	inertiaManager.Share("title", "Homettp")
 	inertiaManager.ShareFunc("isRunningHot", viteManager.IsRunningHot)
 	inertiaManager.ShareFunc("asset", viteManager.Asset)

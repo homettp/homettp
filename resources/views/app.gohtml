@@ -10,7 +10,8 @@
         <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
     <body>
-        <div id="app" data-page="{{ marshal .page }}"></div>
+        <script data-page="app" type="application/json">{{ marshal .page }}</script>
+        <div id="app"></div>
         {{ if isRunningHot }}
             <script type="module" src="{{ asset "@vite/client" }}"></script>
         {{ end }}
