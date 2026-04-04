@@ -9,7 +9,6 @@
 
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue';
-import { router } from '@inertiajs/vue3';
 import type { FlashMessageItem } from '../types';
 import FlashMessage from './FlashMessage.vue';
 
@@ -36,19 +35,23 @@ const add = (flash: string) => {
     }
 };
 
-const onFlash = e => {
-    add(e.detail.flash);
+const onInertiaFlash = (e: Event) => {
+    const { flash } = (e as CustomEvent).detail;
+
+    if (flash?.success) {
+        add(flash.success);
+    }
 };
 
+const onFlash = (e: Event) => {
+    add((e as CustomEvent).detail.flash);
+};
+
+document.addEventListener('inertia:flash', onInertiaFlash);
 document.addEventListener('flash', onFlash);
 
 onUnmounted(() => {
+    document.removeEventListener('inertia:flash', onInertiaFlash);
     document.removeEventListener('flash', onFlash);
 });
-
-onUnmounted(
-    router.on('success', e => {
-        add(e.detail.page.props.flash as string);
-    })
-);
 </script>
