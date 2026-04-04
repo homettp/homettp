@@ -7,8 +7,6 @@
         "typecheck": "vue-tsc --noEmit"
     },
     "devDependencies": {
-        "@babel/core": "^7.29",
-        "@babel/eslint-parser": "^7.28",
         "@eslint/eslintrc": "^3.3",
         "@eslint/js": "^10.0",
         "@headlessui/vue": "^1.7",
