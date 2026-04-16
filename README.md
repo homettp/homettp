@@ -7,16 +7,16 @@
 
 ## Features
 
-- **HTTP-based command runner** — token-based access with payload parameters and configurable timeouts
-- **Background worker processing** — async command queue with real-time status tracking
-- **Call history** — collapsible command output with auto-refresh and configurable limits
-- **Command management** — re-generable tokens, custom icons, and shareable URLs
-- **User authentication** — remember me option with secure Redis-backed sessions
-- **User management** — CLI and web interface with Gravatar integration
-- **Modern UI** — Vue 3, Tailwind CSS, dark/light/system theme, responsive design
-- **Cross-platform** — Linux, macOS, and Windows support
-- **Docker support** — multi-architecture image (amd64, arm64)
-- **Redis-backed storage** — configurable key prefix for multi-instance deployments
+- **HTTP-based command runner** — token access, payload parameters, multiline support, configurable timeouts
+- **Background worker processing** — async queue with real-time status tracking
+- **Call history** — command output with auto-refresh
+- **Command management** — regenerable tokens, custom icons, shareable URLs
+- **User authentication** — remember me, Redis-backed sessions
+- **User management** — CLI and web interface, Gravatar integration
+- **Modern UI** — Vue 3, Tailwind CSS, dark/light/system theme, responsive
+- **Cross-platform** — Linux, macOS, Windows
+- **Docker support** — multi-architecture (amd64, arm64)
+- **Redis-backed storage** — configurable key prefix for multi-instance use
 
 ## Getting Started
 
