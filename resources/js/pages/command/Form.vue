@@ -58,20 +58,21 @@
                     </label>
                     <!-- eslint-disable max-len -->
                     <label class="block">
-                        <div class="lg:flex lg:items-center">
-                            <div class="lg:w-64">
+                        <div class="lg:flex lg:items-start">
+                            <div class="lg:w-64 lg:pt-2">
                                 Value
                                 <span class="text-cyan-500">
                                     *
                                 </span>
                             </div>
-                            <input v-model="form.value"
-                                   class="form-input mt-3 block w-full font-mono text-sm lg:mt-0 lg:flex-1"
-                                   :class="{'form-invalid': form.errors.value}"
-                                   type="text"
-                                   name="name"
-                                   placeholder="myapp --toggle light1 --input %p"
-                                   required>
+                            <textarea v-model="form.value"
+                                      class="form-input mt-3 block w-full font-mono text-sm lg:mt-0 lg:flex-1"
+                                      :class="{'form-invalid': form.errors.value}"
+                                      name="value"
+                                      rows="4"
+                                      placeholder="myapp --toggle light1 --input %p"
+                                      required>
+                            </textarea>
                         </div>
                         <div v-if="form.errors.value" class="mt-2 text-sm text-red-500 dark:text-red-400 lg:ml-64">
                             {{ form.errors.value[0] }}
