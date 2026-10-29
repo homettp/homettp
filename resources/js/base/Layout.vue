@@ -117,7 +117,7 @@
             </MainMenu>
         </header>
         <main class="content overflow-y-auto" scroll-region>
-            <slot></slot>
+            <slot />
         </main>
     </div>
     <!-- eslint-enable max-len -->
