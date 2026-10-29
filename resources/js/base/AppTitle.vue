@@ -2,7 +2,7 @@
     <inertia-head :title="title
         ? `${title} - ${$page.props.title}${$page.props.suffix}`
         : `${$page.props.title}${$page.props.suffix}`">
-        <slot></slot>
+        <slot />
     </inertia-head>
 </template>
 

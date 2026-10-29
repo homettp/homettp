@@ -160,7 +160,7 @@ func (a *app) flashMessage(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := a.inertiaManager.WithFlashProp(r.Context(), map[string]any{
+		ctx := a.inertiaManager.WithFlash(r.Context(), map[string]any{
 			"success": flashMessage,
 		})
 

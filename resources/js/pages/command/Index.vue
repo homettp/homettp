@@ -2,45 +2,48 @@
     <app-title :title="subtitle" />
     <div class="p-5">
         <breadcrumb :links="links" />
-        <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
-            <div v-if="!commands"
-                 class="bg-white dark:bg-slate-700 p-8">
-                No commands.
-            </div>
-            <div v-for="command in commands"
-                 :key="command.id"
-                 class="bg-white dark:bg-slate-700 p-8">
-                <card-title>
-                    <component :is="iconName(command)" class="h-6 w-6 sm:mr-2" />
-                    <span class="flex-1 sm:mr-auto">
-                        {{ command.name }}
-                    </span>
-                    <inertia-link class="link sm:ml-2"
-                                  title="Call History"
-                                  :href="callHistoryPath(command.id)">
-                        <command-line-icon class="h-6 w-6" />
+        <!-- eslint-disable max-len -->
+        <table-view :columns="columns" :items="filteredCommands">
+            <template #title>
+                <command-line-icon class="h-6 w-6" />
+                <input v-model.trim="keyword"
+                       class="form-input flex-1 sm:ml-2"
+                       placeholder="Search">
+            </template>
+            <template #content="contentProps">
+                <td class="border-t border-gray-100 dark:border-slate-600 px-6 py-3">
+                    <inertia-link class="link flex items-center"
+                                  :href="commandEditPath(contentProps.item.id)">
+                        <component :is="iconName(contentProps.item)" class="h-6 w-6 mr-3" />
+                        {{ contentProps.item.name }}
                     </inertia-link>
-                    <inertia-link class="link sm:ml-2"
-                                  title="Edit Command"
-                                  :href="commandEditPath(command.id)">
-                        <pencil-square-icon class="h-6 w-6" />
-                    </inertia-link>
-                </card-title>
-                <div class="flex items-center">
-                    <clock-icon class="h-5 w-5 mr-2" />
-                    <span>
-                        {{ date(command.created_at) }}
-                    </span>
-                </div>
-            </div>
-        </div>
+                </td>
+                <td class="border-t border-gray-100 dark:border-slate-600 px-6 py-3">
+                    {{ date(contentProps.item.created_at) }}
+                </td>
+                <td class="border-t border-gray-100 dark:border-slate-600 px-6 py-3">
+                    <div class="flex justify-end gap-3">
+                        <inertia-link class="link"
+                                      title="Call History"
+                                      :href="callHistoryPath(contentProps.item.id)">
+                            <command-line-icon class="h-6 w-6" />
+                        </inertia-link>
+                        <inertia-link class="link"
+                                      title="Edit Command"
+                                      :href="commandEditPath(contentProps.item.id)">
+                            <pencil-square-icon class="h-6 w-6" />
+                        </inertia-link>
+                    </div>
+                </td>
+            </template>
+        </table-view>
+        <!-- eslint-enable max-len -->
     </div>
 </template>
 
 <script setup lang="ts">
 import {
     BoltIcon,
-    ClockIcon,
     CpuChipIcon,
     CommandLineIcon,
     EllipsisHorizontalCircleIcon,
@@ -49,17 +52,24 @@ import {
     PencilSquareIcon
 } from '@heroicons/vue/24/outline';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import useDate from '../../use/useDate';
 import usePaths from '../../use/usePaths';
 import Breadcrumb from '../../base/Breadcrumb.vue';
-import CardTitle from '../../base/CardTitle.vue';
 import Layout from '../../base/Layout.vue';
+import TableView from '../../base/TableView.vue';
+
+type Command = {
+    id: number
+    name: string
+    image: string
+    created_at: string
+};
 
 const {
     commands = []
 } = defineProps<{
-    commands?: object[]
+    commands?: Command[]
 }>();
 
 defineOptions({
@@ -69,13 +79,25 @@ defineOptions({
 const { date } = useDate();
 const { callHistoryPath, commandEditPath } = usePaths();
 
+const keyword = ref('');
 const subtitle = ref('Commands');
 
 const links = ref([
     { name: subtitle }
 ]);
 
-const iconName = command => {
+const columns = ref<string[]>([
+    'Name',
+    'Created'
+]);
+
+const filteredCommands = computed(() => {
+    const value = keyword.value.toLowerCase();
+
+    return (commands || []).filter(command => command.name.toLowerCase().includes(value));
+});
+
+const iconName = (command: Command) => {
     if (command.image === 'door') {
         return KeyIcon;
     }
@@ -96,6 +118,6 @@ const iconName = command => {
         return CpuChipIcon;
     }
 
-    return 'command';
+    return CommandLineIcon;
 };
 </script>
