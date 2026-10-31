@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -16,8 +17,8 @@ func (a *app) commandIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method != "GET" {
-		a.methodNotAllowed(w, []string{"GET"})
+	if r.Method != "GET" && r.Method != "HEAD" {
+		a.methodNotAllowed(w, []string{"GET", "HEAD"})
 
 		return
 	}
@@ -40,12 +41,12 @@ func (a *app) commandIndex(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) commandCreate(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET", "HEAD":
 		a.getCommandCreate(w, r)
 	case "POST":
 		a.postCommandCreate(w, r)
 	default:
-		a.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "HEAD", "POST"})
 	}
 }
 
@@ -78,15 +79,17 @@ func (a *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 		token, err := a.generateToken()
 		if err != nil {
 			a.serverError(w, err)
+
+			return
 		}
 
 		err = a.commandRepository.Create(command.Fill(form), token)
 		if err != nil {
-			switch err {
-			case models.ErrDuplicateName:
+			switch {
+			case errors.Is(err, models.ErrDuplicateName):
 				form.Errors.Add("name", "The name has already been taken.")
-			case models.ErrInvalidValue:
-				form.Errors.Add("value", "The value must contain command name.")
+			case errors.Is(err, models.ErrInvalidValue):
+				form.Errors.Add("value", "The value must start with a command, not the payload variable.")
 			default:
 				a.serverError(w, err)
 
@@ -114,19 +117,19 @@ func (a *app) postCommandCreate(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) commandEdit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET", "HEAD":
 		a.getCommandEdit(w, r)
 	case "POST":
 		a.postCommandEdit(w, r)
 	default:
-		a.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "HEAD", "POST"})
 	}
 }
 
 func (a *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -146,7 +149,7 @@ func (a *app) getCommandEdit(w http.ResponseWriter, r *http.Request) {
 func (a *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -163,11 +166,15 @@ func (a *app) postCommandEdit(w http.ResponseWriter, r *http.Request) {
 	if form.IsValid() {
 		err = a.commandRepository.Update(command, (models.NewCommand()).Fill(form))
 		if err != nil {
-			switch err {
-			case models.ErrDuplicateName:
+			switch {
+			case errors.Is(err, models.ErrNoRecord):
+				a.notFound(w)
+
+				return
+			case errors.Is(err, models.ErrDuplicateName):
 				form.Errors.Add("name", "The name has already been taken.")
-			case models.ErrInvalidValue:
-				form.Errors.Add("value", "The value must contain command name.")
+			case errors.Is(err, models.ErrInvalidValue):
+				form.Errors.Add("value", "The value must start with a command, not the payload variable.")
 			default:
 				a.serverError(w, err)
 
@@ -202,7 +209,7 @@ func (a *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -215,6 +222,12 @@ func (a *app) commandRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = a.commandRepository.UpdateToken(command, token)
+	if errors.Is(err, models.ErrNoRecord) {
+		a.notFound(w)
+
+		return
+	}
+
 	if err != nil {
 		a.serverError(w, err)
 
@@ -234,12 +247,18 @@ func (a *app) commandDelete(w http.ResponseWriter, r *http.Request) {
 
 	command, err := a.commandFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
 
 	err = a.commandRepository.Delete(command)
+	if errors.Is(err, models.ErrNoRecord) {
+		a.notFound(w)
+
+		return
+	}
+
 	if err != nil {
 		a.serverError(w, err)
 
@@ -252,7 +271,7 @@ func (a *app) commandDelete(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) commandFromRequest(r *http.Request, parameter string) (*models.Command, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, fmt.Errorf("%s parameter not found", parameter)
+		return nil, fmt.Errorf("%w: %s", ErrMissingParameter, parameter)
 	}
 
 	id, err := strconv.Atoi(r.URL.Query().Get(parameter))

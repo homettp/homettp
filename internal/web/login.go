@@ -10,12 +10,12 @@ import (
 
 func (a *app) login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET", "HEAD":
 		a.getLogin(w, r)
 	case "POST":
 		a.postLogin(w, r)
 	default:
-		a.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "HEAD", "POST"})
 	}
 }
 
@@ -36,10 +36,13 @@ func (a *app) postLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form.Required("username_or_email", "password")
+	models.LoginRules(form)
 
 	if form.IsValid() {
-		user, err := a.userRepository.Authenticate(form.Data["username_or_email"].(string), form.Data["password"].(string))
+		usernameOrEmail, _ := form.Data["username_or_email"].(string)
+		password, _ := form.Data["password"].(string)
+
+		user, err := a.userRepository.Authenticate(usernameOrEmail, password)
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidCredentials) {
 				form.Errors.Add("username_or_email", "These credentials do not match our records.")
@@ -58,7 +61,7 @@ func (a *app) postLogin(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if form.Data["remember"].(bool) {
+			if remember, _ := form.Data["remember"].(bool); remember {
 				if user.RememberToken == "" {
 					token, err := a.generateToken()
 					if err != nil {
@@ -105,6 +108,12 @@ func (a *app) postLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) logout(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		a.methodNotAllowed(w, []string{"POST"})
+
+		return
+	}
+
 	a.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
 
 	err := a.sessionManager.RenewToken(r.Context())
@@ -132,7 +141,7 @@ func (a *app) logout(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = a.userRepository.UpdateRememberToken(user, token)
-		if err != nil {
+		if err != nil && !errors.Is(err, models.ErrNoRecord) {
 			a.serverError(w, err)
 
 			return

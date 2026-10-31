@@ -3,6 +3,9 @@ package models
 import "errors"
 
 var (
+	// ErrConflict error.
+	ErrConflict = errors.New("models: concurrent update")
+
 	// ErrDuplicateEmail error.
 	ErrDuplicateEmail = errors.New("models: duplicate email")
 

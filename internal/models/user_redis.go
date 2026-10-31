@@ -1,7 +1,7 @@
 package models
 
 import (
-	"bytes"
+	"crypto/subtle"
 	"errors"
 	"sort"
 	"strconv"
@@ -30,66 +30,50 @@ func (rur *RedisUserRepository) Create(user *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := redis.Int(
-		conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(user.Username)),
-	)
-	if err == nil {
-		return ErrDuplicateUsername
-	} else if !errors.Is(err, redis.ErrNil) {
-		return err
-	}
-
-	_, err = redis.Int(
-		conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(user.Email)),
-	)
-	if err == nil {
-		return ErrDuplicateEmail
-	} else if !errors.Is(err, redis.ErrNil) {
-		return err
-	}
-
-	user.Password, err = bcrypt.GenerateFromPassword(user.Password, 12)
+	password, err := bcrypt.GenerateFromPassword(user.Password, 12)
 	if err != nil {
 		return err
 	}
 
-	user.ID, err = redis.Int(conn.Do("INCR", rur.RedisKeyPrefix+userKeyPrefix+userIDKey))
+	id, err := redis.Int(conn.Do("INCR", rur.RedisKeyPrefix+userKeyPrefix+userIDKey))
 	if err != nil {
 		return err
 	}
 
-	user.CreatedAt = Timestamp(time.Now())
+	created := *user
+	created.ID = id
+	created.Password = password
+	created.CreatedAt = Timestamp(time.Now())
 
-	err = conn.Send("MULTI")
+	usernameKey := rur.RedisKeyPrefix + userKeyPrefix + userUsernameKey
+	emailKey := rur.RedisKeyPrefix + userKeyPrefix + userEmailKey
+	username := strings.ToLower(created.Username)
+	email := strings.ToLower(created.Email)
+
+	tx := newRedisTransaction(conn)
+
+	err = tx.Run([]string{usernameKey, emailKey}, func() error {
+		err := tx.CheckUnique(usernameKey, username, id, ErrDuplicateUsername)
+		if err != nil {
+			return err
+		}
+
+		err = tx.CheckUnique(emailKey, email, id, ErrDuplicateEmail)
+		if err != nil {
+			return err
+		}
+
+		tx.Queue("HSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(id)).AddFlat(&created)...)
+		tx.Queue("ZADD", usernameKey, id, username)
+		tx.Queue("ZADD", emailKey, id, email)
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
 
-	err = conn.Send(
-		"HSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = conn.Send(
-		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.ID, strings.ToLower(user.Username),
-	)
-	if err != nil {
-		return err
-	}
-
-	err = conn.Send(
-		"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.ID, strings.ToLower(user.Email),
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.Do("EXEC")
-	if err != nil {
-		return err
-	}
+	*user = created
 
 	return nil
 }
@@ -99,6 +83,11 @@ func (rur *RedisUserRepository) Find(id int) (*User, error) {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
+	return rur.find(conn, id)
+}
+
+// find function.
+func (rur *RedisUserRepository) find(conn redis.Conn, id int) (*User, error) {
 	values, err := redis.Values(conn.Do("HGETALL", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(id)))
 	if err != nil {
 		return nil, err
@@ -138,7 +127,7 @@ func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 
 	sort.Strings(usernames)
 
-	var users []*User
+	users := make([]*User, 0, len(usernames))
 
 	for _, username := range usernames {
 		id, err := strconv.Atoi(values[username])
@@ -146,7 +135,11 @@ func (rur *RedisUserRepository) FindAll() ([]*User, error) {
 			return nil, err
 		}
 
-		user, err := rur.Find(id)
+		user, err := rur.find(conn, id)
+		if errors.Is(err, ErrNoRecord) {
+			continue
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -162,91 +155,74 @@ func (rur *RedisUserRepository) Update(user, newUser *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
+	var password []byte
 	var err error
 
-	if user.Username != newUser.Username {
-		_, err = redis.Int(
-			conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(newUser.Username)),
-		)
-		if err == nil {
-			return ErrDuplicateUsername
-		} else if !errors.Is(err, redis.ErrNil) {
-			return err
-		}
-	}
-
-	if user.Email != newUser.Email {
-		_, err = redis.Int(
-			conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(newUser.Email)),
-		)
-		if err == nil {
-			return ErrDuplicateEmail
-		} else if !errors.Is(err, redis.ErrNil) {
-			return err
-		}
-	}
-
-	if len(newUser.Password) > 0 && !bytes.Equal(user.Password, newUser.Password) {
-		user.Password, err = bcrypt.GenerateFromPassword(newUser.Password, 12)
+	if len(newUser.Password) > 0 {
+		password, err = bcrypt.GenerateFromPassword(newUser.Password, 12)
 		if err != nil {
 			return err
 		}
 	}
 
-	user.IsEnabled = newUser.IsEnabled
+	key := rur.RedisKeyPrefix + userKeyPrefix + strconv.Itoa(user.ID)
+	usernameKey := rur.RedisKeyPrefix + userKeyPrefix + userUsernameKey
+	emailKey := rur.RedisKeyPrefix + userKeyPrefix + userEmailKey
+	newUsername := strings.ToLower(newUser.Username)
+	newEmail := strings.ToLower(newUser.Email)
 
-	err = conn.Send("MULTI")
+	var updated *User
+
+	tx := newRedisTransaction(conn)
+
+	err = tx.Run([]string{key, usernameKey, emailKey}, func() error {
+		current, err := rur.find(conn, user.ID)
+		if err != nil {
+			return err
+		}
+
+		oldUsername := strings.ToLower(current.Username)
+		oldEmail := strings.ToLower(current.Email)
+
+		if oldUsername != newUsername {
+			err = tx.CheckUnique(usernameKey, newUsername, current.ID, ErrDuplicateUsername)
+			if err != nil {
+				return err
+			}
+
+			tx.Queue("ZREM", usernameKey, oldUsername)
+			tx.Queue("ZADD", usernameKey, current.ID, newUsername)
+		}
+
+		if oldEmail != newEmail {
+			err = tx.CheckUnique(emailKey, newEmail, current.ID, ErrDuplicateEmail)
+			if err != nil {
+				return err
+			}
+
+			tx.Queue("ZREM", emailKey, oldEmail)
+			tx.Queue("ZADD", emailKey, current.ID, newEmail)
+		}
+
+		current.Username = newUser.Username
+		current.Email = newUser.Email
+		current.IsEnabled = newUser.IsEnabled
+
+		if password != nil {
+			current.Password = password
+			current.RememberToken = ""
+		}
+
+		tx.Queue("HSET", redis.Args{}.Add(key).AddFlat(current)...)
+		updated = current
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
 
-	if user.Username != newUser.Username {
-		err = conn.Send(
-			"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(user.Username),
-		)
-		if err != nil {
-			return err
-		}
-
-		user.Username = newUser.Username
-
-		err = conn.Send(
-			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, "NX", user.ID, strings.ToLower(user.Username),
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	if user.Email != newUser.Email {
-		err = conn.Send(
-			"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(user.Email),
-		)
-		if err != nil {
-			return err
-		}
-
-		user.Email = newUser.Email
-
-		err = conn.Send(
-			"ZADD", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, "NX", user.ID, strings.ToLower(user.Email),
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = conn.Send(
-		"HSET", redis.Args{}.Add(rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID)).AddFlat(user)...,
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.Do("EXEC")
-	if err != nil {
-		return err
-	}
+	*user = *updated
 
 	return nil
 }
@@ -256,9 +232,15 @@ func (rur *RedisUserRepository) UpdateRememberToken(user *User, token string) er
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("HSET", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID), "remember_token", token)
+	updated, err := redis.Bool(updateHashScript.Do(
+		conn, rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID), "remember_token", token,
+	))
 	if err != nil {
 		return err
+	}
+
+	if !updated {
+		return ErrNoRecord
 	}
 
 	user.RememberToken = token
@@ -271,15 +253,22 @@ func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
+	if len(password) > maxPasswordBytes {
+		return nil, rejectCredentials(password)
+	}
+
 	usernameOrEmail = strings.ToLower(usernameOrEmail)
 
 	id, err := redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, usernameOrEmail))
 	if err != nil {
 		if errors.Is(err, redis.ErrNil) {
 			id, err = redis.Int(conn.Do("ZSCORE", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, usernameOrEmail))
-
 			if errors.Is(err, redis.ErrNil) {
-				return nil, ErrInvalidCredentials
+				return nil, rejectCredentials(password)
+			}
+
+			if err != nil {
+				return nil, err
 			}
 		} else {
 			return nil, err
@@ -292,7 +281,7 @@ func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (
 	}
 
 	if len(values) == 0 {
-		return nil, ErrInvalidCredentials
+		return nil, rejectCredentials(password)
 	}
 
 	var user User
@@ -303,7 +292,7 @@ func (rur *RedisUserRepository) Authenticate(usernameOrEmail, password string) (
 	}
 
 	if !user.IsEnabled {
-		return nil, ErrInvalidCredentials
+		return nil, rejectCredentials(password)
 	}
 
 	err = bcrypt.CompareHashAndPassword(user.Password, []byte(password))
@@ -339,7 +328,7 @@ func (rur *RedisUserRepository) AuthenticateByRememberToken(id int, token string
 		return nil, err
 	}
 
-	if user.RememberToken == "" || user.RememberToken != token {
+	if user.RememberToken == "" || subtle.ConstantTimeCompare([]byte(user.RememberToken), []byte(token)) != 1 {
 		return nil, ErrInvalidCredentials
 	}
 
@@ -355,31 +344,21 @@ func (rur *RedisUserRepository) Delete(user *User) error {
 	conn := rur.RedisPool.Get()
 	defer conn.Close()
 
-	err := conn.Send("MULTI")
-	if err != nil {
-		return err
-	}
+	key := rur.RedisKeyPrefix + userKeyPrefix + strconv.Itoa(user.ID)
+	tx := newRedisTransaction(conn)
 
-	err = conn.Send(
-		"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(user.Username),
-	)
-	if err != nil {
-		return err
-	}
+	err := tx.Run([]string{key}, func() error {
+		current, err := rur.find(conn, user.ID)
+		if err != nil {
+			return err
+		}
 
-	err = conn.Send(
-		"ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(user.Email),
-	)
-	if err != nil {
-		return err
-	}
+		tx.Queue("ZREM", rur.RedisKeyPrefix+userKeyPrefix+userUsernameKey, strings.ToLower(current.Username))
+		tx.Queue("ZREM", rur.RedisKeyPrefix+userKeyPrefix+userEmailKey, strings.ToLower(current.Email))
+		tx.Queue("DEL", key)
 
-	err = conn.Send("DEL", rur.RedisKeyPrefix+userKeyPrefix+strconv.Itoa(user.ID))
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.Do("EXEC")
+		return nil
+	})
 	if err != nil {
 		return err
 	}

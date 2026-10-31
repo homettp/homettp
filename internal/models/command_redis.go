@@ -27,50 +27,41 @@ func (rcr *RedisCommandRepository) Create(command *Command, token string) error 
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := redis.Int(
-		conn.Do("ZSCORE", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, strings.ToLower(command.Name)),
-	)
-	if err == nil {
-		return ErrDuplicateName
-	} else if !errors.Is(err, redis.ErrNil) {
-		return err
-	}
-
-	if command.Value == PayloadVariable {
+	if command.StartsWithPayload() {
 		return ErrInvalidValue
 	}
 
-	command.ID, err = redis.Int(conn.Do("INCR", rcr.RedisKeyPrefix+commandKeyPrefix+commandIDKey))
+	id, err := redis.Int(conn.Do("INCR", rcr.RedisKeyPrefix+commandKeyPrefix+commandIDKey))
 	if err != nil {
 		return err
 	}
 
-	command.Token = token
-	command.CreatedAt = Timestamp(time.Now())
+	created := *command
+	created.ID = id
+	created.Token = token
+	created.CreatedAt = Timestamp(time.Now())
 
-	err = conn.Send("MULTI")
+	nameKey := rcr.RedisKeyPrefix + commandKeyPrefix + commandNameKey
+	name := strings.ToLower(created.Name)
+
+	tx := newRedisTransaction(conn)
+
+	err = tx.Run([]string{nameKey}, func() error {
+		err := tx.CheckUnique(nameKey, name, id, ErrDuplicateName)
+		if err != nil {
+			return err
+		}
+
+		tx.Queue("HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(id)).AddFlat(&created)...)
+		tx.Queue("ZADD", nameKey, id, name)
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
 
-	err = conn.Send(
-		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = conn.Send(
-		"ZADD", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, "NX", command.ID, strings.ToLower(command.Name),
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = conn.Do("EXEC")
-	if err != nil {
-		return err
-	}
+	*command = created
 
 	return nil
 }
@@ -80,6 +71,11 @@ func (rcr *RedisCommandRepository) Find(id int) (*Command, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
+	return rcr.find(conn, id)
+}
+
+// find function.
+func (rcr *RedisCommandRepository) find(conn redis.Conn, id int) (*Command, error) {
 	values, err := redis.Values(conn.Do("HGETALL", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(id)))
 	if err != nil {
 		return nil, err
@@ -119,7 +115,7 @@ func (rcr *RedisCommandRepository) FindAll() ([]*Command, error) {
 
 	sort.Strings(names)
 
-	var commands []*Command
+	commands := make([]*Command, 0, len(names))
 	var id int
 
 	for _, name := range names {
@@ -128,7 +124,11 @@ func (rcr *RedisCommandRepository) FindAll() ([]*Command, error) {
 			return nil, err
 		}
 
-		command, err := rcr.Find(id)
+		command, err := rcr.find(conn, id)
+		if errors.Is(err, ErrNoRecord) {
+			continue
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -144,60 +144,50 @@ func (rcr *RedisCommandRepository) Update(command, newCommand *Command) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	var err error
-
-	if command.Name != newCommand.Name {
-		_, err = redis.Int(
-			conn.Do("ZSCORE", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, strings.ToLower(newCommand.Name)),
-		)
-		if err == nil {
-			return ErrDuplicateName
-		} else if !errors.Is(err, redis.ErrNil) {
-			return err
-		}
-	}
-
-	if newCommand.Value == PayloadVariable {
+	if newCommand.StartsWithPayload() {
 		return ErrInvalidValue
 	}
 
-	command.Image = newCommand.Image
-	command.Value = newCommand.Value
+	key := rcr.RedisKeyPrefix + commandKeyPrefix + strconv.Itoa(command.ID)
+	nameKey := rcr.RedisKeyPrefix + commandKeyPrefix + commandNameKey
+	newName := strings.ToLower(newCommand.Name)
 
-	err = conn.Send("MULTI")
-	if err != nil {
-		return err
-	}
+	var updated *Command
 
-	if command.Name != newCommand.Name {
-		err = conn.Send(
-			"ZREM", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, strings.ToLower(command.Name),
-		)
+	tx := newRedisTransaction(conn)
+
+	err := tx.Run([]string{key, nameKey}, func() error {
+		current, err := rcr.find(conn, command.ID)
 		if err != nil {
 			return err
 		}
 
-		command.Name = newCommand.Name
+		oldName := strings.ToLower(current.Name)
 
-		err = conn.Send(
-			"ZADD", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, "NX", command.ID, strings.ToLower(command.Name),
-		)
-		if err != nil {
-			return err
+		if oldName != newName {
+			err = tx.CheckUnique(nameKey, newName, current.ID, ErrDuplicateName)
+			if err != nil {
+				return err
+			}
+
+			tx.Queue("ZREM", nameKey, oldName)
+			tx.Queue("ZADD", nameKey, current.ID, newName)
 		}
-	}
 
-	err = conn.Send(
-		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID)).AddFlat(command)...,
-	)
+		current.Name = newCommand.Name
+		current.Image = newCommand.Image
+		current.Value = newCommand.Value
+
+		tx.Queue("HSET", redis.Args{}.Add(key).AddFlat(current)...)
+		updated = current
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
 
-	_, err = conn.Do("EXEC")
-	if err != nil {
-		return err
-	}
+	*command = *updated
 
 	return nil
 }
@@ -207,9 +197,15 @@ func (rcr *RedisCommandRepository) UpdateToken(command *Command, token string) e
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("HSET", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID), "token", token)
+	updated, err := redis.Bool(updateHashScript.Do(
+		conn, rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID), "token", token,
+	))
 	if err != nil {
 		return err
+	}
+
+	if !updated {
+		return ErrNoRecord
 	}
 
 	command.Token = token
@@ -222,43 +218,31 @@ func (rcr *RedisCommandRepository) Delete(command *Command) error {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
-	ids, err := redis.Int64s(
-		conn.Do("LRANGE", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.ID), 0, -1),
-	)
-	if err != nil {
-		return err
-	}
+	key := rcr.RedisKeyPrefix + commandKeyPrefix + strconv.Itoa(command.ID)
+	callsKey := rcr.RedisKeyPrefix + commandKeyPrefix + callKeyPrefix + strconv.Itoa(command.ID)
+	tx := newRedisTransaction(conn)
 
-	err = conn.Send("MULTI")
-	if err != nil {
-		return err
-	}
-
-	for _, id := range ids {
-		err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10))
+	err := tx.Run([]string{key, callsKey}, func() error {
+		current, err := rcr.find(conn, command.ID)
 		if err != nil {
 			return err
 		}
-	}
 
-	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(command.ID))
-	if err != nil {
-		return err
-	}
+		ids, err := redis.Int64s(conn.Do("LRANGE", callsKey, 0, -1))
+		if err != nil {
+			return err
+		}
 
-	err = conn.Send(
-		"ZREM", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, strings.ToLower(command.Name),
-	)
-	if err != nil {
-		return err
-	}
+		for _, id := range ids {
+			tx.Queue("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10))
+		}
 
-	err = conn.Send("DEL", rcr.RedisKeyPrefix+commandKeyPrefix+strconv.Itoa(command.ID))
-	if err != nil {
-		return err
-	}
+		tx.Queue("DEL", callsKey)
+		tx.Queue("ZREM", rcr.RedisKeyPrefix+commandKeyPrefix+commandNameKey, strings.ToLower(current.Name))
+		tx.Queue("DEL", key)
 
-	_, err = conn.Do("EXEC")
+		return nil
+	})
 	if err != nil {
 		return err
 	}

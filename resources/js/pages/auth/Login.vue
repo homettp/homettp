@@ -63,7 +63,9 @@
                             Remember Me
                         </span>
                     </label>
-                    <button class="btn block" type="submit">
+                    <button class="btn block"
+                            type="submit"
+                            :disabled="form.processing">
                         {{ subtitle }}
                     </button>
                 </div>

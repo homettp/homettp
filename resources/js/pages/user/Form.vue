@@ -82,7 +82,9 @@
                         </span>
                     </label>
                     <div class="lg:ml-64">
-                        <button class="btn" type="submit">
+                        <button class="btn"
+                                type="submit"
+                                :disabled="form.processing">
                             {{ subtitle }}
                         </button>
                     </div>

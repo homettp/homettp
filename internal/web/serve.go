@@ -20,25 +20,30 @@ import (
 	"github.com/petaki/inertia-go"
 	"github.com/petaki/support-go/cli"
 	"github.com/petaki/support-go/vite"
+	supportweb "github.com/petaki/support-go/web"
 )
 
 // Serve function.
-func Serve(appConfig *config.Config, redisPool *redis.Pool) {
+func Serve(appConfig *config.Config, redisPool *redis.Pool) error {
 	sessionManager := scs.New()
 	sessionManager.Store = redisstore.NewWithPrefix(redisPool, fmt.Sprintf("%sscs:session:", appConfig.RedisKeyPrefix))
+	sessionManager.Cookie.SameSite = http.SameSiteLaxMode
+	sessionManager.Cookie.Secure = isSecureURL(appConfig.URL)
 
 	rememberCookie, err := securecookie.New(rememberCookieName, []byte(appConfig.Key), securecookie.Params{
 		Path:     "/",
 		MaxAge:   157680000, // Five years
 		HTTPOnly: true,
+		Secure:   isSecureURL(appConfig.URL),
+		SameSite: securecookie.Lax,
 	})
 	if err != nil {
-		cli.ErrorLog.Fatal(err)
+		return err
 	}
 
-	viteManager, inertiaManager, err := newViteAndInertiaManager(appConfig)
+	inertiaManager, err := newInertiaManager(appConfig)
 	if err != nil {
-		cli.ErrorLog.Fatal(err)
+		return err
 	}
 
 	queue := make(chan int64, 100)
@@ -49,7 +54,6 @@ func Serve(appConfig *config.Config, redisPool *redis.Pool) {
 		errorLog:       cli.ErrorLog,
 		sessionManager: sessionManager,
 		rememberCookie: rememberCookie,
-		viteManager:    viteManager,
 		inertiaManager: inertiaManager,
 		queue:          queue,
 		commandRepository: &models.RedisCommandRepository{
@@ -67,50 +71,50 @@ func Serve(appConfig *config.Config, redisPool *redis.Pool) {
 		},
 	}
 
-	for range appConfig.CommandWorkerCount {
-		go webApp.worker()
-	}
-
-	srv := &http.Server{
-		Addr:         appConfig.Addr,
-		ErrorLog:     webApp.errorLog,
-		Handler:      webApp.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	webApp.infoLog.Printf("Starting server on "+cli.Green("%s"), appConfig.Addr)
-
-	go func() {
-		err = srv.ListenAndServe()
-
-		if err != nil && err != http.ErrServerClosed {
-			webApp.errorLog.Fatal(err)
-		}
-	}()
-
-	<-done
-	webApp.infoLog.Print("Server stopped")
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(appConfig.CommandTimeout)*time.Second)
-	defer func() {
-		close(queue)
-		cancel()
-	}()
-
-	err = srv.Shutdown(ctx)
+	err = webApp.failInterruptedCalls()
 	if err != nil {
-		webApp.errorLog.Fatal(err)
+		webApp.errorLog.Print(err)
 	}
+
+	workerCtx, cancelWorkers := context.WithCancel(context.Background())
+	defer cancelWorkers()
+
+	for range appConfig.CommandWorkerCount {
+		webApp.workers.Go(func() {
+			webApp.worker(workerCtx)
+		})
+	}
+
+	srv := supportweb.NewServer(appConfig.Addr, webApp.routes(), webApp.errorLog)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	err = srv.Run(ctx)
+	stop()
+
+	if err != nil {
+		return err
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Duration(appConfig.CommandTimeout)*time.Second)
+	defer cancel()
+
+	webApp.closeQueue()
+
+	err = srv.Shutdown(shutdownCtx)
+	if err != nil {
+		webApp.errorLog.Print(err)
+	}
+
+	webApp.waitWorkers(shutdownCtx, cancelWorkers)
 
 	webApp.infoLog.Print("Server exited properly")
+
+	return nil
 }
 
-func newViteAndInertiaManager(appConfig *config.Config) (*vite.Vite, *inertia.Inertia, error) {
+func newInertiaManager(appConfig *config.Config) (*inertia.Inertia, error) {
 	var viteManager *vite.Vite
 	var version string
 	var err error
@@ -123,14 +127,15 @@ func newViteAndInertiaManager(appConfig *config.Config) (*vite.Vite, *inertia.In
 
 	version, err = viteManager.ManifestHash()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	inertiaManager := inertia.New(appConfig.URL, "app.gohtml", version, views.Templates)
 	inertiaManager.Share("title", "Homettp")
-	inertiaManager.ShareFunc("isRunningHot", viteManager.IsRunningHot)
-	inertiaManager.ShareFunc("asset", viteManager.Asset)
-	inertiaManager.ShareFunc("css", viteManager.CSS)
 
-	return viteManager, inertiaManager, nil
+	for name, helper := range viteManager.Helpers() {
+		inertiaManager.ShareFunc(name, helper)
+	}
+
+	return inertiaManager, nil
 }

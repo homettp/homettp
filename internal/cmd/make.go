@@ -15,9 +15,7 @@ import (
 func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	appConfig, err := config.NewConfig(command, arguments)
 	if err != nil {
-		cli.ErrorLog.Fatal(err)
-
-		return command.PrintHelp(group)
+		return command.PrintErrorWithHelp(group, err)
 	}
 
 	parsed := command.FlagSet().Args()
@@ -32,7 +30,7 @@ func MakeUser(group *cli.Group, command *cli.Command, arguments []string) int {
 	models.UserCreateRules(form)
 
 	if !form.IsValid() {
-		return command.PrintError(fmt.Errorf("make user: invalid arguments: %v", form.Errors))
+		return command.PrintError(fmt.Errorf("%w: %v", ErrInvalidArguments, form.Errors))
 	}
 
 	redisPool := service.RedisPool(appConfig)

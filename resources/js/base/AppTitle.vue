@@ -1,7 +1,7 @@
 <template>
     <inertia-head :title="title
-        ? `${title} - ${$page.props.title}${$page.props.suffix}`
-        : `${$page.props.title}${$page.props.suffix}`">
+        ? `${title} - ${$page.props.title}`
+        : `${$page.props.title}`">
         <slot />
     </inertia-head>
 </template>

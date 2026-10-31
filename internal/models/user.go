@@ -3,9 +3,12 @@ package models
 import (
 	"crypto/md5"
 	"fmt"
+	"strings"
 
 	"github.com/petaki/support-go/forms"
 )
+
+const maxPasswordBytes = 72
 
 // User type.
 type User struct {
@@ -40,36 +43,50 @@ func NewUser() *User {
 // UserCreateRules function.
 func UserCreateRules(form *forms.Form) {
 	form.Required("username", "email", "password", "is_enabled")
+	isString(form, "username", "email", "password")
+	isBool(form, "is_enabled")
 	form.MatchesPattern("username", forms.UsernameRegexp)
 	form.Min("username", 3)
 	form.Max("username", 20)
 	form.MatchesPattern("email", forms.EmailRegexp)
 	form.Min("password", 8)
+	maxBytes(form, "password", maxPasswordBytes)
 }
 
 // UserUpdateRules function.
 func UserUpdateRules(form *forms.Form) {
 	form.Required("username", "email", "is_enabled")
+	isString(form, "username", "email", "password")
+	isBool(form, "is_enabled")
 	form.MatchesPattern("username", forms.UsernameRegexp)
 	form.Min("username", 3)
 	form.Max("username", 20)
 	form.MatchesPattern("email", forms.EmailRegexp)
 	form.Min("password", 8)
+	maxBytes(form, "password", maxPasswordBytes)
+}
+
+// LoginRules function.
+func LoginRules(form *forms.Form) {
+	form.Required("username_or_email", "password")
+	isString(form, "username_or_email", "password")
+	isBool(form, "remember")
 }
 
 // Fill function.
 func (u *User) Fill(form *forms.Form) *User {
-	u.Username = form.Data["username"].(string)
-	u.Email = form.Data["email"].(string)
-	u.IsEnabled = form.Data["is_enabled"].(bool)
-	u.Password = []byte(form.Data["password"].(string))
+	u.Username, _ = form.Data["username"].(string)
+	u.Email, _ = form.Data["email"].(string)
+	u.IsEnabled, _ = form.Data["is_enabled"].(bool)
+	password, _ := form.Data["password"].(string)
+	u.Password = []byte(password)
 
 	return u
 }
 
 // Gravatar function.
 func (u *User) Gravatar(size int) string {
-	return fmt.Sprintf("https://gravatar.com/avatar/%x?s=%d", md5.Sum([]byte(u.Email)), size)
+	return fmt.Sprintf("https://gravatar.com/avatar/%x?s=%d", md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email)))), size)
 }
 
 // RememberCookie function.

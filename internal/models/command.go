@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/petaki/support-go/forms"
 )
@@ -56,21 +57,36 @@ func NewCommand() *Command {
 	}
 }
 
+// IsValid function.
+func (ci CommandImage) IsValid() bool {
+	switch ci {
+	case Door, Light, Outlet, Plug, Sensor:
+		return true
+	default:
+		return false
+	}
+}
+
 // CommandCreateRules function.
 func CommandCreateRules(form *forms.Form) {
 	form.Required("name", "image", "value")
+	isString(form, "name", "image", "value")
+	isCommandImage(form, "image")
 }
 
 // CommandUpdateRules function.
 func CommandUpdateRules(form *forms.Form) {
 	form.Required("name", "image", "value")
+	isString(form, "name", "image", "value")
+	isCommandImage(form, "image")
 }
 
 // Fill function.
 func (c *Command) Fill(form *forms.Form) *Command {
-	c.Name = form.Data["name"].(string)
-	c.Image = CommandImage(form.Data["image"].(string))
-	c.Value = form.Data["value"].(string)
+	c.Name, _ = form.Data["name"].(string)
+	image, _ := form.Data["image"].(string)
+	c.Image = CommandImage(image)
+	c.Value, _ = form.Data["value"].(string)
 
 	return c
 }
@@ -78,4 +94,9 @@ func (c *Command) Fill(form *forms.Form) *Command {
 // Path function.
 func (c *Command) Path(url string) string {
 	return fmt.Sprintf("%s/call?commandID=%v&token=%s", url, c.ID, c.Token)
+}
+
+// StartsWithPayload function.
+func (c *Command) StartsWithPayload() bool {
+	return strings.HasPrefix(strings.TrimSpace(c.Value), PayloadVariable)
 }
