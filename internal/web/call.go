@@ -1,7 +1,9 @@
 package web
 
 import (
+	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -18,50 +20,76 @@ func (a *app) callIndex(w http.ResponseWriter, r *http.Request) {
 
 	command, err := a.commandFromRequest(r, "commandID")
 	if err != nil {
+		a.lookupError(w, err)
+
+		return
+	}
+
+	if subtle.ConstantTimeCompare([]byte(command.Token), []byte(r.URL.Query().Get("token"))) != 1 {
 		a.notFound(w)
 
 		return
 	}
 
-	if command.Token != r.URL.Query().Get("token") {
-		a.notFound(w)
+	payload := r.URL.Query().Get("payload")
+
+	if !isSafePayload(payload) {
+		a.clientError(w, http.StatusUnprocessableEntity)
 
 		return
 	}
 
 	call := models.NewCall(command)
-	call.Payload = r.URL.Query().Get("payload")
+	call.Payload = payload
 
 	err = a.callRepository.Create(call)
+	if errors.Is(err, models.ErrNoRecord) {
+		a.notFound(w)
+
+		return
+	}
+
 	if err != nil {
 		a.serverError(w, err)
 
 		return
 	}
 
-	select {
-	case a.queue <- call.ID:
-		w.Header().Set("Content-Type", "application/json")
-
-		err = json.NewEncoder(w).Encode(call)
+	err = a.enqueue(call.ID)
+	if err != nil {
+		err = a.callRepository.Update(call, &models.Call{
+			Status: models.Failed,
+			Output: err.Error(),
+		})
 		if err != nil {
 			a.serverError(w, err)
+
+			return
 		}
-	default:
-		a.clientError(w, 503)
+
+		a.clientError(w, http.StatusServiceUnavailable)
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	err = json.NewEncoder(w).Encode(call)
+	if err != nil {
+		a.serverError(w, err)
 	}
 }
 
 func (a *app) callHistory(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		a.methodNotAllowed(w, []string{"GET"})
+	if r.Method != "GET" && r.Method != "HEAD" {
+		a.methodNotAllowed(w, []string{"GET", "HEAD"})
 
 		return
 	}
 
 	command, err := a.commandFromRequest(r, "commandID")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -91,7 +119,7 @@ func (a *app) callDelete(w http.ResponseWriter, r *http.Request) {
 
 	call, err := a.callFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -109,7 +137,7 @@ func (a *app) callDelete(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) callFromRequest(r *http.Request, parameter string) (*models.Call, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, fmt.Errorf("%s parameter not found", parameter)
+		return nil, fmt.Errorf("%w: %s", ErrMissingParameter, parameter)
 	}
 
 	id, err := strconv.ParseInt(r.URL.Query().Get(parameter), 10, 64)

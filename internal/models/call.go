@@ -36,6 +36,11 @@ type CallRepository interface {
 	Delete(*Call) error
 }
 
+// IsRunning function.
+func (cs CallStatus) IsRunning() bool {
+	return cs == Pending || cs == InProgress
+}
+
 // NewCall function.
 func NewCall(command *Command) *Call {
 	return &Call{

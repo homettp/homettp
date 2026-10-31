@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,8 +11,8 @@ import (
 )
 
 func (a *app) userIndex(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		a.methodNotAllowed(w, []string{"GET"})
+	if r.Method != "GET" && r.Method != "HEAD" {
+		a.methodNotAllowed(w, []string{"GET", "HEAD"})
 
 		return
 	}
@@ -41,12 +42,12 @@ func (a *app) userIndex(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) userCreate(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET", "HEAD":
 		a.getUserCreate(w, r)
 	case "POST":
 		a.postUserCreate(w, r)
 	default:
-		a.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "HEAD", "POST"})
 	}
 }
 
@@ -76,10 +77,10 @@ func (a *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 	if form.IsValid() {
 		err = a.userRepository.Create(user.Fill(form))
 		if err != nil {
-			switch err {
-			case models.ErrDuplicateUsername:
+			switch {
+			case errors.Is(err, models.ErrDuplicateUsername):
 				form.Errors.Add("username", "The username has already been taken.")
-			case models.ErrDuplicateEmail:
+			case errors.Is(err, models.ErrDuplicateEmail):
 				form.Errors.Add("email", "The email has already been taken.")
 			default:
 				a.serverError(w, err)
@@ -106,19 +107,19 @@ func (a *app) postUserCreate(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) userEdit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET", "HEAD":
 		a.getUserEdit(w, r)
 	case "POST":
 		a.postUserEdit(w, r)
 	default:
-		a.methodNotAllowed(w, []string{"GET", "POST"})
+		a.methodNotAllowed(w, []string{"GET", "HEAD", "POST"})
 	}
 }
 
 func (a *app) getUserEdit(w http.ResponseWriter, r *http.Request) {
 	user, err := a.userFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -135,7 +136,7 @@ func (a *app) getUserEdit(w http.ResponseWriter, r *http.Request) {
 func (a *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
 	user, err := a.userFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
@@ -152,10 +153,14 @@ func (a *app) postUserEdit(w http.ResponseWriter, r *http.Request) {
 	if form.IsValid() {
 		err = a.userRepository.Update(user, (models.NewUser()).Fill(form))
 		if err != nil {
-			switch err {
-			case models.ErrDuplicateUsername:
+			switch {
+			case errors.Is(err, models.ErrNoRecord):
+				a.notFound(w)
+
+				return
+			case errors.Is(err, models.ErrDuplicateUsername):
 				form.Errors.Add("username", "The username has already been taken.")
-			case models.ErrDuplicateEmail:
+			case errors.Is(err, models.ErrDuplicateEmail):
 				form.Errors.Add("email", "The email has already been taken.")
 			default:
 				a.serverError(w, err)
@@ -188,12 +193,18 @@ func (a *app) userDelete(w http.ResponseWriter, r *http.Request) {
 
 	user, err := a.userFromRequest(r, "id")
 	if err != nil {
-		a.notFound(w)
+		a.lookupError(w, err)
 
 		return
 	}
 
 	err = a.userRepository.Delete(user)
+	if errors.Is(err, models.ErrNoRecord) {
+		a.notFound(w)
+
+		return
+	}
+
 	if err != nil {
 		a.serverError(w, err)
 
@@ -206,7 +217,7 @@ func (a *app) userDelete(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) userFromRequest(r *http.Request, parameter string) (*models.User, error) {
 	if r.URL.Query().Get(parameter) == "" {
-		return nil, fmt.Errorf("%s parameter not found", parameter)
+		return nil, fmt.Errorf("%w: %s", ErrMissingParameter, parameter)
 	}
 
 	id, err := strconv.Atoi(r.URL.Query().Get(parameter))

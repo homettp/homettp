@@ -3,7 +3,7 @@
     <div class="p-5">
         <breadcrumb :links="links" />
         <div class="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-600">
-            <div v-if="!calls"
+            <div v-if="!calls.length"
                  class="bg-white dark:bg-slate-700 px-8 py-6">
                 No calls.
             </div>

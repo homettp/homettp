@@ -24,7 +24,7 @@ func (t Timestamp) RedisArg() any {
 func (t *Timestamp) RedisScan(src any) error {
 	bs, ok := src.([]byte)
 	if !ok {
-		return ErrTimestamp
+		return fmt.Errorf("%w: %T", ErrTimestamp, src)
 	}
 
 	parsed, err := time.Parse(time.RFC3339, string(bs))

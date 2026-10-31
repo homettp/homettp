@@ -3,22 +3,38 @@ package web
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/homettp/homettp/internal/models"
+	"github.com/petaki/inertia-go"
 )
 
-func (a *app) recoverPanic(next http.Handler) http.Handler {
+func (a *app) preventCSRF(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := recover(); err != nil {
-				w.Header().Set("Connection", "close")
-				a.serverError(w, fmt.Errorf("%s", err))
-			}
-		}()
+		switch r.Method {
+		case "GET", "HEAD", "OPTIONS":
+			next.ServeHTTP(w, r)
+
+			return
+		}
+
+		if r.Header.Get(inertia.HeaderInertia) == "" || !a.isSameOrigin(r) {
+			a.clientError(w, http.StatusForbidden)
+
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a *app) storeIntendedURL(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if a.authUser(r) == nil && r.Method == "GET" && isKnownPath(r) {
+			a.sessionManager.Put(r.Context(), sessionKeyIntendedURL, r.URL.RequestURI())
+		}
 
 		next.ServeHTTP(w, r)
 	})
@@ -27,8 +43,7 @@ func (a *app) recoverPanic(next http.Handler) http.Handler {
 func (a *app) redirectIfNotAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if a.authUser(r) == nil {
-			a.sessionManager.Put(r.Context(), sessionKeyIntendedURL, r.URL.Path)
-			http.Redirect(w, r, "/login", http.StatusFound)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 
 			return
 		}
@@ -40,7 +55,7 @@ func (a *app) redirectIfNotAuthenticated(next http.Handler) http.Handler {
 func (a *app) redirectIfAuthenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if a.authUser(r) != nil {
-			http.Redirect(w, r, "/", http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 
 			return
 		}
@@ -66,30 +81,22 @@ func (a *app) remember(next http.Handler) http.Handler {
 				return
 			}
 
-			a.serverError(w, err)
+			a.forgetRemember(w, r, next)
 
 			return
 		}
 
-		token := string(bytes)
-
-		if !strings.Contains(token, "|") {
-			next.ServeHTTP(w, r)
-
-			return
-		}
-
-		segments := strings.SplitN(token, "|", 2)
+		segments := strings.SplitN(string(bytes), "|", 2)
 
 		if len(segments) != 2 || segments[0] == "" || segments[1] == "" {
-			next.ServeHTTP(w, r)
+			a.forgetRemember(w, r, next)
 
 			return
 		}
 
 		id, err := strconv.Atoi(segments[0])
 		if err != nil {
-			a.serverError(w, err)
+			a.forgetRemember(w, r, next)
 
 			return
 		}
@@ -97,7 +104,7 @@ func (a *app) remember(next http.Handler) http.Handler {
 		_, err = a.userRepository.AuthenticateByRememberToken(id, segments[1])
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidCredentials) {
-				next.ServeHTTP(w, r)
+				a.forgetRemember(w, r, next)
 
 				return
 			}
@@ -120,6 +127,17 @@ func (a *app) remember(next http.Handler) http.Handler {
 	})
 }
 
+func (a *app) forgetRemember(w http.ResponseWriter, r *http.Request, next http.Handler) {
+	err := a.rememberCookie.Delete(w)
+	if err != nil {
+		a.serverError(w, err)
+
+		return
+	}
+
+	next.ServeHTTP(w, r)
+}
+
 func (a *app) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		exists := a.sessionManager.Exists(r.Context(), sessionKeyAuthUserID)
@@ -130,13 +148,15 @@ func (a *app) authenticate(next http.Handler) http.Handler {
 		}
 
 		user, err := a.userRepository.Find(a.sessionManager.GetInt(r.Context(), sessionKeyAuthUserID))
-		if errors.Is(err, models.ErrNoRecord) || !user.IsEnabled {
-			a.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
-			next.ServeHTTP(w, r)
+		if err != nil && !errors.Is(err, models.ErrNoRecord) {
+			a.serverError(w, err)
 
 			return
-		} else if err != nil {
-			a.serverError(w, err)
+		}
+
+		if err != nil || !user.IsEnabled {
+			a.sessionManager.Remove(r.Context(), sessionKeyAuthUserID)
+			next.ServeHTTP(w, r)
 
 			return
 		}

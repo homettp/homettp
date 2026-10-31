@@ -51,8 +51,8 @@ Download the latest release for your platform from the [GitHub Releases](https:/
 
 #### Prerequisites
 
-- Go: `Version >= 1.26`
-- Node.js: `Version >= 22.0`
+- Go: `Version >= 1.27`
+- Node.js: `Version >= 24.0`
 - Yarn or NPM
 
 #### Steps
@@ -91,10 +91,18 @@ All configuration is done through environment variables in the `.env` file.
 
 #### Application Key (encryption key)
 
-- For example generate with `openssl rand -hex 16` command
+- Must be exactly 32 characters, generate with `openssl rand -hex 16` command
 
 ```
 APP_KEY=
+```
+
+#### Application Debug Mode
+
+- Serves the assets from the `./static` directory, use it only for local development
+
+```
+APP_DEBUG=false
 ```
 
 #### Application Address
@@ -160,6 +168,18 @@ COMMAND_HISTORY_LIMIT=100
 ```bash
 ./homettp web serve
 ```
+
+### 3. Call a command
+
+Make a `GET` or `POST` request to the command URL shown on the command page. The optional `payload` query parameter is available in the command as `%p`:
+
+```bash
+curl "http://127.0.0.1:4000/call?commandID=1&token=<token>&payload=hello"
+```
+
+The payload is never inserted into the command text. It is passed in the `HOMETTP_PAYLOAD` environment variable, and `%p` expands to a quoted reference to it (`${HOMETTP_PAYLOAD:+"$HOMETTP_PAYLOAD"}` with `/bin/sh`), so it is a single argument, or no argument when the payload is empty. Don't wrap `%p` in quotes yourself, and don't start the command with it.
+
+On Windows `%p` expands to `"%HOMETTP_PAYLOAD%"` (or nothing when the payload is empty), but `cmd.exe` expands variables before parsing the command line, so it is not shell-safe there. Payloads containing `" % ! ^ & | < > ( )` or line breaks, or ending in a backslash, are rejected with `422 Unprocessable Entity`.
 
 ## Reporting Issues
 

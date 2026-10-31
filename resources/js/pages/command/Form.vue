@@ -80,11 +80,14 @@
                         <div class="text-sm mt-3 lg:ml-64">
                             Payload Variable:
                             <code class="text-cyan-500">{{ commandPayload }}</code>
+                            &mdash; expands to the payload as a single, safely quoted argument (or nothing when it is empty), do not wrap it in quotes.
                         </div>
                     </label>
                     <!-- eslint-enable max-len -->
                     <div class="lg:ml-64">
-                        <button class="btn" type="submit">
+                        <button class="btn"
+                                type="submit"
+                                :disabled="form.processing">
                             {{ subtitle }}
                         </button>
                     </div>

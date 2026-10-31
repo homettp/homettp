@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -33,26 +34,25 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 
 	call.CreatedAt = Timestamp(time.Now())
 
-	err = conn.Send("MULTI")
-	if err != nil {
-		return err
-	}
+	commandKey := rcr.RedisKeyPrefix + commandKeyPrefix + strconv.Itoa(call.CommandID)
 
-	err = conn.Send(
-		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
-	)
-	if err != nil {
-		return err
-	}
+	tx := newRedisTransaction(conn)
 
-	err = conn.Send(
-		"LPUSH", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), call.ID,
-	)
-	if err != nil {
-		return err
-	}
+	err = tx.Run([]string{commandKey}, func() error {
+		exists, err := redis.Bool(conn.Do("EXISTS", commandKey))
+		if err != nil {
+			return err
+		}
 
-	_, err = conn.Do("EXEC")
+		if !exists {
+			return ErrNoRecord
+		}
+
+		tx.Queue("HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...)
+		tx.Queue("LPUSH", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), call.ID)
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
@@ -64,23 +64,40 @@ func (rcr *RedisCallRepository) Create(call *Call) error {
 		return err
 	}
 
+	var finishedIDs []int64
+
+	for _, id := range ids {
+		status, err := redis.String(conn.Do("HGET", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10), "status"))
+		if err != nil && !errors.Is(err, redis.ErrNil) {
+			return err
+		}
+
+		if !CallStatus(status).IsRunning() {
+			finishedIDs = append(finishedIDs, id)
+		}
+	}
+
+	if len(finishedIDs) == 0 {
+		return nil
+	}
+
 	err = conn.Send("MULTI")
 	if err != nil {
 		return err
 	}
 
-	for _, id := range ids {
+	for _, id := range finishedIDs {
 		err = conn.Send("DEL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10))
 		if err != nil {
 			return err
 		}
-	}
 
-	err = conn.Send(
-		"LTRIM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), 0, rcr.HistoryLimit-1,
-	)
-	if err != nil {
-		return err
+		err = conn.Send(
+			"LREM", rcr.RedisKeyPrefix+commandKeyPrefix+callKeyPrefix+strconv.Itoa(call.CommandID), 0, id,
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = conn.Do("EXEC")
@@ -96,6 +113,11 @@ func (rcr *RedisCallRepository) Find(id int64) (*Call, error) {
 	conn := rcr.RedisPool.Get()
 	defer conn.Close()
 
+	return rcr.find(conn, id)
+}
+
+// find function.
+func (rcr *RedisCallRepository) find(conn redis.Conn, id int64) (*Call, error) {
 	values, err := redis.Values(
 		conn.Do("HGETALL", rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(id, 10)),
 	)
@@ -129,11 +151,15 @@ func (rcr *RedisCallRepository) FindAllByCommand(command *Command) ([]*Call, err
 		return nil, err
 	}
 
-	var calls []*Call
+	calls := make([]*Call, 0, len(ids))
 
 	for _, id := range ids {
-		call, err := rcr.Find(id)
+		call, err := rcr.find(conn, id)
 		if err != nil {
+			if errors.Is(err, ErrNoRecord) {
+				continue
+			}
+
 			return nil, err
 		}
 
@@ -151,11 +177,15 @@ func (rcr *RedisCallRepository) Update(call, newCall *Call) error {
 	call.Status = newCall.Status
 	call.Output = newCall.Output
 
-	_, err := conn.Do(
-		"HSET", redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
-	)
+	updated, err := redis.Bool(updateHashScript.Do(
+		conn, redis.Args{}.Add(rcr.RedisKeyPrefix+callKeyPrefix+strconv.FormatInt(call.ID, 10)).AddFlat(call)...,
+	))
 	if err != nil {
 		return err
+	}
+
+	if !updated {
+		return ErrNoRecord
 	}
 
 	return nil

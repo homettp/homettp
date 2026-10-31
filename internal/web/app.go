@@ -2,13 +2,13 @@ package web
 
 import (
 	"log"
+	"sync"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/chmike/securecookie"
 	"github.com/homettp/homettp/internal/config"
 	"github.com/homettp/homettp/internal/models"
 	"github.com/petaki/inertia-go"
-	"github.com/petaki/support-go/vite"
 )
 
 const (
@@ -24,9 +24,11 @@ type app struct {
 	errorLog          *log.Logger
 	sessionManager    *scs.SessionManager
 	rememberCookie    *securecookie.Obj
-	viteManager       *vite.Vite
 	inertiaManager    *inertia.Inertia
 	queue             chan int64
+	queueMu           sync.RWMutex
+	queueClosed       bool
+	workers           sync.WaitGroup
 	commandRepository models.CommandRepository
 	callRepository    models.CallRepository
 	userRepository    models.UserRepository

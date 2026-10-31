@@ -7,7 +7,7 @@
         {{ range (css "resources/js/app.ts") }}
             <link rel="stylesheet" href="{{ . }}">
         {{ end }}
-        <link rel="icon" type="image/x-icon" href="favicon.ico">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
     </head>
     <body>
         <script data-page="app" type="application/json">{{ marshal .page }}</script>

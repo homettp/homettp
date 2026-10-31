@@ -11,15 +11,16 @@ import (
 func WebServe(group *cli.Group, command *cli.Command, arguments []string) int {
 	appConfig, err := config.NewConfig(command, arguments)
 	if err != nil {
-		cli.ErrorLog.Fatal(err)
-
-		return command.PrintHelp(group)
+		return command.PrintErrorWithHelp(group, err)
 	}
 
 	redisPool := service.RedisPool(appConfig)
 	defer redisPool.Close()
 
-	web.Serve(appConfig, redisPool)
+	err = web.Serve(appConfig, redisPool)
+	if err != nil {
+		return command.PrintError(err)
+	}
 
 	return cli.Success
 }
